@@ -18,7 +18,7 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 
 ## Phase 1: Strip (branch `phase-1/strip`, Codex tickets, merged one at a time)
 
-- [ ] T-001 Android, Wear OS, Health Connect
+- [x] T-001 Android, Wear OS, Health Connect (merged 4f80b8ee8; ~68 dead `android` platform checks left for the cleanup pass)
 - [ ] T-002 Garmin and Zepp
 - [ ] T-003 English only
 - [ ] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website
