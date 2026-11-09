@@ -5,7 +5,7 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 0 on branch `phase-0/baseline`. Baseline recorded in PLAN.md (all green apart from one
+Phase 0 done (`phase-0/baseline`). Phase 1 in progress on `phase-1/strip`. Baseline recorded in PLAN.md (all green apart from one
 known timeout flake). Stack runs with `docker compose up -d --build` on http://localhost:8080.
 
 ## Phase 0: Fork, run, baseline
@@ -16,8 +16,17 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [x] `docker compose up -d --build` runs, web and api healthy
 - [x] Hand check (Emil, 2026-11-09): profile, fake workout, sync from two browsers all fine
 
+## Phase 1: Strip (branch `phase-1/strip`, Codex tickets, merged one at a time)
+
+- [ ] T-001 Android, Wear OS, Health Connect
+- [ ] T-002 Garmin and Zepp
+- [ ] T-003 English only
+- [ ] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website
+- [ ] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI)
+- [ ] T-006 mcp/
+- [ ] T-007 Hide progress photos, structural balance, data imports, audit logging
+
 ## Next
 
-- Phase 1 (strip): written as `.team/tickets/` for Codex, one ticket per row of the PLAN.md table,
-  each with its own commit and a test run. Claude reviews, verifies and merges.
+- Phase 8 note: per-user API keys for the in-app Coach chat (see docs/decisions.md).
 - Design assets for Phase 2 (`design/` handoff, icons, renders) still need to be added to the repo.
