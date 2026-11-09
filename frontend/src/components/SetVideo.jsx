@@ -106,7 +106,7 @@ function FilmSetSheet({ at, title, close }) {
     {serverLacks && <div className="small dim fv-note">{t('Your server doesn’t keep set videos, so this one stays on this phone.')}</div>}
     {warning && <div className="small dim fv-note">{warning}</div>}
     {note && !serverLacks && <div className="small dim fv-note">{note}</div>}
-    <div className="small dim fv-note fv-private"><Icon name="lock" /><span>{t('Only for you. Your videos never go to the Coach, MCP, share cards, Wrapped or PDFs.')}</span></div>
+    <div className="small dim fv-note fv-private"><Icon name="lock" /><span>{t('Only for you. Your videos never go to the Coach, share cards, Wrapped or PDFs.')}</span></div>
   </div>
 }
 

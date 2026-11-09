@@ -44,7 +44,7 @@ async function start(t, env = {}) {
   }));
   const child = spawn(process.execPath, ['server.js'], {
     cwd: API, stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, PORT: '0', DATA_DIR: dataDir, ORIGIN, RP_ID: 'localhost', MEDIA_MIN_FREE_MB: '1', ...env }
+    env: { ...process.env, PORT: '0', DATA_DIR: dataDir, ORIGIN, RP_ID: 'localhost', MEDIA_MIN_FREE_MB: '1', AUDIT_LOG: '1', ...env }
   });
   const h = { log: '', dataDir, uploads: path.join(dataDir, 'uploads') };
   child.stdout.on('data', d => h.log += d);

@@ -12,10 +12,6 @@ frontend/  React + Vite app (src/views, src/components, src/store, src/lib). Bui
 api/       Backend: server.js on plain node:http, three dependencies (@simplewebauthn/server,
            web-push, undici). coach/ is the optional AI coach; openapi.yaml documents every route.
 web/       Multi-stage Dockerfile (builds the frontend, serves it with nginx) and the nginx template.
-mcp/       Optional read-only MCP server for LLM clients (Claude Desktop, Cursor, ...). Not in the
-           Docker build; it only runs when a client spawns it. See mcp/README.md.
-website/   The static project site at opengym.ch.
-kubernetes/ Example manifests (docs/SELF_HOSTING_KUBERNETES.md).
 docs/      User and operator guides (index: docs/README.md); docs/dev/ has feature design notes.
 scripts/   Build and release helpers (scripts/README.md).
 catalogue/ The exercise catalogue: one JSON file per exercise, translations in i18n/, and the
@@ -33,7 +29,6 @@ docker compose up -d --build      # api + web on :8080
 cd frontend && npm install && npm run dev   # hot reload, proxies /api to :3000
 cd frontend && npm test                     # training logic, locales, components
 cd api && npm test
-cd mcp && npm test
 ```
 
 ## Guidelines
@@ -93,9 +88,6 @@ needs a phone build to be judged, say so and we'll put it on TestFlight or send 
 A first-time contributor's workflows wait for a maintainer to approve them, so "no checks yet"
 just means nobody has pressed the button.
 
-Merge requests still open on the GitLab mirror are reviewed too and land on `main` here. New work
-should come as a GitHub pull request.
-
 ## Good first issues
 
 - More starter plans
@@ -126,10 +118,3 @@ Open an issue with what you did, what you expected, what happened, and your brow
 login or passkey problems, include your `RP_ID` and `ORIGIN` (not the contents of `data/`); most
 login issues are an origin mismatch.
 
-## Contributor License Agreement
-
-Before your first pull request is merged, you sign the [Contributor License Agreement](CLA.md) once,
-by commenting the sentence the CLA check asks for on your pull request. It covers all your past and
-future contributions. You keep the copyright in your work; openGym may use and relicense it, which
-is what keeps the app possible in the App Store and Google Play long term. Every version released
-under the [GNU AGPL v3.0](LICENSE) stays available under it.

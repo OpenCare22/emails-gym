@@ -1,0 +1,35 @@
+# TASKS
+
+Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLAN.md](docs/fork/DESIGN_PLAN.md)
+(Email's Gym design, lands in Phase 2). Decisions: [docs/decisions.md](docs/decisions.md).
+
+## Where we left off
+
+Phase 0 done (`phase-0/baseline`). Phase 1 done on `phase-1/strip` (not merged to main, not pushed): all seven tickets in, Node 22 green from HEAD (api 793 pass / 3 skipped, frontend 7396 pass), Docker stack rebuilt and healthy. Next: Emil tries it on the phone, then merge and start Phase 2. Baseline recorded in PLAN.md (all green apart from one
+known timeout flake). Stack runs with `docker compose up -d --build` on http://localhost:8080.
+
+## Phase 0: Fork, run, baseline
+
+- [x] Fork to github.com/OpenCare22/emails-gym (public), clone to ~/Code/emails-gym, `upstream` remote set
+- [x] `.env` from `.env.example`
+- [x] Baseline of every suite and CI check under Node 22
+- [x] `docker compose up -d --build` runs, web and api healthy
+- [x] Hand check (Emil, 2026-11-09): profile, fake workout, sync from two browsers all fine
+
+## Phase 1: Strip (branch `phase-1/strip`, Codex tickets, merged one at a time)
+
+- [x] T-001 Android, Wear OS, Health Connect (merged 4f80b8ee8; ~68 dead `android` platform checks left for the cleanup pass)
+- [ ] T-002 Garmin and Zepp
+- [x] T-003 English only (build 28.9 MB → 6.9 MB; picker hidden, saved languages load as English)
+- [x] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website (also the API docs page generator and the root js-yaml package)
+- [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
+- [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
+- [x] T-007 Hide progress photos, structural balance, data imports (one switch: `frontend/src/lib/fork-hidden.js`), audit log off by default (`AUDIT_LOG=1` turns it on). Also hides the Health Connect card. Decide after a week or two of use: delete or restore.
+
+## Next
+
+- Phase 2: Integrations' "Works with" note still says "Apple Health or Health Connect" (`frontend/src/views/Integrations.jsx`).
+- Leftover on disk: `~/Code/emails-gym/mcp/node_modules` (untracked, ignored) can be deleted by hand.
+- Phase 2: routine share links still point at upstream's `https://opengym.ch/r` (`frontend/src/lib/routine-link.js` LINK_BASE). Point them at our own server's `/#/r/<payload>`.
+- Phase 8 note: per-user API keys for the in-app Coach chat (see docs/decisions.md).
+- Design assets for Phase 2 (`design/` handoff, icons, renders) still need to be added to the repo.

@@ -18,7 +18,7 @@ This guide takes you from "just cloned it" to "using it from my phone over the i
 - [Troubleshooting](#troubleshooting)
 
 HTTPS on a LAN without a public domain has [its own guide](SELF_HOSTING_HTTPS.md), and so do
-[a Mac at home with Tailscale](SELF_HOSTING_MAC.md) and [Kubernetes](SELF_HOSTING_KUBERNETES.md). Short answers to common questions are in the [FAQ](FAQ.md).
+[a Mac at home with Tailscale](SELF_HOSTING_MAC.md). Short answers to common questions are in the [FAQ](FAQ.md).
 
 ## 1. Run it locally (5 minutes)
 
@@ -268,26 +268,9 @@ first profile, so switching it on now does nothing. Do this instead:
 The [AI Coach](AI_COACH.md#turning-it-on), invite codes and recovery codes all live in that
 dashboard, so this is step one for each of them.
 
-### Default language
+### Language
 
-An instance whose people share a language can start everyone in it:
-
-```bash
-DEFAULT_LANG=pt-BR         # any code from Settings → Units & language → Language: de, es, fr, pt-BR, …
-```
-
-The sign-in and create-profile screens open in that language, and so does every profile that
-has never picked one in **Settings → Units & language → Language**. Anyone's own choice there always wins, and
-profiles that existed before this setting keep the language they have — the app cannot tell an
-old profile that chose English from one that never looked, so it leaves them alone. Without
-`DEFAULT_LANG`, a new visitor starts in their browser's language when openGym has it, else
-English. A code the app has no translation for is ignored. The phone app in local mode has no
-server to ask and is unaffected.
-
-Until someone picks a language, it is worked out on each device and not saved with the profile:
-without `DEFAULT_LANG`, the same profile can show in German on one phone and in English on a
-laptop, and the Coach answers in whichever the app is showing. A scheduled review, which no app
-asks for, is written in `DEFAULT_LANG` when it is set.
+This fork is English only, so `DEFAULT_LANG` has no effect: every profile shows in English.
 
 ### The activity log
 
@@ -296,8 +279,8 @@ signups, and every admin action (disabling an account, creating or revoking an i
 lives in `./data/audit.log` as one JSON object per line, so `tail -f data/audit.log` and `jq`
 work on it directly, and the dashboard reads the same file.
 
-It is on by default and keeps the last 5,000 events or 90 days, whichever comes first
-(`AUDIT_LOG=0` turns it off entirely; `AUDIT_MAX` and `AUDIT_DAYS` change the caps). **IP
+It is off by default in this fork (`AUDIT_LOG=1` turns it on). Once on, it keeps the last 5,000
+events or 90 days, whichever comes first ( `AUDIT_MAX` and `AUDIT_DAYS` change the caps). **IP
 addresses are not recorded** unless you set `AUDIT_IP=net` (network only, e.g. `203.0.113.0/24`)
 or `AUDIT_IP=full`. Neither the browser's user-agent nor the passkey id of a failed sign-in is
 ever stored: the first is a fingerprint, and the second would let you follow an unknown device
@@ -471,9 +454,6 @@ from Settings → Account → "Pair the mobile app", as with a passkey.
 
 ## 5. Fitting it into an existing stack
 
-Running Kubernetes? Example manifests (Deployment, PVCs, Service, Gateway API route) are in
-`kubernetes/`, described in [SELF_HOSTING_KUBERNETES.md](SELF_HOSTING_KUBERNETES.md).
-
 The defaults assume openGym is the only thing here: a service called `api` on port 3000, and nginx
 on port 80 inside its container. If you are merging this into a compose file that already has an
 `api`, or you put the web container behind your own reverse proxy on a different port, four
@@ -492,7 +472,7 @@ SESSION_DAYS=90            # how long a sign-in lasts
 `NGINX_PORT` stays 80 under Docker. The web container runs as an unprivileged user (uid 101),
 which can bind a port below 1024 only because Docker sets `net.ipv4.ip_unprivileged_port_start=0`
 in the container. On another runtime (Kubernetes, rootless Podman) set `NGINX_PORT` to 1024 or
-higher, e.g. 8080, or set that sysctl yourself; the Helm chart and `kubernetes/` use 8080.
+higher, e.g. 8080, or set that sysctl yourself.
 
 `RESOLVER` only matters off Docker. nginx re-resolves `BACKEND` on every `/api` request so a
 recreated API container does not leave it proxying to a dead IP, and `127.0.0.11` is where

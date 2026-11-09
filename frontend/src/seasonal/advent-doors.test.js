@@ -35,14 +35,6 @@ describe('the doors', () => {
     for (const s of DOOR_STRINGS) expect(s).not.toMatch(/—/)
   })
 
-  it('every string behind a door is in every locale pack', async () => {
-    const dir = join(__dirname, '..', 'locales')
-    for (const f of readdirSync(dir).filter(n => n.endsWith('.js'))) {
-      const pack = (await import(pathToFileURL(join(dir, f)).href)).default
-      expect(DOOR_STRINGS.filter(k => !pack[k]), f).toEqual([])
-    }
-  })
-
   it('the stretch routine is made of catalogue holds', () => {
     for (const [id, sets, sec] of STRETCH) {
       expect(EXIDX[id], id).toBeTruthy()

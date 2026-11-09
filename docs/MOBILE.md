@@ -1,7 +1,7 @@
-# The phone app (Android and iOS)
+# The iPhone app
 
 **Just want the app?** See [getting the app](#getting-the-app): the App Store (and the public
-TestFlight beta) on an iPhone, the APK on Android. Then read
+TestFlight beta) on an iPhone. These links are for upstream openGym. Then read
 [how the phone app works](#how-the-phone-app-works) and
 [connecting it to your server](#connecting-the-app-to-your-own-server). Everything from
 [Prerequisites](#prerequisites) on is for building the app yourself.
@@ -12,12 +12,6 @@ TestFlight beta) on an iPhone, the APK on Android. Then read
 |---|---|---|
 | **iPhone and iPad** | The [App Store](https://apps.apple.com/app/id6822275400). To test the next version early: the [public TestFlight beta](https://testflight.apple.com/join/RKATb61k) | the App Store or TestFlight |
 | **Apple Watch** | Comes with the iPhone app | with the iPhone app |
-| **Android, APK** | [GitHub release](https://github.com/DuarteSantos8/openGym/releases/latest) or [opengym.ch](https://opengym.ch). From v1.4.2 in three sizes: Standard (animations at 180 px), Plus (240 px) and HD (360 px, the biggest download) | the app itself, each size to its own kind |
-| **Android, Google Play** | Coming: the account has to run a closed test first | Google Play, sharper animations as downloads |
-
-The APK and the Google Play app are signed with the same key, so a phone can move from one to
-the other, or between Standard, Plus and HD, without losing its data. How the store builds are made and
-released is in [APP_STORES.md](APP_STORES.md).
 
 ## How the phone app works
 
@@ -25,7 +19,7 @@ openGym ships in two flavors from the same codebase:
 
 | | **Self-hosted** (this repo's default) | **Mobile app** (`VITE_MOBILE=1`) |
 |---|---|---|
-| Runs | in any browser, against your own server | natively on iPhone / Android (Capacitor shell) |
+| Runs | in any browser, against your own server | natively on iPhone (Capacitor shell) |
 | Accounts | passkey sign-in, one profile per person | none, the phone *is* the account |
 | Data | synced to your server, readable on desktop | stays on the device (file in the app's private storage) |
 | Reminders | Web Push from your server | native local notifications, no server involved |
@@ -54,12 +48,7 @@ or Settings → Account → **"Connect to my server"** later) to finish. Notes:
 - Works offline too: the phone keeps its copy (and the file mirror) while connected, and
   changes made without a network go to the server as soon as it is reachable again.
 - `https://` is best: it keeps the pairing code and the bearer token (the connection carries one
-  instead of a cookie) off the network in plain text. A plain `http://` server on your home
-  network works too since v1.3.11 (Android; #428): type the address with `http://` in front, for
-  example `http://192.168.1.20:8080`. An address without a scheme is tried as `https://`, and when
-  that gets nowhere on a home address, pairing tells you to add `http://`. The app also reminds
-  you that http is not encrypted, so keep it to your own network. Your browser still needs a
-  password to sign in there and make the code: passkeys only work over https (or `localhost`).
+  instead of a cookie) off the network in plain text.
 - Pairing says your server "refused the app's request (CORS)", or that "a login page or proxy
   rule replied instead of openGym", or fails with "Failed to fetch" on an older version, while
   the browser works? Something in front of openGym is answering the app instead: a reverse proxy
@@ -103,8 +92,7 @@ If your server sits behind [Cloudflare Access](https://developers.cloudflare.com
 The app then sends `CF-Access-Client-Id` and `CF-Access-Client-Secret` with every request to
 the server address they were entered for (scheme, host and port), including the pairing itself,
 and with nothing else: a pairing with any other address goes without them. Disconnecting from
-the server removes them. Both are kept in the phone's secure storage (Android Keystore / iOS
-Keychain), never in synced data or backups.
+the server removes them. Both are kept in the phone's secure storage (iOS Keychain), never in synced data or backups.
 
 ### Connection states
 
@@ -150,12 +138,6 @@ Where the phone keeps things, in case you ever need them by hand:
   folder. Nothing else is deleted, in that folder or anywhere: other files you keep there, and
   the copies versions before 1.3.9 wrote straight into `Documents/`, stay until you remove
   them yourself. Settings → Data & backup → **Import backup** reads any of them back, wherever it is.
-  On Android, Settings → Data & backup → **Backup folder** (under Auto-backup) picks another folder with the
-  system folder picker (a sync app's folder, an SD card) and the copies go there instead,
-  pruned to the same 14. The choice belongs to this phone and does not sync. If the folder
-  stops accepting copies (the permission revoked, the folder deleted), they go to
-  `Documents/openGym` again and Settings says so until you choose the folder again or tap
-  **Use default folder**.
 
 ### Photos and videos of your own exercises
 
@@ -166,8 +148,7 @@ survive), a GIF loses its comment and metadata blocks, and an MP4/MOV keeps its 
 sound while its metadata and any GPS or sensor track are zeroed. The original file name is
 never stored.
 
-- **Where it lives:** `Library/opengym-media/` in the app's own storage (iOS's Library folder,
-  Android's files directory), one file per photo or video named by its SHA-256, plus a small
+- **Where it lives:** `Library/opengym-media/` in the app's own storage (iOS's Library folder), one file per photo or video named by its SHA-256, plus a small
   `index.json`. The state keeps only a reference of a few hundred bytes. A MOV is stored with
   an `.mp4` name so the WebView plays it.
 - **Local mode:** that folder is the only copy. **Export with photos & videos (.zip)** in
@@ -177,11 +158,8 @@ never stored.
   with the phone's token into the same folder, so they show offline too. A file that has not
   reached the server yet is owed like an unsynced change: **Disconnect** says so and keeps it.
   Big files wait for Wi-Fi unless you tap Settings → Data & backup → **Photos & videos**.
-- **Backups:** Android's cloud backup leaves `opengym-media/` out
-  (`res/xml/backup_rules.xml`, `res/xml/data_extraction_rules.xml`): Auto Backup drops an
-  app's whole backup past 25 MB, and a few videos would take the state file down with them. A
-  device-to-device transfer keeps it. iOS includes Library in iCloud and computer backups.
-- **Permissions:** Android already has the camera. iOS asks for the camera
+- **Backups:** iOS includes Library in iCloud and computer backups.
+- **Permissions:** iOS asks for the camera
   (`NSCameraUsageDescription`, now also for photos and videos of exercises and for filming a
   set) and, to record a video with sound from the picker, the microphone
   (`NSMicrophoneUsageDescription`).
@@ -193,11 +171,7 @@ exercise's ⋯ menu) records a short video for that set, or picks one from the p
 uses the same file input, ingest, folder and sync as the photos above; what is particular:
 
 - **Recording:** a file input with `accept="video/*" capture="environment"`. iOS opens its camera
-  in video mode; Android's WebView (Capacitor's `BridgeWebChromeClient`) sends
-  `MediaStore.ACTION_VIDEO_CAPTURE` to the camera app, which needs the `<queries>` entry for that
-  action in the manifest since Android 11 (without it the button opens the file picker). On
-  Android the camera app may also keep its own copy in the gallery; that copy is the camera
-  app's, not openGym's.
+  in video mode.
 - **Length and size:** the server's `videoSec` and `videoMB` from `/api/config`, or 60 s and
   40 MB in local mode. A longer or bigger video is refused before it is kept. There is no
   transcoding or compression: neither platform offers it to the WebView without a native plugin,
@@ -216,60 +190,18 @@ uses the same file input, ingest, folder and sync as the photos above; what is p
   PDF, a CSV or a plan file. The zip backup carries the files, as it does every photo.
 
 Worth checking on a real device after changes here, since no test runs a WebView: a short
-video autoplays muted in the Android WebView; a long video seeks from its `_capacitor_file_`
-URL on both platforms; an iPhone photo arrives as JPEG and an iPhone video (HEVC or H.264 MOV)
+a long video seeks from its `_capacitor_file_` URL; an iPhone photo arrives as JPEG and an iPhone video (HEVC or H.264 MOV)
 plays; the zip export opens the share sheet.
 
-### Health Connect (Android)
+### Apple Health
 
-Settings → **Health Connect** writes finished workouts and weigh-ins to Health Connect, Android's
-on-device store for health data, where other apps (Google Fit, Samsung Health, a smartwatch app…)
-can read them. It is off until the user turns it on, and nothing is asked of Health Connect before
-that.
-
-- **What is written:** each finished workout as an exercise session: its start and end, its name
-  as the title, the exercises and sets as "Copy as text" writes them as the notes, and a type
-  (strength training as soon as one exercise is not cardio; walking, running, stationary bike,
-  elliptical or stair machine for a cardio-only workout on a catalogue machine; "other" otherwise).
-  Each weigh-in as a weight record, in kilograms, at its own time: a day from before (one weigh-in,
-  no time) keeps the id `opengym-bw-<day>`, every other weigh-in is `opengym-bw-<day>-<id>`. Removing
-  one weigh-in removes its record; removing a day removes all of them. A workout without a real start and end is left
-  out rather than given made-up times. `src/lib/health-connect.js` works this out; its tests
-  pin it.
-- **Permissions.** The manifest declares `WRITE_EXERCISE`, `WRITE_WEIGHT` and, since v1.4.3,
-  `READ_HEART_RATE` and `READ_WEIGHT` (see "Reading back" below). Each is asked for only when its
-  switch is turned on. No background and no history permission.
-- **No duplicates.** Every record carries openGym's own id as its `clientRecordId`
-  (`opengym-w-<workout id>`, `opengym-bw-<day>`), so writing it again replaces it. An edited workout
-  or weigh-in is written again; a deleted one is removed from Health Connect.
-- **This phone only.** Whether it is on, and a fingerprint of each record already written, live in
-  `opengym-health.json` in the app's data directory, never in the synced state: it does not travel
-  to a server, into a backup export, or to a second phone. It works the same in local mode and
-  paired with a server, because the writing happens on the phone.
-- **When it writes:** after each save (finishing a workout, a weigh-in, an edit), when the app comes
-  back to the foreground, and once at launch. While it is off, a save costs nothing: the file is
-  read once at launch and kept in memory.
-- **Turning it off** asks whether to keep what openGym wrote in Health Connect, as the user's own
-  data, or to remove exactly those records.
-- **Where it shows:** Android 14 and later have Health Connect built in. On Android 9–13 it is an
-  app of its own, and the card offers its store page until it is installed. Below Android 9 (the
-  app supports Android 7) Health Connect does not exist and the card is not shown.
-- **The library:** `androidx.health.connect:connect-client` 1.1.0 (the version is pinned in
-  `android/variables.gradle`), called from Java (`HealthConnectPlugin.java`) through `runBlocking`
-  on a worker thread, so the Android project stays Java-only. The library asks for minSdk 26;
-  `tools:overrideLibrary` keeps the app at 24 (Android 7.0) and the plugin checks the version
-  before touching it.
-- **Privacy link.** Health Connect's "why does this app ask?" link opens the app through the two
-  activity-aliases in the manifest; `MainActivity` then opens https://opengym.ch/privacy, the same
-  policy the Play listing names (Play requires that).
-
-Worth checking on a real device after changes here: turning it on shows Health Connect's own
-permission screen; a finished workout appears in Health Connect within a few seconds; deleting it
-in openGym removes it there; turning it off with "remove" leaves no openGym record behind.
+Settings → Integrations → **Apple Health** controls writing finished workouts and weigh-ins.
+Permissions and sync state stay on this phone in `opengym-health.json`.
+The Apple Watch uses the same switch.
 
 #### Reading back: heart rate and weigh-ins (v1.4.3, #544, #127)
 
-Two more switches in the same card (Android: Health Connect, iPhone: Apple Health), each off by
+Two more switches in the same Apple Health card, each off by
 default, each independent of writing and of the other:
 
 - **Heart rate from your watch.** For each workout finished in the last 24 hours, the heart-rate
@@ -284,8 +216,7 @@ default, each independent of writing and of the other:
   the same hub (Garmin and Fitbit sync late) and never when `src` is `'watch'`. Re-read at most
   every 10 minutes (2 after coming back to the foreground) until the 24 hours are over.
 - **Weigh-ins from other apps.** `HC.readWeights({ since })` → `{ records: [{ t, kg, id, origin,
-  clientId }] }`: 30 days back the first time (what Health Connect gives without the history
-  permission), afterwards from the newest seen minus two days. `lib/health-read.js` `mergeWeighIns`
+  clientId }] }`: 30 days back the first time, afterwards from the newest seen minus two days. `lib/health-read.js` `mergeWeighIns`
   keeps every sample with its time as a weigh-in of its day (#859, `lib/weigh-ins.js`), under an id
   made from the hub's own record id, so two phones reading the same sample add it once. It skips
   openGym's own records (`clientRecordId` `opengym-*`, origin `ch.duartesantos.opengym*`), a sample
@@ -294,7 +225,7 @@ default, each independent of writing and of the other:
   for an lb profile. Imported weigh-ins carry `src` and are never written back (`healthRecords`
   leaves them out); typed ones stand beside them, and the daily-value setting picks the day's number.
 - **Foreground only.** Reads run at launch, on resume and after saves, never in the background.
-  No `READ_HEALTH_DATA_IN_BACKGROUND`, no `READ_HEALTH_DATA_HISTORY`; old workouts are not filled in.
+  Old workouts are not filled in.
 - **Device-local state** in `opengym-health.json`: `readHr`, `readWeight`, `wCursor`, `seen` (what
   was imported, per hub sample), `hrTried` (when each recent workout was last read), `readError`.
 - **iPhone:** `AppleHealthPlugin.swift` `readHeartRate` / `readWeights` through `HKSampleQuery`;
@@ -303,9 +234,6 @@ default, each independent of writing and of the other:
   refusal reads nothing. The usage string (`NSHealthShareUsageDescription`) says what is read.
 - **Synced fields:** `set.hr`, `set.restHr`, `w.hr`, `bodyweight[].src` are plain optional fields;
   the server keeps them through every writer (`api/test/sync-hr.test.js`).
-- **Emulator check:** Google's Health Connect Toolbox can insert heart-rate and weight records on an
-  API 34+ emulator; see the v1.4.3 notes for the run.
-
 #### Heart rate from AirPods on the iPhone (iOS 26, #818)
 
 AirPods Pro 3 and Powerbeats Pro 2 measure the heart rate, but iOS turns their sensor on only while
@@ -359,8 +287,7 @@ and **Delete**.
 - **Licence first.** The animations are licensed from Gym visual. The repository, the web build
   and every self-hosted server only ever have the 180 px files. Anything larger reaches people
   only inside the official store apps: built into the package, or as an **Apple-hosted asset pack**
-  (Background Assets, iOS 26) or a **Play asset pack** (Play Asset Delivery) that the store
-  delivers. Never from a server of
+  (Background Assets, iOS 26) that the store delivers. Never from a server of
   ours, never at a URL anyone can fetch. No tool here opens a media file; packs are planned from
   file names alone.
 - **The packs.** One per quality and figure: `anim-<px>-male`, `anim-<px>-female` for 240, 360,
@@ -391,15 +318,6 @@ and **Delete**.
   Info.plist keys `BAAppGroupID`, `BAHasManagedAssetPacks`, `BAUsesAppleHosting`, and the App
   Group `group.ch.opengym.app` on the app and the extension. `scripts/ios/finish-ipa.sh` signs the
   extension with its own profile (`EXT_PROFILE`).
-- **Android:** in the `play` flavour the same interface goes through Play Asset Delivery (status,
-  download with progress, Wi-Fi only with Play's own prompt for mobile data, remove) for the packs
-  its `assets/anim-packs.json` lists, and serves their files to the page at
-  `https://localhost/_opengym_pack/<packId>/<drawing>.webp`, never a file path. The pack modules
-  are generated on the release machine by `scripts/android/make-asset-packs.mjs` and never
-  committed. The `sideload` flavour (the APKs) answers "unavailable" and only ever has its
-  built-in animations: 180 px in the Standard APK, 240 px in Plus, 360 px in HD. Each APK's updater
-  stays with its own kind (`pickApk` in `lib/update.js`, told by `VITE_APK_VARIANT`).
-
 App Store Connect, once: the App Group `group.ch.opengym.app`; the bundle id
 `ch.opengym.app.AnimationPacksDownloader` (an app extension); the App Groups capability on
 `ch.opengym.app` and on the extension, both with that group; an App Store provisioning profile
@@ -427,19 +345,19 @@ choice), the notification text, Save, "Open in Apple Maps / Google Maps" and Rem
   MKLocalSearch for the row picked) and `reverse` (CLGeocoder, the address of a spot). It keeps
   nothing and needs no API key. A build without these calls (1.4.4 build 45 had a full-screen
   picker instead) answers `UNIMPLEMENTED`, and `lib/gym-places.js` uses OpenStreetMap from then on.
-- **Android search (and the iPhone fallback): OpenStreetMap data.** The type-ahead asks Photon
+- **iPhone fallback: OpenStreetMap data.** The type-ahead asks Photon
   (`photon.komoot.io`, built for search-as-you-type; fair use): at least two letters, at most one
   request every 500 ms, answers cached for the session, repeats in flight not sent again, a
   User-Agent naming the app, biased to where you are, gyms ranked first, `lang` only where Photon
   has it (en, de, fr). If Photon fails, Nominatim answers within its policy (one request a second,
   cached). The address of a moved pin is Photon's reverse lookup, once per spot.
-- **The map, both phones:** Leaflet (`components/GymMap.jsx`) with standard OSM tiles and
+- **The map:** Leaflet (`components/GymMap.jsx`) with standard OSM tiles and
   attribution (tile usage policy), darkened by a CSS filter in dark mode (no second provider:
   CARTO's dark basemaps need an API key now). "Open in Google Maps" / "Open in Apple Maps" open
   plain links, no key, no SDK.
 
 Each gym has a radius (100 m by default, 50 to 500), an optional text and an `off` flag (kept on
-the list, not watched: both native sides skip it when they arm the regions). Up to 20 gyms (iOS watches at
+the list, not watched: the native side skips it when they arm the regions). Up to 20 gyms (iOS watches at
 most 20 regions per app). Walking into one posts "Gym spotted. Ready for your workout? 💪"; a tap
 opens the Start screen (or the running workout).
 
@@ -453,78 +371,25 @@ opens the Start screen (or the running workout).
   does that, after a question.
 
 - **No nagging** (`src/lib/gym-reminder.js` `skipReason`, the same rule in
-  `GymReminderRules.java` and `ios/App/GymReminderCore`): at most once a day, not after a workout
+  `ios/App/GymReminderCore`): at most once a day, not after a workout
   logged today, not on a day note that excuses today, not while a session started in the last
   12 hours runs, and only inside the optional time window (an overnight one wraps). The phone
   decides when the gym is entered, from what the page last told it (`GymReminder.status`, sent
   after every save of the profile and on every return to the app).
 - **Trained on another device?** A workout logged on the web or another phone that this phone has
   not synced yet: before posting, a paired phone asks its server (`GET /api/nudge-check`, the same
-  few bytes the missed-day check uses) whether today is done, bounded to **3 seconds** (Android:
-  a future with a timeout around `HttpURLConnection`, so a hanging DNS lookup cannot stretch it;
-  iOS: an ephemeral `URLSession` with 3 s timeouts plus a hard stop). "Done" keeps it quiet and is
+  few bytes the missed-day check uses) whether today is done, bounded to **3 seconds** (an ephemeral `URLSession` with 3 s timeouts plus a hard stop). "Done" keeps it quiet and is
   remembered for the rest of the day. No server (local only), offline, an error or no answer in
   time: the phone's own status decides, as before. The page hands over the server and its headers
-  with `GymReminder.server` (`lib/gym-reminder.js` `pushGymServer`); Android keeps them encrypted
-  with the app's Keystore key (`NudgeCheck.seal`), iOS in the Keychain (this device only).
-- **Locations stay on the phone.** The gyms live only in the native side's own storage: Android
-  `shared_prefs/opengym_gym_reminder.xml`, left out of cloud backup and device transfer
-  (`res/xml/*_rules.xml`); iOS `Application Support/gym-reminder.json`, excluded from backups. The
+  with `GymReminder.server` (`lib/gym-reminder.js` `pushGymServer`); iOS keeps them in the Keychain (this device only).
+- **Locations stay on the phone.** The gyms live only in the native side's own storage: iOS `Application Support/gym-reminder.json`, excluded from backups. The
   WebView's storage keeps only an on/off flag (it is part of phone backups), the synced profile
   and backup files never see any of it.
-- **Android:** the platform's proximity alerts (`LocationManager.addProximityAlert`), no Google
-  Play Services, so the APK and F-Droid builds have it too. Location while in use is asked when
-  you add a gym from where you stand; "Allow all the time" (`ACCESS_BACKGROUND_LOCATION`) only
-  after the in-app explainer, and from Android 11 on that is the system's settings page.
-  `GymReminderReceiver` gets the alert, `GymReminderBootReceiver` registers the alerts again after
-  a restart or an app update. An alert added while you are already inside reports an entry at once;
-  entries in the first 90 s after arming are ignored. How soon an entry is noticed is the system's
-  call: Android's geofencing service asks for a fix only every 30 min for a background app
-  (`location_background_throttle_proximity_alert_interval_ms`) and otherwise piggybacks on fixes
-  other apps cause. On a phone with Google Play Services those come often; on a phone without
-  (and indoors, where GPS may not get a fix at all) the nudge could come half an hour late.
-- **Approach check (Android):** every gym also gets a wide proximity alert, the approach zone
-  (800 m, or 5× the radius for big ones; `GymReminderRules.approachOf`). Entering it starts
-  `GymScanService`, a location foreground service that asks for a fix every 15 s (fused, high
-  accuracy) and stops at the first of: inside a gym (then the usual no-nag rule and the server
-  check decide), beyond every approach zone + 250 m, today settled meanwhile, or **15 minutes**.
-  At most **3 checks a day**, none once today is settled (fired, trained, excused, outside the
-  window), so a normal day costs one check of a few minutes and the worst case is 45 min of GPS.
-  Its notification is a silent one on its own channel (`gym-reminder-check`, IMPORTANCE_MIN) and
-  goes away with the check (Android holds a new foreground-service notification back for up to
-  10 s, so a check that ends quickly may never show one). Catch: Android 12+ lets a background app start a foreground service
-  only with an exemption, and a proximity alert is not one (checked on the emulator:
-  `ForegroundServiceStartNotAllowedException`). It works with openGym's battery use on
-  **Unrestricted** (started directly) or with "Alarms & reminders" allowed (an exact alarm half a
-  second later starts it); the gym page shows this as "Quick arrival check" and leads to the app's
-  settings. Without either, the gym's own alert still fires on the system's schedule. Trade-offs
-  considered: the Play Services Geofencing API would give ~2 min latency on the `play` flavour
-  without any of this (and its transitions do exempt a service start), but adds a Google
-  dependency and a second code path; a periodic location poll would cost battery all day for one
-  arrival. Google Play: the `play` flavour now also declares a `location` foreground service type,
-  which needs the foreground-service declaration in the Play Console next to the background
-  location one (same feature, same video).
 - **iOS:** region monitoring (`CLLocationManager`, `GymReminderPlugin.swift`). Needs **Always**
   location and Precise Location; no background location mode is declared (region monitoring does
   not need one). iOS relaunches the app in the background on arrival; `AppDelegate` makes
   `GymReminderCenter` the location delegate at launch so the event lands. On an iPhone with an
   Apple Watch the notification shows on the watch as usual.
-
-Testing on the Android emulator: `scripts/android/gym-reminder-emulator.sh <debug apk>` saves a
-gym, moves the phone far away and then inside the radius, and checks the notification, the tap
-(lands on `#/workout`) and the no-nag rules. `adb emu geo fix` alone is not enough there: it feeds
-the GPS provider, while proximity alerts are fed by the fused provider, so the script replaces that
-with a shell test provider (`cmd location providers ...`). Android polls proximity alerts at most
-every 30 min on its own (`location_background_throttle_proximity_alert_interval_ms`), faster
-whenever other apps get fixes; the script lowers it to 15 s. On a real phone that means the nudge
-usually comes within minutes, at worst about half an hour after you walk in.
-
-`scripts/android/gym-reminder-approach-emulator.sh <debug apk>` (EXEMPT=battery|alarm|none) proves
-the approach check with the throttle left at Android's default: the app is closed, the phone
-waits in the approach zone, the check starts (its location request shows in `dumpsys location`),
-then the phone walks in at 1.4 m/s and the time from crossing the radius to the notification is
-measured; then the server check against a fake paired server on the host (trained elsewhere:
-quiet; a black-holed server: posts after the 3 s bound; no server: posts).
 
 ### Routine links: "Share with a friend" (v1.4.4)
 
@@ -545,7 +410,6 @@ created like a plan file's. A newer link format than the app reads asks for an u
 | Where | Link | |
 | --- | --- | --- |
 | Website | `https://opengym.ch/r#P` | `website/r/index.html` (served at /r/): the routine by name and sets, Open in openGym, Get the app, Open in the web app (your server or the demo) |
-| Android | same link | VIEW filter on `MainActivity` (https, opengym.ch, path `/r` and `/r/`, `autoVerify`), so it opens the app directly once opengym.ch serves `/.well-known/assetlinks.json` with the app's signing certificates (Play and sideload). Until then Android may show the page or ask |
 | App | `opengym://r#P` | the website's Open in openGym; the `opengym` scheme is already registered (CFBundleURLTypes, the VIEW filter for `opengym:`). Read through `@capacitor/app`'s `appUrlOpen` and `getLaunchUrl` (`useRoutineLinks`, waits until the app is set up) |
 | Web app | `<server>/#/r/P` | read before the router sends the unknown route to /home, then the address goes back to `#/plan` |
 
@@ -569,10 +433,7 @@ that opens the app before it is set up (cold start, sign-in) waits until it is (
 `opengym://nfc?...`, `opengym://checkin`, `opengym://start` and `opengym://exercise/<id>` are read
 too. Machine stickers come from an exercise's details → **Write NFC sticker for this exercise**.
 
-- **Why an https link:** that is what a phone reads with the app closed. Android routes it to the
-  app by the `NDEF_DISCOVERED` filter on `MainActivity` (scheme https, host opengym.ch, path
-  `/nfc`), no App Links verification needed; `NfcTagsPlugin.java` passes it on as its `open`
-  event (kept until the page listens). iOS background tag reading (iPhone XS and newer) only routes
+- **Why an https link:** that is what a phone reads with the app closed. iOS background tag reading (iPhone XS and newer) only routes
   web links and universal links, never custom schemes. The app has **no associated domains yet**,
   so on an iPhone the tap shows a banner that opens `opengym.ch/nfc` in Safari, and that page
   (`website/nfc/index.html`, served at /nfc) hands the query to the app as `opengym://nfc?...` (CFBundleURLTypes in
@@ -580,10 +441,6 @@ too. Machine stickers come from an exercise's details → **Write NFC sticker fo
   the same page. To make it one tap on iPhone later: enable Associated Domains on the app id, add
   `applinks:opengym.ch` to `App.entitlements`, and serve `/.well-known/apple-app-site-association`
   for `/nfc*` on opengym.ch.
-- **Writing, Android:** `NfcAdapter.enableReaderMode` while the sheet waits (so the system's tag
-  dispatch stays out of it), `Ndef.writeNdefMessage`, or `NdefFormatable.format` for an
-  unformatted sticker. `android.permission.NFC` (normal, no prompt) and
-  `uses-feature android.hardware.nfc required=false`, so phones without NFC still install it.
 - **Writing, iOS:** `NfcTagsPlugin.swift`, an `NFCNDEFReaderSession` with Core NFC's own sheet
   (`queryNDEFStatus`, `writeNDEF`). Needs the **NFC Tag Reading** capability on the app id
   (`com.apple.developer.nfc.readersession.formats` = `TAG`; App Store Connect refuses `NDEF`
@@ -597,10 +454,10 @@ too. Machine stickers come from an exercise's details → **Write NFC sticker fo
   link, nothing that copies or imitates a gym's access card. The membership code stays the QR or
   barcode the check-in screen draws.
 
-### Siri, Shortcuts and Google Assistant (v1.4.4)
+### Siri and Shortcuts (v1.4.4)
 
 Nothing to switch on: the phrases and shortcuts are there once the app is installed. Settings →
-Look & Home → **Siri & Shortcuts** (Android: **Assistant & shortcuts**) lists them
+Look & Home → **Siri & Shortcuts** lists them
 (`components/VoiceShortcuts.jsx`). The app side is `src/lib/voice.js`.
 
 **iPhone, iOS 16 and up** (`ios/App/App/VoiceIntents.swift`, App Intents; the deployment target
@@ -633,22 +490,9 @@ localized resources of the App target (variant groups in `project.pbxproj`, `kno
 same phrases appear in Settings from `src/locales`; `src/lib/voice-strings.test.js` keeps the
 Swift source, the generated files and the page's packs in step.
 
-**Android** (`res/xml/shortcuts.xml`, labels in `values*/voice_strings.xml` from the same script).
-Touch and hold the icon: **Start workout** (`opengym://start?today=1`), **Log weight**
-(`opengym://weigh-in`) and **Stats** (`opengym://stats`), plain VIEW intents the app already
-follows. The file is declared with `android.app.shortcuts` on every launcher alias in
-`AndroidManifest.xml` (the launcher reads the enabled one); **a new app icon alias needs that
-meta-data too** (the test checks). The same file holds Google Assistant App Actions:
-`actions.intent.START_EXERCISE` opens today's plan, and the custom
-`custom.actions.intent.LOG_WEIGHT` (English query patterns in `values/voice_actions.xml`) opens
-`opengym://weigh-in?w=<number>`: the weigh-in sheet with the number in, saved by a tap. Assistant
-never logs anything by itself. App Actions only reach users after the app is published on Play
-with them; until then the long-press shortcuts are what Android users get.
-
 ## Prerequisites
 
 - Node 22 (the Capacitor 8 CLI needs it)
-- **Android:** Android Studio (bundles the SDK, API 36). Java 21 for Gradle.
 - **iOS:** a Mac with Xcode 26 and CocoaPods (`brew install cocoapods`). A free Apple ID
   is enough to run the app on your own iPhone (see below); paid membership is only needed
   for App Store and TestFlight distribution ([APP_STORES.md](APP_STORES.md)).
@@ -658,14 +502,13 @@ with them; until then the long-press shortcuts are what Android users get.
 ```sh
 cd frontend
 npm install
-npm run build:mobile        # VITE_MOBILE build + `cap sync` into android/ and ios/
+npm run build:mobile        # VITE_MOBILE build + `cap sync` into ios/
 
-npx cap open android        # opens Android Studio → run on emulator or device
 npx cap open ios            # opens Xcode (Mac only) → set your signing team, then run
 ```
 
 `npm run build:mobile` builds the app, puts the 180 px exercise media from `catalogue/media` next
-to it (`scripts/catalogue/stage-media.mjs`) and copies the result into both native projects. Re-run
+to it (`scripts/catalogue/stage-media.mjs`) and copies the result into the iOS project. Re-run
 it after every web-code change before building natively.
 
 > **Heads-up:** after `build:mobile`, `frontend/dist` contains the *mobile* bundle.
@@ -691,60 +534,16 @@ The alternate icons people can pick in Settings → Look & Home → App icon are
 generator. `node scripts/app-icons.mjs` draws them from the list in
 `src/lib/app-icon-variants.js` and the glyph in `resources/icon.svg`, with no dependencies: the
 SVG per icon in `resources/icons/`, an `AppIcon-<Name>` set (1024 px, opaque) per icon in the iOS
-asset catalog, the Android launcher, round and adaptive layers per density, and the previews in
+asset catalog, and the previews in
 `public/app-icons/`. An icon with `art` (Halloween) is a hand-made SVG in `resources/icons/`
 instead, which the script renders; it may use only rect, circle, line, polyline, polygon and one
 two-stop radialGradient. `--check` says whether the committed files still match. A new icon also
-needs its activity-alias in `AndroidManifest.xml`, its name in `AppIcons.java` and
-`AppIconPlugin.swift`, and its set in `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`;
+needs its name in `AppIconPlugin.swift`, and its set in `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`;
 `scripts/app-icons.test.mjs` fails until all of them agree.
 
 ## Distributing your own build
 
-The signed APK stays the way to get openGym on Android without a store, and it updates itself.
-The [App Store app](https://apps.apple.com/app/id6822275400) and the
-Google Play build come from the same code; how they are built and uploaded is in
-[APP_STORES.md](APP_STORES.md).
-
-### Android: sideload the APK
-
-Every release has three signed APKs on [the GitHub release](https://github.com/DuarteSantos8/openGym/releases),
-each with its `.sha256` beside it, and [opengym.ch](https://opengym.ch) links to all three:
-
-- **`openGym-X.Y.Z.apk` (Standard):** the exercise animations built in at 180 px, about 315 MB.
-- **`openGym-Plus-X.Y.Z.apk` (Plus):** the same app with 240 px animations, about 424 MB.
-- **`openGym-HD-X.Y.Z.apk` (HD):** the same app with 360 px animations, about 760 MB.
-
-Same app id, same key: install one over another and the data stays. The in-app updater keeps
-each on its own kind. Android asks you to allow installs from the browser the first time; that's
-standard for any app from outside Google Play. Check the `.sha256` if you got the file from
-anywhere else.
-
-The release APKs are built and signed on the release machine (`scripts/android/build-release.sh`,
-[APP_STORES.md](APP_STORES.md)), not in CI, because the animations inside them are larger than
-the 180 px the licence allows in a repository or a CI run. GitLab CI on the mirror can still build
-a test APK with the repo's 180 px media (`build:apk`, a manual job on `main` and merge requests,
-never on a tag); its releases link to GitHub's.
-
-The release APK carries native code for ARM only (`arm64-v8a`, `armeabi-v7a`), which is every
-phone; the x86 builds of the barcode scanner's library would add about 12 MB for emulators
-alone. A debug build (`./gradlew assembleDebug`) keeps all four, so it still runs on an x86_64
-emulator.
-
-To build and sign your own:
-
-```sh
-cd frontend && npm run build:mobile
-cd android && ./gradlew assembleSideloadRelease    # → app/build/outputs/apk/sideload/release/app-sideload-release-unsigned.apk
-
-# one-time: create a keystore. KEEP IT: updates must be signed with the same key,
-# or Android refuses to install the new version over the old one.
-keytool -genkeypair -keystore my.keystore -alias opengym -keyalg RSA -validity 10950
-
-# align + sign (zipalign/apksigner ship with the Android SDK build-tools)
-zipalign -f -p 4 app-sideload-release-unsigned.apk aligned.apk
-apksigner sign --ks my.keystore --ks-key-alias opengym --out openGym.apk aligned.apk
-```
+See [APP_STORES.md](APP_STORES.md) for upstream store release guidance.
 
 ### iPhone: build it yourself
 
@@ -762,20 +561,15 @@ web assets; `scripts/ios/finish-ipa.sh` adds them and signs it on the release ma
 
 ### Release notes for maintainers
 
-- Bump `versionName`/`versionCode` in `android/app/build.gradle` per release, and
-  `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in the iOS project; keep them in step with
-  `frontend/package.json`. `versionCode` must strictly increase or updates won't install over an
-  existing APK. `scripts/android/build-release.sh` refuses to build when `package.json` and
-  `build.gradle` disagree. The full release list is in [APP_STORES.md](APP_STORES.md).
+- Keep `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` in the iOS project in step with
+  `frontend/package.json`.
 - Don't push a version tag you don't mean to release: the published release is what builds the
   images (`docker-publish.yml`).
 - **License:** openGym is AGPL-3.0, which by itself sits badly with app-store terms of
   service. `NOTICE.md` carries an app-store exception (an additional permission under
   AGPL §7) granted by the copyright holder, and the [CLA](../CLA.md) covers contributions.
 - The app requests notification permission when the workout-day reminder is switched on,
-  and again at the first rest if it is still unanswered. On Android it declares
-  `SCHEDULE_EXACT_ALARM` so the reminder fires to the minute where the user allows exact
-  alarms (Android 14 no longer grants it at install). The opt-in missed-workout nudge is
+  and again at the first rest if it is still unanswered. The opt-in missed-workout nudge is
   scheduled the same way, beside the reminder: one notification on the evening (20:00–21:30) of
   each upcoming planned day, at most 3 past the last workout, rescheduled whenever a workout is
   logged. A workout logged on another device (the web, a second phone) reaches these only when
@@ -784,13 +578,8 @@ web assets; `scripts/ios/finish-ipa.sh` adds them and signs it on the release ma
   `GET /api/nudge-check?date=…` (a few bytes: was the day trained or excused, would the server
   still nudge it) and takes back that day's reminder and nudge when the answer says so. Offline,
   an error or no answer leaves everything as it was, and the app resyncs in full whenever it is
-  opened. On Android a `JobScheduler` job runs in the half hour before the notification, with a
-  network if there is one. On iOS it is a `BGAppRefreshTask` asked for an hour before, and
+  opened. On iOS it is a `BGAppRefreshTask` asked for an hour before, and
   **iOS decides when it actually runs**: it learns from how often the app is opened, holds back
   in Low Power Mode, and never runs it after the app was swiped away from the app switcher or
   with Background App Refresh off, so there the check is a good chance, not a promise. The
-  pairing token it needs is kept in the Keychain (iOS) or encrypted with a Keystore key (Android).
-  The rest countdown does not depend on
-  it: a foreground service (`specialUse`) keeps the countdown in the notification and holds a
-  wake lock until the end, so the end of a rest sounds on time with the screen locked; the
-  rest-over alarm is only its fallback.
+  pairing token it needs is kept in the Keychain.

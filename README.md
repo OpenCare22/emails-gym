@@ -15,7 +15,7 @@
 <a href="https://github.com/DuarteSantos8/openGym/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/DuarteSantos8/openGym/test.yml?branch=main&label=tests&style=flat-square&labelColor=0c0e12&color=a3e635" alt="Tests"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-a3e635?style=flat-square&labelColor=0c0e12&color=a3e635" alt="AGPL-3.0"></a>
 
-<a href="https://apps.apple.com/app/id6822275400"><img src="website/app-store-badge.svg" alt="Download on the App Store" height="40"></a>
+<a href="https://apps.apple.com/app/id6822275400">Download upstream openGym on the App Store</a>
 <a href="https://github.com/DuarteSantos8/openGym/releases/latest"><img src="assets/readme/badge-android.svg" alt="Download the Android APK" height="40"></a>
 <a href="docs/SELF_HOSTING.md"><img src="assets/readme/badge-selfhost.svg" alt="Self-host with Docker" height="40"></a>
 
@@ -134,8 +134,6 @@ if you want to try it before installing anything.
   what you logged, and answers questions about your training. You approve every change. It runs
   on your server, or on the phone alone, with your own provider key (Anthropic, OpenAI, Gemini or
   any OpenAI-compatible endpoint, Ollama included).
-- An [MCP server](mcp/README.md) so an assistant like Claude Desktop can answer questions about your
-  training history, and log a workout you describe to it. Local; not part of the Docker build.
 - [Integrations](docs/INTEGRATIONS.md) in one place: Apple Health, Health Connect (Garmin, Fitbit,
   Withings and friends come in through them), imports, and signed webhooks to Home Assistant, n8n or
   ntfy when you finish a workout, set a record or weigh in.
@@ -160,12 +158,11 @@ part of the image, so there's nothing else to download.
 To reach it from your phone with passkeys you need HTTPS on a domain; that's a two-line change in
 `.env`. The [self-hosting guide](docs/SELF_HOSTING.md) walks through Cloudflare Tunnel, Caddy,
 Traefik and nginx, and there are separate guides for
-[HTTPS on a LAN](docs/SELF_HOSTING_HTTPS.md), [a Mac with Tailscale](docs/SELF_HOSTING_MAC.md) and [Kubernetes](docs/SELF_HOSTING_KUBERNETES.md).
+[HTTPS on a LAN](docs/SELF_HOSTING_HTTPS.md) and [a Mac with Tailscale](docs/SELF_HOSTING_MAC.md).
 
 > [!NOTE]
 > Images are published from the same tag to `ghcr.io/duartesantos8/opengym-{api,web}`
-> (what `docker-compose.yml` pulls) and `registry.gitlab.com/duartesantos8/opengym/{api,web}`. Swap
-> the `image:` lines if you prefer GitLab's registry, or run `docker compose up -d --build` to build
+> (what `docker-compose.yml` pulls). Or run `docker compose up -d --build` to build
 > locally. Either way you don't need Node on the host.
 
 <details>
@@ -327,11 +324,8 @@ plan is in [ROADMAP.md](ROADMAP.md), and the issues sit in the
 
 ### Where the code lives
 
-GitHub is the home of the project. [gitlab.com/DuarteSantos8/opengym](https://gitlab.com/DuarteSantos8/opengym)
-is a mirror, updated by a GitHub Actions workflow on every push to `main` and every release tag. It
-exists because its CI builds the multi-arch images and the SBOMs for its registry (the APKs are
-built and signed on the release machine and attached to the GitHub release). Nothing is merged there by hand. In the changelog, `!NN` refers to a GitLab merge request
-from the weeks in August and September 2026 when the project lived there.
+This is a personal fork, at [github.com/OpenCare22/emails-gym](https://github.com/OpenCare22/emails-gym),
+of [openGym](https://github.com/DuarteSantos8/openGym) by Duarte Santos.
 
 ## How openGym is built
 
@@ -346,10 +340,10 @@ What that does and doesn't mean:
   are the maintainer's call. Changes are tested on a staging instance and on real phones before
   they are tagged.
 - **Tests hold the logic in place.** The training logic is covered by unit tests, and pull requests
-  run the frontend, API and MCP suites in CI. That is the guard against plausible-looking code
+  run the frontend and API suites in CI. That is the guard against plausible-looking code
   that is wrong, whoever or whatever wrote it.
 - **The app itself doesn't need an LLM.** Nothing in a default install calls an AI service. The AI
-  coach and the MCP server are opt-in, and the coach only talks to the provider you configure, with
+  coach is opt-in, and only talks to the provider you configure, with
   your own key.
 
 Community pull requests are written by their authors, with whatever tools they like, and reviewed
@@ -383,9 +377,5 @@ version's source under the same license.
 > 180 px in this repository and on self-hosted servers, larger only inside the app packages. A
 > non-commercial fork may keep them unmodified with the notice; anything else needs your own licence
 > from gymvisual.com. The exercise text in `catalogue/` is openGym's and open to contributions.
-
-**Contributing:** pull requests are signed off once with the [Contributor License Agreement](CLA.md):
-you keep the copyright in your work, openGym may use and relicense it (so the app can stay in the
-App Store and Google Play long term), and every version released under the AGPL stays AGPL.
 
 Full third-party notices, including the body-diagram geometry, are in [NOTICE.md](NOTICE.md).

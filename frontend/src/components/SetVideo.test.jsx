@@ -77,7 +77,7 @@ describe('filming a set', () => {
     expect(cam.getAttribute('accept')).toBe('video/*')
     expect(host.querySelector('input[type="file"]:not([capture])').getAttribute('accept')).toBe('video/*')
     // Said once, here: they stay private.
-    expect(host.textContent).toContain('Only for you. Your videos never go to the Coach, MCP, share cards, Wrapped or PDFs.')
+    expect(host.textContent).toContain('Only for you. Your videos never go to the Coach, share cards, Wrapped or PDFs.')
     await choose(host)
     const set = S().active.entries[0].sets[1]
     expect(set.media.map(m => m.hash)).toEqual([hex(1)])

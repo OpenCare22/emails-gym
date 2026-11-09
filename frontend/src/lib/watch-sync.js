@@ -1,12 +1,5 @@
-// The watch link, the page's side. Two transports, one protocol:
-//   iPhone + Apple Watch   native ios/App/App/WatchBridgePlugin.swift (WatchConnectivity), the
-//                          watch app ios/App/Watch
-//   Android + Wear OS      native android/app/.../WatchBridgePlugin.java (the Wearable Data
-//                          Layer), the watch app android/wear (docs/WEAR_OS.md)
-//   any + Zepp OS          lib/watch-relay.js: the same calls over the user's own server (the
-//                          watch's Side Service lives in the Zepp app), watch-zepp/ (docs/ZEPP_OS.md)
-// Both plugins are called WatchBridge and answer the same calls, and both watches read the same
-// snapshot and send the same events, so everything below is the same for either.
+// The native watch link and shared snapshot protocol.
+// iPhone + Apple Watch uses ios/App/App/WatchBridgePlugin.swift (WatchConnectivity).
 //
 // Phone → watch: while a workout runs, a snapshot of it (each exercise by name, its sets with
 // weight, reps and done, the rest, where you are) goes to the watch whenever it changes. The watch
@@ -35,11 +28,9 @@ import { sessionHistory } from './backfill.js'
 import { buildCombinedEntries, deriveSessionName } from './session-merge.js'
 import { todayISO, exerciseNameText } from './format.js'
 import { sanitizeHr } from './heart-rate.js'
-import { readWatchPrefs, settingsForWatch, writeWatchStatus, readWatchStatus, onWatchPrefs, writeGarminLink } from './watch-settings.js'
-import { garminSnapshot } from './garmin-snapshot.js'
+import { readWatchPrefs, settingsForWatch, writeWatchStatus, readWatchStatus, onWatchPrefs } from './watch-settings.js'
 import { plannedType } from './health-connect.js'
 import { exView, exConverted, exUnitOf, viewEntry, viewRow, shownWeight, storedWeight } from './ex-unit.js'
-import { streakInfo } from './streak.js'
 
 export const SNAPSHOT_VERSION = 1
 const APPLIED_KEY = 'gym_watch_applied'
@@ -433,8 +424,8 @@ export function bindWatchAppActions (h) {
 let pluginP = null
 // Inside an object: a Capacitor plugin proxy answers `then`, so a promise must never resolve with
 // the bare proxy (lib/rest-alert.js, the Coach hang #42).
-// The iPhone's (Apple Watch) or the Android phone's (Wear OS); the web has none.
-export const WATCH_PLATFORMS = ['ios', 'android']
+// The iPhone's Apple Watch link; the web has none.
+export const WATCH_PLATFORMS = ['ios']
 const watchPlugin = () => pluginP || (pluginP = (async () => {
   if (!MOBILE || !WATCH_PLATFORMS.includes(await nativePlatform())) return null
   const { registerPlugin } = await import('@capacitor/core')
@@ -460,7 +451,7 @@ export function drainWatchEvents () {
       const native = await watchPlugin()
       if (!getStateRef || !storeReady()) return []
       const all = []
-      // The native link first, then the others (the Zepp watches' relay), each on its own: one
+      // The native link first, then the others (the server relay), each on its own: one
       // that cannot be reached keeps nobody else's events waiting.
       for (const p of [native, ...extraLinks]) {
         if (!p) continue
@@ -618,21 +609,10 @@ export function watchExtras (S) {
   }
 }
 
-/**
- * The week streak for the watch's Tile and complication (Wear OS; the Apple Watch ignores it):
- * weeks in a row, and whether this week has a workout yet (lib/streak.js).
- */
-export function streakFor (S, today = todayISO()) {
-  try {
-    const st = streakInfo(S, today)
-    return { weeks: st.current, thisWeekDone: !!st.thisWeekDone }
-  } catch { return { weeks: 0, thisWeekDone: false } }
-}
-
 export async function startWatchSync ({ useStore, useUI }) {
   const p = await watchPlugin()
   if (!p) return () => {}
-  return runLink(p, { useStore, useUI }, { garmin: true })
+  return runLink(p, { useStore, useUI })
 }
 
 // Links besides the phone's own WatchBridge, with the same calls (lib/watch-relay.js). Their
@@ -652,7 +632,7 @@ export async function startLinkSync (plugin, { useStore, useUI }, opts = {}) {
   return () => { extraLinks.delete(p); stop() }
 }
 
-async function runLink (p, { useStore, useUI }, { health = true, clips: withClips = true, garmin: withGarmin = false } = {}) {
+async function runLink (p, { useStore, useUI }, { health = true, clips: withClips = true } = {}) {
   getStateRef = () => useStore.getState()
   let lastSent = null, lastClips = null, tm = null
   // The ready sessions only change with the plan, the log or the day: built again only then.
@@ -667,13 +647,10 @@ async function runLink (p, { useStore, useUI }, { health = true, clips: withClip
   }
   // Whether a watch with the app is there: asked at start and when the app comes back, not on every
   // change. Without one nothing below runs at all: no snapshot, no clips, no bridge call per tick.
-  // The phone's own link can also reach a Garmin (status `garmin`, docs/GARMIN.md): that watch gets
-  // the cut-down snapshot (lib/garmin-snapshot.js) alongside, made here so Java and Swift don't.
-  let linked = false, garmin = false
+  let linked = false
   const checkLink = async () => {
     const was = linked
-    try { const st = await p.WatchBridge.status(); linked = !!(st && st.paired && st.installed); garmin = withGarmin && linked && !!st.garmin } catch { linked = false; garmin = false }
-    if (withGarmin) writeGarminLink(garmin)
+    try { const st = await p.WatchBridge.status(); linked = !!(st && st.paired && st.installed) } catch { linked = false }
     // A watch that is new here (the app just installed on it, or reinstalled): it has nothing yet,
     // so the snapshot goes again even when it is the same as the last one sent.
     if (linked && !was) lastSent = null
@@ -703,7 +680,6 @@ async function runLink (p, { useStore, useUI }, { health = true, clips: withClip
       // Apple Health on the watch pauses with the Health module, as the phone's own sync does.
       const hOn = healthOn && isOn(S, 'health')
       snap.settings = { ...settingsForWatch(prefs, hOn), ...watchExtras(S) }
-      if (prefs.enabled && isOn(S, 'motivation')) snap.streak = streakFor(S)
       // Discarded here: the watch drops its Apple Health workout instead of saving it (#776).
       const discarded = discardedFor(Date.now(), S)
       if (discarded.length) snap.discarded = discarded
@@ -715,13 +691,9 @@ async function runLink (p, { useStore, useUI }, { health = true, clips: withClip
         if (gone.length) snap.healthGone = [...new Set(gone)]
       }
       const json = JSON.stringify(fitSnapshot(snap))
-      // With the Watch module (or the watch's own switch) off this is the empty snapshot, so the
-      // Garmin pauses with the others.
-      const g = garmin ? JSON.stringify(garminSnapshot(snap)) : null
-      const sent = g ? json + '\n' + g : json
-      if (sent !== lastSent) {
-        const r = await p.WatchBridge.sendSnapshot(g ? { json, garmin: g } : { json })
-        if (r && r.sent) lastSent = sent
+      if (json !== lastSent) {
+        const r = await p.WatchBridge.sendSnapshot({ json })
+        if (r && r.sent) lastSent = json
       }
       // The workout's animations, once per workout and exercise (the native side remembers).
       const clips = prefs.enabled && withClips ? clipsFor(S) : []

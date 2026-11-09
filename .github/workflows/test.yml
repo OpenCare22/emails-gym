@@ -41,9 +41,7 @@ jobs:
     outputs:
       frontend: ${{ steps.f.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch' }}
       api: ${{ steps.f.outputs.api == 'true' || github.event_name == 'workflow_dispatch' }}
-      mcp: ${{ steps.f.outputs.mcp == 'true' || github.event_name == 'workflow_dispatch' }}
       images: ${{ steps.f.outputs.images == 'true' || github.event_name == 'workflow_dispatch' }}
-      android: ${{ steps.f.outputs.android == 'true' || github.event_name == 'workflow_dispatch' }}
       catalogue: ${{ steps.f.outputs.catalogue == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -80,17 +78,8 @@ jobs:
               - '.github/workflows/test.yml'
               - 'scripts/ci/**'
               - 'api/**'
-              - 'website/api.html'
-              - 'scripts/build-api-docs.mjs'
-              - 'website/*.html'
               - 'scripts/build-coach-*.mjs'
               - 'catalogue/**'
-              - 'frontend/src/lib/**'
-              - 'frontend/src/locales/**'
-            mcp:
-              - '.github/workflows/test.yml'
-              - 'scripts/ci/**'
-              - 'mcp/**'
               - 'frontend/src/lib/**'
             images:
               - '.github/workflows/test.yml'
@@ -101,14 +90,6 @@ jobs:
               - 'web/**'
               - 'frontend/package*.json'
               - 'frontend/vite.config.js'
-            android:
-              - '.github/workflows/test.yml'
-              - 'frontend/android/**'
-              - 'frontend/package*.json'
-              - 'frontend/capacitor.config.json'
-              - 'frontend/scripts/check-mobile-bundle.mjs'
-              - 'scripts/android/**'
-              - 'scripts/catalogue/stage-media.mjs'
             catalogue:
               - '.github/workflows/test.yml'
               - 'catalogue/**'
@@ -153,18 +134,6 @@ jobs:
       - name: Bundle size
         run: node scripts/bundle-size.mjs --out bundle-size.json
         working-directory: frontend
-      - name: Locale packs are in sync
-        run: node scripts/check-locales.mjs
-        working-directory: frontend
-      # check-locales compares the packs to each other, so a key missing from ALL of them is
-      # invisible to it. This walks src/ instead. Report-only (a known backlog of demo strings).
-      - name: Untranslated strings in src (report only)
-        run: node scripts/check-source-strings.mjs
-        working-directory: frontend
-      # The Garmin watch app (frontend/garmin, Monkey C): brackets, strings in every language,
-      # keywords used as names, the manifest version. No Connect IQ SDK needed (docs/GARMIN.md).
-      - name: Garmin watch app check
-        run: node garmin/check.mjs
         working-directory: frontend
       # The fatigue model must never read higher after a rest day than before it.
       # Property probe over ~108k comparisons; too slow for the unit suite, cheap here.
@@ -180,7 +149,7 @@ jobs:
       # Tests without an assertion, duplicated tests, tests that read source text: report only.
       - name: Test audit
         if: always()
-        run: node scripts/ci/test-audit.mjs frontend/src frontend/scripts api/test mcp/test > /dev/null
+        run: node scripts/ci/test-audit.mjs frontend/src frontend/scripts api/test > /dev/null
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
@@ -225,10 +194,6 @@ jobs:
       # that forgets to regenerate it would surface as "the Coach can't find that exercise".
       - name: Generated Coach assets are current
         run: node scripts/build-coach-assets.mjs --check
-      # website/api.html is generated from api/openapi.yaml and committed. Same reason.
-      - run: npm ci --no-audit --no-fund
-      - name: Generated API docs are current
-        run: node scripts/build-api-docs.mjs --check
       - name: Coach core loads in plain node
         run: node api/scripts/check-core-loadable.mjs
       - name: Stats
@@ -246,53 +211,6 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  mcp:
-    needs: changes
-    if: needs.changes.outputs.mcp == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: |
-            mcp/package-lock.json
-            api/package-lock.json
-      - run: npm ci --no-audit --no-fund
-        working-directory: mcp
-      # log_workout's end-to-end test drives the real api/server.js, so the api's own
-      # dependencies are here too (same install as the api job). Without them that test fails
-      # under CI rather than skipping, so a green run means it ran.
-      - run: npm ci --no-audit --no-fund --omit=optional
-        working-directory: api
-      - name: MCP tests
-        working-directory: mcp
-        run: >
-          npx vitest run
-          --reporter=default --reporter=json --outputFile.json=test-results.json
-          --coverage --coverage.provider=v8 --coverage.reporter=json-summary
-      # The one check the vitest suite structurally cannot make: the MCP server is a bare node
-      # process, but vitest resolves import.meta.glob, .jsx and ?raw happily. That is how a
-      # Vite-only import reached a shared module with 33 green tests over a dead server.
-      - name: Server loads in plain node
-        run: npm run check:node-loadable
-        working-directory: mcp
-      - name: Stats
-        if: always()
-        run: >
-          node scripts/ci/test-report.mjs --label MCP --root mcp
-          --vitest mcp/test-results.json --coverage mcp/coverage/coverage-summary.json --out stats/mcp.json
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        if: always()
-        with:
-          name: stats-mcp
-          path: stats/mcp.json
-          retention-days: 30
-          if-no-files-found: ignore
 
   # Was its own workflow (catalogue.yml); here it reports into the one required check.
   catalogue:
@@ -345,8 +263,7 @@ jobs:
           tags: opengym-api:coach
           cache-from: type=gha,scope=ci-api-coach
           cache-to: type=gha,mode=max,scope=ci-api-coach
-      # No target, exactly like docker-publish.yml: what that workflow ships is whatever stage
-      # is last, and that untargeted image is what every self-hoster pulls as :latest.
+      # No target, exactly like `docker compose build`: the last stage is what the server runs.
       - name: api, as published
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -421,63 +338,9 @@ jobs:
           # including the fixture provider.
           docker run --rm opengym-api:default id coach
 
-  # The Android app compiles, its JVM unit tests pass, and the phone bundle inside it is the
-  # mobile flavour (check-mobile-bundle runs inside build:mobile). Debug and unsigned: signing
-  # is the release machine's job (scripts/android/build-release.sh).
-  android:
-    needs: changes
-    if: needs.changes.outputs.android == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-        with:
-          distribution: temurin
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-        with:
-          # Only main and stores write the Gradle cache; other branches and PRs read it.
-          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/stores' }}
-          add-job-summary: on-failure
-      - run: npm ci --ignore-scripts --no-audit --no-fund
-        working-directory: frontend
-      - name: Phone bundle + cap sync
-        run: npm run build:mobile
-        working-directory: frontend
-      - name: JVM unit tests, sideload APK, play flavour compiles, F-Droid APK
-        working-directory: frontend/android
-        run: ./gradlew --no-daemon testSideloadDebugUnitTest assembleSideloadDebug compilePlayDebugJavaWithJavac assembleFdroidRelease
-      # The build F-Droid makes from this source (unsigned here, as on F-Droid's server): nothing
-      # from Google Play services, Firebase or ML Kit in it.
-      - name: F-Droid build is free of Google Play services
-        run: scripts/android/check-fdroid.sh
-      - name: Stats
-        if: always()
-        working-directory: frontend/android
-        run: |
-          {
-            echo "### Android"
-            for a in app/build/outputs/apk/sideload/debug/*.apk; do
-              [ -f "$a" ] && echo "- debug sideload APK: $(numfmt --to=iec "$(stat -c %s "$a")") ($(basename "$a"))"
-            done
-            for a in app/build/outputs/apk/fdroid/release/*.apk; do
-              [ -f "$a" ] && echo "- F-Droid APK (unsigned): $(numfmt --to=iec "$(stat -c %s "$a")") ($(basename "$a"))"
-            done
-            cat app/build/test-results/testSideloadDebugUnitTest/*.xml 2>/dev/null \
-              | grep -o '<testsuite [^>]*' | sed -E 's/.*name="([^"]*)".*tests="([0-9]+)".*failures="([0-9]+)".*/- JVM: \1: \2 tests, \3 failed/' || true
-          } >> "$GITHUB_STEP_SUMMARY"
-
   # One summary of the numbers of every suite that ran.
   report:
-    needs: [frontend, api, mcp]
+    needs: [frontend, api]
     if: always() && !cancelled()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -506,7 +369,7 @@ jobs:
   # The single required check. Green when every job that ran passed and the others were
   # skipped because nothing they check changed.
   tests-ok:
-    needs: [changes, frontend, api, mcp, catalogue, images, android]
+    needs: [changes, frontend, api, catalogue, images]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 2

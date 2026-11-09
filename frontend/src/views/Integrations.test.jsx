@@ -4,6 +4,8 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Upstream's entry points, with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('../lib/fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
@@ -85,7 +87,7 @@ const type = (input, v) => act(() => {
 describe('the cards', () => {
   it('a guest in a browser: the health stores live in the phone app, webhooks need a server, nothing fake to connect', async () => {
     await mount()
-    expect([...host.querySelectorAll('.sect-t')].map(e => e.textContent)).toEqual(['Health & devices', 'Works with', 'Training apps', 'Automation', 'AI & API'])
+    expect([...host.querySelectorAll('.sect-t')].map(e => e.textContent)).toEqual(['Health & devices', 'Works with', 'Training apps', 'Automation'])
     expect(pill('apple-health')).toBe('Not available on this device')
     expect(pill('health-connect')).toBe('Not available on this device')
     expect(action('apple-health')).toBeNull()

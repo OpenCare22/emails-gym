@@ -82,12 +82,7 @@ describe('the native tables', () => {
     const s = src(f)
     for (const name of SESSION_TYPES) expect(s).toContain(`"${name}": .`)
   })
-  it('Health Connect knows every type it has a constant for', () => {
-    const s = src('../../android/app/src/main/java/ch/duartesantos/opengym/HealthConnectPlugin.java')
-    for (const name of SESSION_TYPES.filter(n => !['jump_rope', 'mixed_cardio', 'other_workout'].includes(n))) {
-      expect(s).toContain(`case "${name}": return`)
-    }
-  })
+
 })
 
 describe('plannedType', () => {

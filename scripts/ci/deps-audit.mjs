@@ -4,7 +4,7 @@
 // Fails when a shipped dependency has a high or critical advisory; dev findings are listed.
 // Reads the lockfiles only, so it needs no `npm ci`.
 //
-//   node scripts/ci/deps-audit.mjs frontend api mcp
+//   node scripts/ci/deps-audit.mjs frontend api
 import { execFileSync } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 

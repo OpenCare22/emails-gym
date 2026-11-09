@@ -98,7 +98,7 @@ describe('the root', () => {
     expect(rowTitled('Workout').querySelector('.lrow-v').textContent).toBe('1:30 rest · Cards')
     expect(rowTitled('Timer alerts').querySelector('.lrow-v').textContent).toBe('Sound · Vibrate')
     expect(rowTitled('Plan & schedule').querySelector('.lrow-v').textContent).toMatch(/^Fixed Week · Mon/)
-    expect(rowTitled('Units & language').querySelector('.lrow-v').textContent).toBe('kg · English')
+    expect(rowTitled('Units & language').querySelector('.lrow-v').textContent).toBe('kg')
     expect(rowTitled('Equipment').querySelector('.lrow-v').textContent).toBe('Everything')
     expect(rowTitled('About & updates').querySelector('.lrow-v').textContent).toMatch(/^v\d|^vtest/)
   })
@@ -243,7 +243,7 @@ describe('the search lands on a row', () => {
     expect(searchSettings('install', { ...web, androidWeb: true, desktopWeb: false }, tr).map(h => h.title)).toEqual(['In Chrome: ⋮ menu → Add to Home screen'])
     // Windows and Linux are neither: Chrome's install icon, not an iPhone's Share menu (night QA 10-19).
     expect(searchSettings('install', web, tr).map(h => h.title)).toEqual(['In Chrome or Edge: the install icon in the address bar'])
-    expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true, autoBackup: true }, tr).map(h => h.title)).toEqual(['Backup folder'])
+    expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true, autoBackup: true }, tr).map(h => h.title)).toEqual([])
     expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true }, tr)).toEqual([])
   })
 
@@ -462,7 +462,7 @@ describe('searchSettings', () => {
     // the AI Coach module's own row on Settings → Modules is the one hit a web guest gets
     expect(searchSettings('coach', guestWeb, tr).filter(h => h.page !== 'modules')).toEqual([])
     expect(searchSettings('coach', { ...guestWeb, mobile: true }, tr)[0].page).toBe('coach')
-    expect(searchSettings('vibrate silent', { ...guestWeb, mobile: true, android: true }, tr).map(h => h.title)).toEqual(['Vibrate on silent too'])
+    expect(searchSettings('vibrate silent', { ...guestWeb, mobile: true, android: true }, tr).map(h => h.title)).toEqual([])
     expect(searchSettings('   ', guestWeb, tr)).toEqual([])
   })
 
@@ -472,33 +472,6 @@ describe('searchSettings', () => {
     expect(hits[0]).toMatchObject({ title: 'Vibrate', label: 'Vibration', trail: 'Timer-Hinweise' })
   })
 
-  it('finds the translated choices of a row, and words of its own language', async () => {
-    const { setLang, t } = await import('../lib/i18n.js')
-    try {
-      await setLang('de')
-      const first = q => searchSettings(q, guestWeb, t)[0]?.title
-      expect(first('Dunkel')).toBe('Theme')
-      expect(first('Feste Woche')).toBe('How you train')
-      expect(first('Wochenstart')).toBe('Week starts on')
-      expect(first('kompakt')).toBe('Layout')
-      expect(first('wischen')).toBe('Swipe actions')
-      expect(first('Geste')).toBe('Swipe actions')
-      await setLang('ar')
-      expect(searchSettings('تناوب', guestWeb, t).map(h => h.title)).toContain('How you train')
-    } finally { await setLang('en') }
-  })
-
-  it('English words match from the start of a word only, so "ton" never finds "buttons"', async () => {
-    const { setLang, t } = await import('../lib/i18n.js')
-    try {
-      await setLang('de')
-      const titles = searchSettings('ton', guestWeb, t).map(h => h.title)
-      expect(titles).not.toContain('Weight and reps buttons')
-      expect(titles).not.toContain('Superset buttons in the exercise header')
-    } finally { await setLang('en') }
-    expect(searchSettings('tone', { ...guestWeb, user: { id: 'u' }, pushOK: true, reminderOn: true, nudge: true }, s => s).map(h => h.title)).toContain('Nudge tone')
-    expect(searchSettings('json', guestWeb, s => s).map(h => h.title)).toContain('Export backup (JSON)')
-  })
 })
 
 describe('translations', () => {

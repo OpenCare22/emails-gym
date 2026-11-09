@@ -100,9 +100,8 @@ test('push text: by tone, one line per date, routine name filled in, localized',
       }
     }
   }
-  assert.equal(nudgePush('de', 'drill', null, iso).title, 'Achtung, Rekrut!');
-  assert.equal(nudgePush('pt-BR', 'friendly', null, iso).title, 'Está tudo bem?');
-  // unknown language and tone fall back to English and friendly; de-CH writes ss
+  // English only in this fork: any other language, and an unknown tone, fall back to English and friendly
+  assert.equal(nudgePush('de', 'drill', null, iso).title, nudgePush('en', 'drill', null, iso).title);
   assert.deepEqual(nudgePush('xx', 'mean', { name: 'A' }, iso), nudgePush('en', 'friendly', { name: 'A' }, iso));
   for (const tone of ['friendly', 'guilt', 'drill']) {
     for (let d = 0; d < 4; d++) assert.doesNotMatch(nudgePush('de-CH', tone, { name: 'A' }, `2026-09-0${d + 1}`).body, /ß/);

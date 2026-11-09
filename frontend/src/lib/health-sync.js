@@ -1,13 +1,6 @@
-// Health Connect on the Android app (#200): turning it on, and keeping it in step with the log.
-// What gets written is worked out in lib/health-connect.js; this file owns the native plugin
-// (HealthConnectPlugin.java) and the phone's own record of what it wrote.
+// Apple Health sync and device-local permissions.
 //
-// It is a fact about this phone, not about the training log: kept in its own file in the app's
-// data directory, never in S, so it does not sync to a server, ride in a backup, or switch on a
-// second phone. Off until the user turns it on; nothing is asked of Health Connect before that.
-//
-// The iPhone app does the same with Apple Health (AppleHealthPlugin.swift): the same calls, the
-// same records, the same file. There it also asks to read the heart rate and the body weight, for
+// The iPhone app uses AppleHealthPlugin.swift. It also asks to read the heart rate and the body weight, for
 // the Apple Watch app (its workout session shows the heart rate per set), and tells the watch
 // whether it is on (setEnabled: the App Group's "healthEnabled", which the watch link passes on).
 //
@@ -34,12 +27,12 @@ const OFF = { on: false, written: {}, at: 0, error: null, readHr: false, readWei
 let pluginP = null
 const plugin = () => pluginP || (pluginP = (async () => {
   const platform = await nativePlatform()
-  if (!platform) return null
+  if (platform !== 'ios') return null
   const { registerPlugin } = await import('@capacitor/core')
-  return { HC: registerPlugin(platform === 'ios' ? 'AppleHealth' : 'HealthConnect'), platform }
+  return { HC: registerPlugin('AppleHealth'), platform }
 })().catch(() => null))
 
-// iPhone: the switch as the watch reads it. Android has no watch to tell.
+// iPhone: the switch as the watch reads it.
 async function mirrorOn(on) {
   const p = await plugin().catch(() => null)
   if (p?.platform === 'ios') await p.HC.setEnabled({ on: !!on }).catch(() => {})
@@ -67,8 +60,8 @@ export async function healthStatus() {
   } catch { return { status: 'unsupported', granted: false, platform: null } }
 }
 
-/** Health Connect's own screen for what apps wrote, or its store page where it is missing. */
-export async function openHealthConnect() {
+/** Opens Apple Health's settings. */
+export async function openHealthSettings() {
   const p = await plugin()
   if (p) await p.HC.openSettings()
 }
@@ -87,7 +80,7 @@ const told = h => { listeners.forEach(cb => { try { cb(h) } catch { /* a closed 
 /**
  * Writes what changed since the last sync and removes what was deleted from openGym. A no-op
  * while it is off. Resolves with the file's content afterwards; `error` is 'permission' when
- * Health Connect refused (the user took the permission back), 'unavailable' when it is gone.
+ * Apple Health refused (the user took the permission back), 'unavailable' when it is gone.
  */
 export function syncHealth(S) {
   if (!MOBILE) return Promise.resolve(null)
@@ -121,7 +114,7 @@ async function syncOnce(S, h) {
   const nothing = !plan.sessions.length && !plan.weights.length && !plan.remove.sessions.length && !plan.remove.weights.length
   if (nothing) {
     if (!h.error) return h
-    // Nothing to write, but the last attempt failed: clear it once Health Connect says yes again.
+    // Nothing to write, but the last attempt failed: clear it once Apple Health says yes again.
     const st = await p.HC.status().catch(() => null)
     if (!(st?.status === 'available' && st.granted)) return h
     const out = { ...h, error: null }
@@ -157,7 +150,7 @@ async function syncOnce(S, h) {
 /**
  * Turning it on: asks for the two write permissions, then writes the whole log once. Resolves
  * with { ok, reason } — reason 'denied' when the user did not grant both, or the status when
- * Health Connect is not there to ask.
+ * Apple Health is not there to ask.
  */
 export async function enableHealth(S) {
   const p = await plugin()
@@ -175,7 +168,7 @@ export async function enableHealth(S) {
 
 /**
  * Turning it off stops the writing. With `removeWritten`, what openGym wrote is taken out of
- * Health Connect too; without it, it stays there as the user's own data. Rejects when the
+ * Apple Health too; without it, it stays there as the user's own data. Rejects when the
  * removal fails, and then stays on, so nothing is left behind that the phone forgot it wrote.
  */
 export async function disableHealth({ removeWritten = false } = {}) {
@@ -197,7 +190,7 @@ export async function disableHealth({ removeWritten = false } = {}) {
 }
 
 // Back in the foreground: a change synced from another device while the phone was away, or a
-// permission the user granted again in Health Connect's own settings, is picked up then.
+// permission the user granted again in Apple Health's own settings, is picked up then.
 let started = false
 export function initHealthSync(getState, apply = null) {
   if (!MOBILE || started) return
@@ -228,17 +221,13 @@ export const HR_WINDOW_MS = 24 * 3600e3
 // when it comes back to the foreground.
 const READ_EVERY_MS = 10 * 60e3
 const RESUME_EVERY_MS = 2 * 60e3
-// The first read of weigh-ins goes this far back (what Health Connect gives without the history
-// permission); later ones from the newest seen, minus a margin for a scale that syncs late.
+// The first read of weigh-ins goes back 30 days; later ones start from the newest seen,
+// minus a margin for a scale that syncs late.
 export const WEIGHT_FIRST_MS = 30 * 24 * 3600e3
-// With Health Connect's history permission (Android, idea from #801) the first read goes back a
-// year instead, so a scale's weigh-ins from before openGym arrive too. Asked for with the weight;
-// refused, the read simply stays at 30 days.
-export const WEIGHT_HISTORY_MS = 365 * 24 * 3600e3
 const WEIGHT_MARGIN_MS = 2 * 24 * 3600e3
 const SEEN_KEEP_MS = 60 * 24 * 3600e3
 
-const srcOf = platform => (platform === 'ios' ? 'ah' : 'hc')
+const srcOf = () => 'ah'
 
 // The store's update, given at launch (initHealthSync): a read result goes into the log the way any
 // other change does, so it is saved, stamped and synced.
@@ -256,16 +245,14 @@ export async function enableRead(kind, getState, { apply = null } = {}) {
   const st = await p.HC.status().catch(() => ({ status: 'unsupported' }))
   if (st.status !== 'available') return { ok: false, reason: st.status }
   const perm = kind === 'hr' ? 'heartRate' : 'weight'
-  // The history permission only where Health Connect has it (status says so); Apple Health has none.
-  const history = kind === 'weight' && p.platform !== 'ios' && st.history === true
-  const res = await p.HC.requestPermissions({ read: history ? [perm, 'history'] : [perm], write: [] }).catch(() => null)
+  const res = await p.HC.requestPermissions({ read: [perm], write: [] }).catch(() => null)
   // Apple Health never says whether reading was allowed (that it was refused is itself private):
   // `read` is then missing, and a refusal just reads nothing.
   const ok = res && (res.read ? res.read[perm] !== false : true)
   if (!ok) return { ok: false, reason: 'denied' }
   const h = await loadHealth()
   const out = { ...h, [kind === 'hr' ? 'readHr' : 'readWeight']: true, readError: null }
-  if (kind === 'weight') out.wHistory = history && res.read?.history === true
+  if (kind === 'weight') out.wHistory = false
   await saveHealth(out)
   told(out)
   if (getState) await readHealth(getState, { force: true, apply }).catch(() => {})
@@ -335,15 +322,7 @@ async function readOnce(getState, force, now, applyFn) {
   if (h.readWeight && (force ? now - lastWeightRead >= RESUME_EVERY_MS : now - lastWeightRead >= READ_EVERY_MS)) {
     const sinceFor = back => (h.wCursor > 0 ? Math.max(h.wCursor - WEIGHT_MARGIN_MS, now - back) : now - back)
     try {
-      let res
-      try {
-        res = await p.HC.readWeights({ since: sinceFor(h.wHistory ? WEIGHT_HISTORY_MS : WEIGHT_FIRST_MS) })
-      } catch (e) {
-        // The history permission taken back in Health Connect's settings: the 30 days still read.
-        if (!(h.wHistory && e?.code === 'permission')) throw e
-        h.wHistory = false
-        res = await p.HC.readWeights({ since: sinceFor(WEIGHT_FIRST_MS) })
-      }
+      const res = await p.HC.readWeights({ since: sinceFor(WEIGHT_FIRST_MS) })
       lastWeightRead = now
       const records = Array.isArray(res?.records) ? res.records : []
       // The memo is filled in on the copy that decides; the store's update replays the same merge.

@@ -1,5 +1,7 @@
 // Settings → Integrations (v1.4.4): which card shows where, and what it says.
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+// Upstream's entry points, with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('./fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { cardState, directory, webhookUrlProblem, normalizeWebhookUrl, CARDS, WORKS_WITH, PILL } from './integrations.js'
 
 const web = { mobile: false, platform: null, user: null, demo: false, health: null, server: null, offered: [] }
@@ -10,9 +12,8 @@ describe('the directory', () => {
     expect(cardState('apple-health', web)).toEqual({ status: 'device', action: null })
     expect(cardState('health-connect', web)).toEqual({ status: 'device', action: null })
     expect(cardState('webhook', web)).toEqual({ status: 'server', action: null })
-    expect(cardState('mcp', web)).toEqual({ status: 'server', action: null })
     expect(ids(web)).not.toContain('coach')   // the server's Coach, not offered here
-    expect(directory(web).map(c => c.id)).toEqual(['health', 'training', 'automation', 'ai'])
+    expect(directory(web).map(c => c.id)).toEqual(['health', 'training', 'automation'])
   })
 
   it('a phone shows its own store only, by what the store says', () => {
@@ -42,7 +43,6 @@ describe('the directory', () => {
     expect(cardState('webhook', conn('connected'))).toEqual({ status: 'connected', action: 'manage' })
     expect(cardState('webhook', conn('attention'))).toEqual({ status: 'attention', action: 'manage' })
     expect(cardState('webhook', conn('paused')).status).toBe('off')
-    expect(cardState('mcp', user)).toEqual({ status: null, action: 'open' })
   })
 
   it('the demo has no Hevy key to spend and no server', () => {

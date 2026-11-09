@@ -4,6 +4,8 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+// Upstream's entry points, with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('../lib/fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { presetModules } from '../lib/modules.js'
 import Stats from './Stats.jsx'
 

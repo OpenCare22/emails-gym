@@ -8,6 +8,7 @@
 //
 // Names of services are names, not translated. Everything else is an English key for t().
 
+import { hidden } from './fork-hidden.js'
 export const CATEGORIES = [
   { id: 'health', title: 'Health & devices' },
   { id: 'training', title: 'Training apps' },
@@ -52,11 +53,6 @@ export const CARDS = [
     desc: 'Plans and reviews from the model you pick.',
     syncs: ['Reads your plan and the last weeks of training when you ask.', 'Set up on its own page.'],
   },
-  {
-    id: 'mcp', cat: 'ai', name: 'MCP server', translate: true, icon: 'plug', tint: 'var(--purple)',
-    desc: 'Let Claude Desktop, Cursor and friends read your training log.',
-    syncs: ['Runs next to your server and reads your data from there.', 'Read-only, apart from logging a workout you ask it to.'],
-  },
 ]
 export const CARD = Object.fromEntries(CARDS.map(c => [c.id, c]))
 
@@ -94,6 +90,9 @@ const healthTrouble = h => !!(h && ((h.on && h.error === 'permission') || (healt
  * Answers { status: key of PILL | null, action: 'connect' | 'manage' | 'import' | 'export' | 'open' | null }.
  */
 export function cardState(id, ctx) {
+  // Hidden in this fork (lib/fork-hidden.js): the import cards and the Android-only store.
+  if (hidden('health-connect') && id === 'health-connect') return null
+  if (hidden('imports') && (id === 'hevy' || id === 'files')) return null
   const phone = ctx.mobile ? ctx.platform : null
   switch (id) {
     case 'apple-health':
@@ -125,9 +124,6 @@ export function cardState(id, ctx) {
     case 'coach':
       if (ctx.mobile) return { status: ctx.coachMode ? 'connected' : 'off', action: ctx.coachMode ? 'manage' : 'connect' }
       return ctx.coach ? { status: 'connected', action: 'open' } : null
-    case 'mcp':
-      if (ctx.demo || !ctx.user) return { status: 'server', action: null }
-      return { status: null, action: 'open' }
     default:
       return null
   }

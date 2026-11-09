@@ -29,47 +29,9 @@ describe('instance default language', () => {
     expect(DEF.langAuto).toBeUndefined()
   })
 
-  it('a fresh copy is shown in DEFAULT_LANG once the config is in, and its state is left alone', async () => {
-    useStore.setState({ S: freshState() })
-    expect(shown()).toBe('en')   // nothing to go on before the config
-    const before = clone(useStore.getState().S)
-
-    api.mockResolvedValueOnce({ invite_only: false, allow_guest: true, default_lang: 'pt-BR' })
-    await useStore.getState().refreshConfig()
-    expect(shown()).toBe('pt-BR')
-    expect(useStore.getState().S).toEqual(before)
-  })
-
-  it('the next boot uses the default this device last saw, before the config answers', async () => {
-    nav(['de-DE'])
-    api.mockResolvedValueOnce({ invite_only: false, default_lang: 'pt-BR' })
-    await useStore.getState().refreshConfig()
-    useStore.setState({ S: freshState(), config: null })
-    expect(shown()).toBe('pt-BR')   // not the browser's German first
-    // An instance known to have none: the browser's language at once.
-    api.mockResolvedValueOnce({ invite_only: false })
-    await useStore.getState().refreshConfig()
-    useStore.setState({ config: null })
-    expect(shown()).toBe('de')
-  })
-
-  it('without DEFAULT_LANG a fresh copy follows the browser when the app speaks it', () => {
-    nav(['de-DE', 'en'])
-    useStore.setState({ S: freshState(), config: { invite_only: false, allow_guest: true } })
-    expect(shown()).toBe('de')
-  })
-
   it('an existing copy with lang "en" and no mark is left in English', () => {
     nav(['de-DE'])
     useStore.setState({ S: { ...clone(DEF), lang: 'en' }, config: { default_lang: 'pt-BR' } })
-    expect(shown()).toBe('en')
-  })
-
-  it('a language picked in Settings wins over DEFAULT_LANG from then on', () => {
-    useStore.setState({ S: freshState(), config: { default_lang: 'pt-BR' } })
-    expect(shown()).toBe('pt-BR')
-    // What the Settings picker does.
-    useStore.getState().update(s => { s.lang = 'en'; s.langAuto = false })
     expect(shown()).toBe('en')
   })
 

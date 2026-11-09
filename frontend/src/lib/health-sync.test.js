@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// #200: the Android app keeping Health Connect in step with the log. The native plugin
-// (HealthConnectPlugin.java) and the app's data directory are played in memory.
+// #200: the Android app keeping Apple Health in step with the log. The native plugin
+// (AppleHealthPlugin.swift) and the app's data directory are played in memory.
 const h = vi.hoisted(() => {
   vi.stubEnv('VITE_MOBILE', '1')
-  return { files: new Map(), calls: [], status: { status: 'available', granted: false }, grant: true, fail: null, platform: 'android', plugins: [] }
+  return { files: new Map(), calls: [], status: { status: 'available', granted: false }, grant: true, fail: null, platform: 'ios', plugins: [] }
 })
 
 vi.mock('@capacitor/filesystem', () => ({
@@ -49,7 +49,7 @@ const file = () => JSON.parse(h.files.get('opengym-health.json') || 'null')
 let hs
 beforeEach(async () => {
   vi.resetModules()
-  h.files.clear(); h.calls = []; h.status = { status: 'available', granted: false }; h.grant = true; h.fail = null; h.removeFail = null; h.left = null; h.platform = 'android'; h.plugins = []
+  h.files.clear(); h.calls = []; h.status = { status: 'available', granted: false }; h.grant = true; h.fail = null; h.removeFail = null; h.left = null; h.platform = 'ios'; h.plugins = []
   hs = await import('./health-sync.js')
 })
 
@@ -85,7 +85,7 @@ describe('turning it on', () => {
     await hs.enableHealth(state([]))
     expect(h.calls.find(c => c[0] === 'request')).toBeUndefined()
   })
-  it('says so when Health Connect is not there', async () => {
+  it('says so when Apple Health is not there', async () => {
     h.status = { status: 'missing', granted: false }
     expect(await hs.enableHealth(state([]))).toEqual({ ok: false, reason: 'missing' })
   })
@@ -213,7 +213,7 @@ describe('deleting in openGym', () => {
 })
 
 describe('turning it off', () => {
-  it('can leave what it wrote in Health Connect', async () => {
+  it('can leave what it wrote in Apple Health', async () => {
     await hs.enableHealth(state([workout('w1', 17)]))
     h.calls = []
     await hs.disableHealth({ removeWritten: false })
@@ -254,12 +254,11 @@ describe('on the iPhone', () => {
     expect(await hs.enableHealth(state([]))).toMatchObject({ ok: false, reason: 'denied' })
     expect(h.calls.filter(c => c[0] === 'setEnabled')).toEqual([])
   })
-  it('Android has no watch to tell', async () => {
+  it('does not register a health plugin on Android', async () => {
     vi.resetModules()
     h.platform = 'android'
     hs = await import('./health-sync.js')
-    await hs.enableHealth(state([workout('w1', 17)]))
-    expect(h.calls.filter(c => c[0] === 'setEnabled')).toEqual([])
-    expect((await hs.healthStatus()).platform).toBe('android')
+    expect(await hs.healthStatus()).toMatchObject({ status: 'unsupported', platform: null })
+    expect(h.plugins).toEqual([])
   })
 })

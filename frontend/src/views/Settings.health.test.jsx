@@ -6,11 +6,9 @@ import Settings from './Settings.jsx'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-// #200: the Health Connect card. Only on the Android app, only where Health Connect is there or
-// can be installed, off until switched on, and turning it off asks what happens to what was
-// already written. lib/health-sync.js is mocked; its own tests cover the writing.
+// Apple Health permissions and device-local switches.
 const mocks = vi.hoisted(() => {
-  const state = { S: null, MOBILE: true, android: true, status: { status: 'available', granted: false }, health: { on: false, written: {}, error: null } }
+  const state = { S: null, MOBILE: true, android: false, status: { status: 'available', granted: false, platform: 'ios' }, health: { on: false, written: {}, error: null } }
   state.snapshot = () => ({
     S: state.S, user: null, update: vi.fn(),
     replaceState: vi.fn(), setUser: vi.fn(), pullState: vi.fn(), pushState: vi.fn(),
@@ -18,7 +16,7 @@ const mocks = vi.hoisted(() => {
   })
   state.enableHealth = vi.fn(async () => { state.health = { ...state.health, on: true }; return { ok: true, health: state.health } })
   state.disableHealth = vi.fn(async ({ removeWritten }) => { state.health = { ...state.health, on: false, written: removeWritten ? {} : state.health.written }; return state.health })
-  state.openHealthConnect = vi.fn(async () => {})
+  state.openHealthSettings = vi.fn(async () => {})
   state.readGrant = true
   state.enableRead = vi.fn(async kind => {
     if (!state.readGrant) return { ok: false, reason: 'denied' }
@@ -56,7 +54,7 @@ vi.mock('../lib/health-sync.js', () => ({
   loadHealth: () => Promise.resolve(mocks.health),
   enableHealth: (...a) => mocks.enableHealth(...a),
   disableHealth: (...a) => mocks.disableHealth(...a),
-  openHealthConnect: (...a) => mocks.openHealthConnect(...a),
+  openHealthSettings: (...a) => mocks.openHealthSettings(...a),
   onHealthChange: () => () => {},
   enableRead: (...a) => mocks.enableRead(...a),
   disableRead: (...a) => mocks.disableRead(...a),
@@ -73,11 +71,11 @@ let host, root
 beforeEach(() => {
   mocks.S = { unit: 'kg', restSec: 90, restPauseSec: 15, sound: false, effort: 'none', gifSize: 'full', workouts: [], routines: [], exWeights: {} }
   mocks.MOBILE = true
-  mocks.android = true
-  mocks.status = { status: 'available', granted: false }
+  mocks.android = false
+  mocks.status = { status: 'available', granted: false, platform: 'ios' }
   mocks.health = { on: false, written: {}, error: null }
   mocks.readGrant = true
-  for (const k of ['enableHealth', 'disableHealth', 'openHealthConnect', 'menuSheet', 'toast', 'enableRead', 'disableRead']) mocks[k].mockClear()
+  for (const k of ['enableHealth', 'disableHealth', 'openHealthSettings', 'menuSheet', 'toast', 'enableRead', 'disableRead']) mocks[k].mockClear()
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -89,65 +87,11 @@ afterEach(() => {
 
 const mount = async () => {
   // Since 1.4.4 the card is a page of its own under Integrations, one per platform.
-  await act(async () => { root.render(<Settings page={mocks.android ? 'health-connect' : 'apple-health'} />) })
+  await act(async () => { root.render(<Settings page={'apple-health'} />) })
   await act(async () => { await Promise.resolve(); await Promise.resolve() })
 }
 const row = text => [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes(text))
-const writeSwitch = () => row('Write to Health Connect')?.querySelector('[role="switch"]')
-
-describe('Settings — Health Connect', () => {
-  it('is not there on the web build, on iOS, or on a phone without Health Connect', async () => {
-    mocks.MOBILE = false
-    await mount()
-    expect(row('Health Connect')).toBeUndefined()
-
-    mocks.MOBILE = true
-    mocks.android = false
-    await mount()
-    expect(row('Health Connect')).toBeUndefined()
-
-    mocks.android = true
-    mocks.status = { status: 'unsupported', granted: false }
-    await mount()
-    expect(row('Health Connect')).toBeUndefined()
-  })
-
-  it('starts off, and turning it on goes through enableHealth', async () => {
-    await mount()
-    expect(writeSwitch().getAttribute('aria-checked')).toBe('false')
-    expect(row('Open Health Connect')).toBeUndefined()
-    await act(async () => { writeSwitch().click() })
-    expect(mocks.enableHealth).toHaveBeenCalledTimes(1)
-    expect(writeSwitch().getAttribute('aria-checked')).toBe('true')
-    expect(row('Open Health Connect')).toBeTruthy()
-  })
-
-  it('turning it off asks whether to keep or remove what was written', async () => {
-    mocks.health = { on: true, written: { 'opengym-w-w1': { k: 'session', h: 'x' } }, error: null }
-    await mount()
-    act(() => { writeSwitch().click() })
-    expect(mocks.disableHealth).not.toHaveBeenCalled()
-    const items = mocks.menuSheet.mock.calls[0][0].items
-    await act(async () => { await items[1].onClick() })
-    expect(mocks.disableHealth).toHaveBeenCalledWith({ removeWritten: true })
-    expect(writeSwitch().getAttribute('aria-checked')).toBe('false')
-  })
-
-  it('offers to grant the permission again when Health Connect refused it', async () => {
-    mocks.health = { on: true, written: {}, error: 'permission' }
-    await mount()
-    await act(async () => { row('Permission withdrawn').click() })
-    expect(mocks.enableHealth).toHaveBeenCalledTimes(1)
-  })
-
-  it('points to installing Health Connect where it is an app of its own', async () => {
-    mocks.status = { status: 'missing', granted: false }
-    await mount()
-    expect(writeSwitch()).toBeUndefined()
-    await act(async () => { row('Install Health Connect').click() })
-    expect(mocks.openHealthConnect).toHaveBeenCalledTimes(1)
-  })
-})
+const writeSwitch = () => row('Write to Apple Health')?.querySelector('[role="switch"]')
 
 // The iPhone app: the same card for Apple Health, the switch the Apple Watch app goes by too.
 describe('Settings — Apple Health', () => {
@@ -182,7 +126,7 @@ describe('Settings — Apple Health', () => {
 describe('Settings — reading back', () => {
   const sw = text => row(text)?.querySelector('[role="switch"]')
 
-  it('offers both reads, off, next to the write switch on Android and iPhone', async () => {
+  it('offers both reads, off, next to the write switch on iPhone', async () => {
     await mount()
     expect(sw('Heart rate from your watch').getAttribute('aria-checked')).toBe('false')
     expect(sw('Weigh-ins from other apps').getAttribute('aria-checked')).toBe('false')
@@ -201,14 +145,14 @@ describe('Settings — reading back', () => {
     expect(writeSwitch().getAttribute('aria-checked')).toBe('false')
     expect(mocks.enableHealth).not.toHaveBeenCalled()
     expect(host.textContent).toContain('openGym reads only while it is open')
-    expect(row('Open Health Connect')).toBeTruthy()
+    expect(row('Open Apple Health')).toBeTruthy()
   })
 
   it('says so when the permission was not granted', async () => {
     mocks.readGrant = false
     await mount()
     await act(async () => { sw('Weigh-ins from other apps').click() })
-    expect(mocks.toast).toHaveBeenCalledWith('Health Connect permission not granted')
+    expect(mocks.toast).toHaveBeenCalledWith('Apple Health permission not granted')
     expect(sw('Weigh-ins from other apps').getAttribute('aria-checked')).toBe('false')
   })
 

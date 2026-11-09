@@ -17,7 +17,9 @@ const OUT = path.join(API, 'wrapped-copy.js');
 
 export async function buildWrappedCopy() {
   const { WRAPPED_PUSH } = await import(pathToFileURL(path.join(FRONT, 'lib', 'wrapped-copy.js')));
-  const langs = fs.readdirSync(path.join(FRONT, 'locales')).filter(f => /^[a-zA-Z-]+\.js$/.test(f)).map(f => f.slice(0, -3)).sort();
+  // English only in this fork: frontend/src/locales may be gone, which means no translations.
+  const dir = path.join(FRONT, 'locales');
+  const langs = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter(f => /^[a-zA-Z-]+\.js$/.test(f)).map(f => f.slice(0, -3)).sort();
   const copy = { en: WRAPPED_PUSH };
   for (const lang of langs) {
     const pack = (await import(pathToFileURL(path.join(FRONT, 'locales', lang + '.js')))).default;
