@@ -55,7 +55,7 @@ vi.mock('../lib/rest-alert.js', () => ({ setRestAccent: vi.fn() }))
 
 let host, root
 beforeEach(() => {
-  mocks.S = { unit: 'kg', theme: 'dark', accent: 'lime', workouts: [], routines: [], exWeights: {} }
+  mocks.S = { unit: 'kg', theme: 'dark', accent: 'sage', workouts: [], routines: [], exWeights: {} }
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -140,7 +140,7 @@ describe('Settings: your own accent colour', () => {
     mocks.S.accent = 'custom'; mocks.S.accentCustom = '#123456'
     mount()
     act(() => host.querySelector('.swatch[aria-label="Blue"]').click())
-    expect(mocks.S.accent).toBe('sky')
+    expect(mocks.S.accent).toBe('blue')
     expect(mocks.S.accentCustom).toBe('#123456')
     mount()
     expect(picker()).toBe(null)   // not the accent now: a tap selects it, no picker
@@ -171,7 +171,7 @@ describe('Settings: your own accent colour', () => {
   it('ignores a value that is not a colour', () => {
     mocks.S.accent = 'custom'; mocks.S.accentCustom = 'red;}'
     mount()
-    expect(host.querySelector('.lrow-v').textContent).toBe('Green')
+    expect(host.querySelector('.lrow-v').textContent).toBe('Sage')
     expect(own().classList.contains('unset')).toBe(true)
   })
 

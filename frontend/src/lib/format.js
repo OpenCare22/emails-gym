@@ -186,9 +186,11 @@ export const localTZ = () => { try { return Intl.DateTimeFormat().resolvedOption
 
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 // What each accent is called, for a screen reader (Settings' swatches carry no text).
-export const ACCENT_NAMES = { lime: 'Green', sky: 'Blue', orange: 'Orange', violet: 'Purple', pink: 'Pink', red: 'Red', teal: 'Teal', gold: 'Yellow' }
-export const ACCENTS = { lime: '#30d158', sky: '#0a84ff', orange: '#ff9f0a', violet: '#bf5af2', pink: '#ff375f', red: '#ff453a', teal: '#40c8e0', gold: '#ffd60a' }
+// Email's Gym presets (design/EMAILS_GYM_CLAUDE_CODE_HANDOFF.md §2). A saved key from before them
+// (lime, sky, …) is not one of these, so it is drawn as the default, sage (lib/accent.js accentKey).
+export const ACCENT_NAMES = { sage: 'Sage', blue: 'Blue', terracotta: 'Terracotta', lavender: 'Lavender' }
+export const ACCENTS = { sage: '#a7c7a2', blue: '#76b9f1', terracotta: '#e9a08a', lavender: '#c0abe9' }
 // Text drawn on top of that swatch. Matches the --on-acc values in index.css.
-export const ACCENT_INK = { lime: '#000000', sky: '#ffffff', orange: '#000000', violet: '#ffffff', pink: '#ffffff', red: '#ffffff', teal: '#000000', gold: '#000000' }
+export const ACCENT_INK = { sage: '#101510', blue: '#101510', terracotta: '#101510', lavender: '#101510' }
 // Android color int, opaque. JS bitwise ops are signed, so the high bit is cleared back to unsigned.
 export const argb = hex => (0xff000000 | parseInt(hex.slice(1), 16)) >>> 0

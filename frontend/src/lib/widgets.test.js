@@ -14,7 +14,7 @@ const TODAY = '2026-10-14'
 const push = { id: 'r1', name: 'Push', ex: [{ id: '0025', sets: 3, reps: 8, weight: 60 }, { id: 'c1', name: 'Cable thing', sets: 2, reps: 12 }] }
 const legs = { id: 'r2', name: 'Legs', ex: [{ id: '0043', sets: 5, reps: 5, weight: 100 }] }
 const S = (over = {}) => ({
-  unit: 'kg', accent: 'sky', routines: [push, legs], week: { 3: ['r1'], 5: ['r2'] }, dayPlan: {}, workouts: [], bodyweight: [], ...over,
+  unit: 'kg', accent: 'blue', routines: [push, legs], week: { 3: ['r1'], 5: ['r2'] }, dayPlan: {}, workouts: [], bodyweight: [], ...over,
 })
 
 describe('buildWidgetSnapshot', () => {
@@ -71,8 +71,8 @@ describe('buildWidgetSnapshot', () => {
 
   it('carries the accent and its words, and stands up to a thin state', () => {
     const snap = buildWidgetSnapshot(S(), { today: TODAY })
-    expect(snap.accent).toBe('#0a84ff')
-    expect(snap.ink).toBe('#ffffff')
+    expect(snap.accent).toBe('#76b9f1')
+    expect(snap.ink).toBe('#101510')
     expect(buildWidgetSnapshot(S({ accent: 'custom', accentCustom: '#123456' }), { today: TODAY }).accent).toBe('#123456')
     for (const k of ['today', 'restDay', 'upNext', 'thisWeek', 'weekStreak', 'streak', 'lastPR', 'done', 'running']) {
       expect(typeof snap.labels[k], k).toBe('string')

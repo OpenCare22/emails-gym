@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+// Upstream's behaviour with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('./fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { MODULES, MODULE_IDS, GROUPS, PRESETS, isOn, moduleStates, presetModules, presetOf, applyPreset, setModule, turnedOff, onCount } from './modules.js'
 
 describe('modules', () => {

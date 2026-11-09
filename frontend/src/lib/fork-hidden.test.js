@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { HIDDEN, hidden } from './fork-hidden.js'
 import { cardState, directory } from './integrations.js'
 import { searchSettings } from '../views/settings-pages.js'
+import { isOn } from './modules.js'
+import { activeSeason, seasonAccent } from './seasonal.js'
 
 const web = { mobile: false, platform: null, user: null, demo: false, health: null, server: null, offered: [] }
 const iphone = { ...web, mobile: true, platform: 'ios', health: { status: 'available', granted: false } }
@@ -10,7 +12,7 @@ const tr = s => s
 
 describe('what this fork hides (Phase 1, hide before delete)', () => {
   it('hides exactly the four features the plan names', () => {
-    expect([...HIDDEN].sort()).toEqual(['health-connect', 'imports', 'progress-photos', 'structural-balance'])
+    expect([...HIDDEN].sort()).toEqual(['health-connect', 'imports', 'progress-photos', 'seasonal', 'structural-balance'])
     for (const id of HIDDEN) expect(hidden(id)).toBe(true)
     expect(hidden('body')).toBe(false)
   })
@@ -35,5 +37,12 @@ describe('what this fork hides (Phase 1, hide before delete)', () => {
     expect(found('hevy')).not.toContain('Import from Hevy')
     expect(found('hevy')).not.toContain('Hevy')
     expect(found('import')).toContain('Import backup')
+  })
+
+  it('keeps seasonal themes off, so their colours never replace the Email\'s Gym accent', () => {
+    const S = { modules: { seasonal: true }, seasonal: { halloween: 'on', halloweenColors: true } }
+    expect(isOn(S, 'seasonal')).toBe(false)
+    expect(activeSeason(S, new Date('2026-10-31T12:00:00'))).toBe(null)
+    expect(seasonAccent(S, new Date('2026-10-31T12:00:00'))).toBe(null)
   })
 })

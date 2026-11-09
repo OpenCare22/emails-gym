@@ -9,6 +9,8 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Upstream's behaviour with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('../lib/fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 

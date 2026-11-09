@@ -85,7 +85,7 @@ describe('the rest alert in a browser shell', () => {
     const alert = await import('./rest-alert.js')
     await expect(alert.armRestAlert(Date.now() + 90_000, { totalSec: 90 })).resolves.toBe(false)
     alert.holdRestAlert(60, 90)
-    alert.setRestAccent('red')
+    alert.setRestAccent('terracotta')
     alert.disarmRestAlert()
     await settle()
     expect(h.registerPlugin).not.toHaveBeenCalled()
@@ -100,7 +100,7 @@ describe('the rest alert in the Android app', () => {
     const alert = await import('./rest-alert.js')
     await expect(alert.armRestAlert(Date.now() + 90_000, { totalSec: 90 })).resolves.toBe(true)
     alert.holdRestAlert(60, 90)
-    alert.setRestAccent('red')
+    alert.setRestAccent('terracotta')
     alert.disarmRestAlert()
     await settle()
     expect(h.registerPlugin).toHaveBeenCalledTimes(1)
@@ -117,10 +117,10 @@ describe('the rest alert in the Android app', () => {
     }))
     const alert = await import('./rest-alert.js')
     const at = Date.now() + 90_000
-    await alert.armRestAlert(at, { totalSec: 90, accent: 'red', sound: false })
+    await alert.armRestAlert(at, { totalSec: 90, accent: 'terracotta', sound: false })
     expect(schedule).toHaveBeenCalledWith(expect.objectContaining({
       at, totalMs: 90_000, sound: false, title: 'Rest’s over. Next set!', pause: 'Pause', resume: 'Resume', skip: 'Skip',
-      accent: (0xff000000 | 0xff453a) >>> 0, ink: 0xffffffff,
+      accent: (0xff000000 | 0xe9a08a) >>> 0, ink: (0xff000000 | 0x101510) >>> 0,
     }))
   })
 

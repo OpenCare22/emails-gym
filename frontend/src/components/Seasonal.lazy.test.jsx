@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Upstream's behaviour with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('../lib/fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 

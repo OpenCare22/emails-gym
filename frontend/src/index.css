@@ -17,70 +17,105 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------- tokens -- */
+/* Email's Gym tokens (design/EMAILS_GYM_CLAUDE_CODE_HANDOFF.md §2), mapped onto the variables the
+   app already uses, so every component picks them up without a second system:
+
+   handoff token            this sheet         dark       light
+   ------------------------ ------------------ ---------- ----------
+   Background               --bg               #0B0D0C    #F8F9F7
+   (sheets, bars)           --bg-el            #111412    #F3F5F2    between bg and surface
+   Surface/card             --surface          #161A18    #FFFFFF
+   Elevated surface         --surface-2        #202622    #F0F2EF    also --surface-raised
+   (controls, tracks)       --surface-3        #2A312C    #E4E8E3    between elevated and border
+   Divider/border           --sep              #333A35    #DCE2DC
+   Primary text             --label            #F5F7F4    #161B17
+   Secondary text           --label-2          #C4CEC5    #414A43
+   Muted text               --label-3/-dim     #A0AAA1    #626C64    solid, never opacity
+   Accent (decorative)      --acc              #A7C7A2    #648D68    per preset below
+   Text/link accent         --acc-ink          #A7C7A2    #355D3B
+   Accent foreground        --on-acc           #101510    #101510    5.0:1 on light sage
+   Primary button           --btn              #F5F7F4    #161B17
+   Primary button text      --on-btn           #101510    #FFFFFF
+   Success / PR             --green-ink        #76C59A    #236B46
+   Warning                  --orange-ink       #F0BE65    #8A5B0B
+   Error                    --red-ink          #FF8A8E    #A83138
+   Heart rate               --heart-rate       #FF7785    #B33443    new
+   HR zones                 --zone-1..5        one set for both themes   new
+   Chart series             --chart-1..6       one set for both themes   new
+   Card radius              --r-card           16px
+   Control radius           --r                12px
+
+   frontend/src/lib/theme-contrast.test.js reads this block and checks every text/background
+   pair in both themes and every accent preset against WCAG AA. */
 :root {
   /* surfaces — dark is the default */
-  --bg:        #000000;
-  --bg-el:     #0e0e10;   /* elevated backdrop (sheets, bars) */
-  --surface:   #1c1c1e;   /* card / grouped-list fill */
-  --surface-2: #2c2c2e;   /* pressed + nested fill */
-  --surface-3: #3a3a3c;   /* controls (segmented track, switch off) */
-  /* Things that float over the page (the tour bubble, a dialog, the rest timer, a chart's tooltip,
-     the back-to-top button): one step lighter than a card and edged with a hairline of light, so
-     in the dark theme they read as lifted rather than as one more card under a shadow you cannot
-     see on black (redesign 1.4.5, P11). In the light theme white with the shadow does that. */
-  --surface-raised: #2c2c2e;
-  --raised-line: rgba(255,255,255,.09);
+  --bg:        #0b0d0c;
+  --bg-el:     #111412;   /* elevated backdrop (sheets, bars) */
+  --surface:   #161a18;   /* card / grouped-list fill */
+  --surface-2: #202622;   /* pressed + nested fill */
+  --surface-3: #2a312c;   /* controls (segmented track, switch off) */
+  /* Things that float over the page (the tour bubble, a dialog, the rest timer, a chart's tooltip):
+     one step lighter than a card and edged with a hairline of light. */
+  --surface-raised: #202622;
+  --raised-line: rgba(245,247,244,.09);
 
-  /* text */
-  --label:     #ffffff;
-  --label-2:   rgba(235,235,245,.60);
-  --label-3:   rgba(235,235,245,.32);
-  --label-4:   rgba(235,235,245,.18);
-  --label-dim: rgba(235,235,245,.50);
+  /* text: solid colours, so contrast is what the test measures */
+  --label:     #f5f7f4;
+  --label-2:   #c4cec5;
+  --label-3:   #a0aaa1;
+  --label-4:   rgba(160,170,161,.22);   /* fills and faint rules only, never text */
+  --label-dim: #a0aaa1;
 
   /* lines */
-  --sep:       rgba(84,84,88,.60);
-  --sep-op:    rgba(84,84,88,.34);   /* for edges sitting over blur */
+  --sep:       #333a35;
+  --sep-op:    rgba(51,58,53,.6);   /* for edges sitting over blur */
   --hair:      .5px;
 
-  /* system palette (iOS dark values) */
-  --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
-  --yellow:#ffd60a; --teal:#40c8e0; --indigo:#5e5ce6; --pink:#ff375f;
-  --purple:#bf5af2; --mint:#63e6e2; --brown:#ac8e68; --grey:#8e8e93;
+  /* system palette, kept for icon tints and status glyphs */
+  --blue:#76b9f1; --green:#76c59a; --red:#ff8a8e; --orange:#f0be65;
+  --yellow:#f0be65; --teal:#4db8a3; --indigo:#c0abe9; --pink:#e58e86;
+  --purple:#c0abe9; --mint:#4db8a3; --brown:#a9b8bf; --grey:#a0aaa1;
 
-  /* accent (per-account, synced) */
-  --acc:  var(--green);
-  --acc-2:#248a3d;
-  --on-acc:#000000;
+  /* accent (per-account, synced): sage by default */
+  --acc:  #a7c7a2;
+  --acc-2:#7d9a79;
+  --on-acc:#101510;
   --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
   --acc-line: color-mix(in srgb, var(--acc) 38%, transparent);
-  /* The accent as text, an icon or a focus ring: the accent itself in the dark theme. In the light
-     theme the presets' fills (#34c759 green, #ff9500 orange, #ffcc00 yellow) are 2:1 on the page,
-     so every accent-coloured word (Add set, Next, the progression line, links) takes a darker
-     shade of the same hue that reaches 4.5:1 (design review 1.4.5). Fills keep --acc. */
-  --acc-ink: var(--acc);
+  /* The accent as text, an icon or a focus ring. */
+  --acc-ink: #a7c7a2;
+
+  /* the primary action: off-white in the dark theme, near-black in the light one (handoff §1) */
+  --btn: #f5f7f4;
+  --on-btn: #101510;
+
+  /* heart rate, its zones, and chart series (handoff §2): series hues, not text colours */
+  --heart-rate: #ff7785;
+  --zone-1:#438fe0; --zone-2:#30b78b; --zone-3:#9dbe55; --zone-4:#e9a64f; --zone-5:#e76670;
+  --chart-1:#56a8e3; --chart-2:#e1aa51; --chart-3:#4db8a3; --chart-4:#bb8bdd; --chart-5:#e58e86; --chart-6:#a9b8bf;
 
   /* geometry */
-  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:14px;
+  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:16px;
   --pad:16px;
+  --gutter:20px; --card-gap:12px; --touch-min:44px;
   --icon-stroke:1.7;
 
-  /* type scale (redesign 1.4.5, P1): the iPhone's text styles, in rem so a browser's text size
-     and zoom scale the words and the layout around them together. Every text size in the sheets
-     and the views is one of these; what stays in px is a glyph (an icon's size) or a display
-     figure inside a fixed box (the timer, a tile's number). Size, leading and tracking move as a
-     set: tighter as the type grows, a hair looser as it shrinks (APPLE §15). */
+  /* type scale, in rem so a browser's text size and zoom scale it (handoff §3) */
+  --font: "Inter", system-ui, -apple-system, sans-serif;
   --fs-caption2:.6875rem;  /* 11: tab labels, badges */
-  --fs-caption:.75rem;     /* 12: meta, axis text, small labels */
-  --fs-footnote:.8125rem;  /* 13: subtitles, the small line over a title */
-  --fs-subhead:.9375rem;   /* 15: secondary lines, values */
-  --fs-callout:1rem;       /* 16: titles in dense lists, inputs */
-  --fs-body:1.0625rem;     /* 17: body and row titles */
-  --fs-title3:1.25rem;     /* 20: card titles, an exercise name */
+  --fs-caption:.75rem;     /* 12: small metadata */
+  --fs-footnote:.8125rem;  /* 13: small metadata, subtitles */
+  --fs-subhead:.875rem;    /* 14: secondary labels */
+  --fs-callout:1rem;       /* 16: body, controls */
+  --fs-body:1rem;          /* 16: body and row titles */
+  --fs-card:1.0625rem;     /* 17: card headings */
+  --fs-section:1.125rem;   /* 18: section headings */
+  --fs-title3:1.375rem;    /* 22: the exercise on the workout screen */
   --fs-title2:1.375rem;    /* 22: a lead line */
-  --fs-large:2.125rem;     /* 34: the page title (30 on a narrow phone, below) */
-  --lh-tight:1.06; --lh-title:1.2; --lh-body:1.29; --lh-small:1.38;
-  --ls-large:-.028em; --ls-title:-.021em; --ls-body:-.01em; --ls-small:-.004em;
+  --fs-large:2rem;         /* 32: the screen heading (30 on a narrow phone, below) */
+  --fs-display:3rem;       /* 48: big workout weight and the timer */
+  --lh-tight:1.08; --lh-title:1.2; --lh-body:1.4; --lh-small:1.4;
+  --ls-large:-.022em; --ls-title:-.017em; --ls-body:-.006em; --ls-small:0em;
 
   /* motion */
   --ease:cubic-bezier(.32,.72,0,1);
@@ -113,90 +148,52 @@
 }
 
 :root[data-theme="light"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #f7f7fa;
+  --bg:        #f8f9f7;
+  --bg-el:     #f3f5f2;
   --surface:   #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
+  --surface-2: #f0f2ef;
+  --surface-3: #e4e8e3;
   --surface-raised: #ffffff;
-  --raised-line: rgba(60,60,67,.10);
+  --raised-line: rgba(22,27,23,.10);
 
-  --label:     #000000;
-  /* .75, not the system's .60: at .60 the secondary text was 3.5:1 on a white card and 3.2:1 on
-     the grey page, under the 4.5:1 that 13-15px text needs. .75 is 5.2:1 and 4.9:1, still
-     plainly the second voice next to the black (design review 1.4.5). */
-  --label-2:   rgba(60,60,67,.75);
-  --label-3:   rgba(60,60,67,.30);
-  --label-4:   rgba(60,60,67,.16);
-  --label-dim: var(--label-2);
+  --label:     #161b17;
+  --label-2:   #414a43;
+  --label-3:   #626c64;
+  --label-4:   rgba(98,108,100,.18);
+  --label-dim: #626c64;
 
-  --sep:       rgba(60,60,67,.29);
-  --sep-op:    rgba(60,60,67,.20);
+  --sep:       #dce2dc;
+  --sep-op:    rgba(220,226,220,.7);
 
-  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
-  --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
-  --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
-  --acc-2:#248a3d;
-  --on-acc:#ffffff;
+  --blue:#2466a0; --green:#236b46; --red:#a83138; --orange:#8a5b0b;
+  --yellow:#8a5b0b; --teal:#1f7a68; --indigo:#735aa0; --pink:#9c503a;
+  --purple:#735aa0; --mint:#1f7a68; --brown:#5d6b72; --grey:#626c64;
+
+  --acc:#648d68; --acc-2:#4e7052; --on-acc:#101510; --acc-ink:#355d3b;
+  --btn: #161b17;
+  --on-btn: #ffffff;
+  --heart-rate: #b33443;
+  /* The handoff's zone and series hues are 2.0-3.4:1 on white; the same hues darkened just
+     enough for 3:1 against the light card and elevated surface (WCAG 1.4.11 graphics). */
+  --zone-1:#428cdc; --zone-2:#299c76; --zone-3:#799241; --zone-4:#b3803d; --zone-5:#de626c;
+  --chart-1:#4a90c3; --chart-2:#ad833e; --chart-3:#3f9786; --chart-4:#a379c0; --chart-5:#be766f; --chart-6:#808c91;
 }
 
-/* accents — Apple's system colours, so a recolour never looks off-system */
-:root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
-:root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
-:root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
-:root[data-accent="violet"]{ --acc:var(--purple); --acc-2:#8944ab; --on-acc:#fff }
-:root[data-accent="pink"]  { --acc:var(--pink);   --acc-2:#d70036; --on-acc:#fff }
-:root[data-accent="red"]   { --acc:var(--red);    --acc-2:#d70015; --on-acc:#fff }
-:root[data-accent="teal"]  { --acc:var(--teal);   --acc-2:#0071a4; --on-acc:#000 }
-:root[data-accent="gold"]  { --acc:var(--yellow); --acc-2:#b25000; --on-acc:#000; --knob-ring:rgba(0,0,0,.28) }
-/* --acc-ink in the light theme, per preset: 4.5:1 or better on both --bg (#f2f2f7) and white. A
-   colour of the user's own gets its --acc-ink inline from lib/accent.js (inkIn), to the same 4.5:1
-   in both themes (redesign 1.4.5, P12). */
-:root[data-theme="light"][data-accent="lime"]  { --acc-ink:#1a7f37 }
-:root[data-theme="light"][data-accent="sky"]   { --acc-ink:#0062cc }
-:root[data-theme="light"][data-accent="orange"]{ --acc-ink:#a85200 }
-:root[data-theme="light"][data-accent="violet"]{ --acc-ink:#8944ab }
-:root[data-theme="light"][data-accent="pink"]  { --acc-ink:#d70036 }
-:root[data-theme="light"][data-accent="red"]   { --acc-ink:#d70015 }
-:root[data-theme="light"][data-accent="teal"]  { --acc-ink:#0071a4 }
-:root[data-theme="light"][data-accent="gold"]  { --acc-ink:#8f5e00 }
-/* Label colour on a filled accent button is picked per accent by measured contrast,
-   not by taste. Button text is 17px/600, so the AA bar is 3:1 (large text). White on
-   the light-theme green is 2.22:1 and on teal 2.57:1 — both fail, and green is the
-   DEFAULT accent, so every primary button in light mode was failing. Black scores
-   9.46 / 8.16 there. Blue, purple, pink and red keep white (3.5–4.1:1), which both
-   passes and matches the platform convention. */
-:root[data-theme="light"][data-accent="lime"],
-:root[data-theme="light"][data-accent="teal"]  { --on-acc:#000 }
-:root[data-theme="light"][data-accent="sky"],
-:root[data-theme="light"][data-accent="violet"],
-:root[data-theme="light"][data-accent="pink"],
-:root[data-theme="light"][data-accent="red"]   { --on-acc:#fff }
+/* accents: sage (the default, above), blue, terracotta, lavender. Each has a fill (--acc), its
+   pressed shade, the text on it (--on-acc) and its colour as text (--acc-ink), per theme.
+   A colour of the user's own gets the same set inline from lib/accent.js, held to the same bars. */
+:root[data-accent="blue"]      { --acc:#76b9f1; --acc-2:#4f93cc; --on-acc:#101510; --acc-ink:#76b9f1 }
+:root[data-accent="terracotta"]{ --acc:#e9a08a; --acc-2:#c47d68; --on-acc:#101510; --acc-ink:#e9a08a }
+:root[data-accent="lavender"]  { --acc:#c0abe9; --acc-2:#9a86c4; --on-acc:#101510; --acc-ink:#c0abe9 }
+:root[data-theme="light"][data-accent="blue"]      { --acc:#2466a0; --acc-2:#1b4f7c; --on-acc:#ffffff; --acc-ink:#2466a0 }
+:root[data-theme="light"][data-accent="terracotta"]{ --acc:#9c503a; --acc-2:#7a3e2d; --on-acc:#ffffff; --acc-ink:#9c503a }
+:root[data-theme="light"][data-accent="lavender"]  { --acc:#735aa0; --acc-2:#59457d; --on-acc:#ffffff; --acc-ink:#735aa0 }
 
-/* Increase Contrast (iOS, macOS) and the other platforms' high-contrast settings. Apple's HIG
-   asks custom colours to supply a "significantly more differentiated increased contrast option";
-   the system colours below are the increased-contrast values from its colour table. Secondary
-   text and hairlines get firmer too, since those are what fade first. The brighter dark-theme
-   accents fall under 3:1 with white on a filled button (blue 2.2:1, red 2.9:1), so every accent
-   takes black text there; the darker light-theme ones keep the inks chosen above. */
+/* Increase Contrast: secondary and muted text move toward the primary, and hairlines firm up,
+   since those are what fade first. The accents keep their fills; their inks already pass AA. */
 @media (prefers-contrast: more){
-  :root{
-    --blue:#5cb8ff; --green:#4ad968; --red:#ff6165; --orange:#ffa056;
-    --yellow:#fedf43; --teal:#3bddec; --indigo:#a7aaff; --pink:#ff8ac4;
-    --purple:#ea8dff; --mint:#54dfcb; --brown:#dba679; --grey:#aeaeb2;
-    --label-2:rgba(235,235,245,.78); --label-3:rgba(235,235,245,.55); --label-4:rgba(235,235,245,.36);
-    --label-dim:rgba(235,235,245,.66);
-    --sep:rgba(84,84,88,.95); --sep-op:rgba(84,84,88,.8);
-  }
-  :root:not([data-theme="light"]){ --on-acc:#000 }
-  :root[data-theme="light"]{
-    --blue:#1e6ef4; --green:#008932; --red:#e9152d; --orange:#c55300;
-    --yellow:#a16a00; --teal:#008198; --indigo:#564ade; --pink:#e7124d;
-    --purple:#b02fc2; --mint:#008575; --brown:#956d51; --grey:#6c6c70;
-    --label-2:rgba(60,60,67,.82); --label-3:rgba(60,60,67,.6); --label-4:rgba(60,60,67,.4);
-    --label-dim:var(--label-2);
-    --sep:rgba(60,60,67,.6); --sep-op:rgba(60,60,67,.5);
-  }
+  :root{ --label-2:#dde4dd; --label-3:#c4cec5; --label-dim:#c4cec5; --sep:#4a534c; --sep-op:#4a534c }
+  :root[data-theme="light"]{ --label-2:#2b322d; --label-3:#414a43; --label-dim:#414a43; --sep:#b9c2ba; --sep-op:#b9c2ba }
 }
 
 /* ---------------------------------------------------------------- reset -- */
@@ -211,7 +208,7 @@ html{
 }
 body{
   background:var(--bg);color:var(--label);
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Segoe UI',Roboto,system-ui,sans-serif;
+  font-family:var(--font);
   font-size:var(--fs-body);line-height:var(--lh-body);letter-spacing:var(--ls-body);
   min-height:100vh;min-height:100dvh;overscroll-behavior-y:none;overflow-x:clip;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
@@ -666,7 +663,7 @@ h4.sec{
    fully opaque instead. Keep this in sync with the rules above. */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   #tabbar{background:var(--bg-el)}
-  :root[data-theme="light"] #tabbar{background:#f9f9fb}
+  :root[data-theme="light"] #tabbar{background:var(--bg-el)}
   #timer{background:var(--surface-raised)}
   #toast{background:var(--surface-2)}
 }
@@ -676,7 +673,7 @@ h4.sec{
 @media (prefers-reduced-transparency: reduce){
   #tabbar,#timer,#toast,.conn-bar,.whdr.stick,.stats-index{-webkit-backdrop-filter:none;backdrop-filter:none}
   #tabbar{background:var(--bg-el)}
-  :root[data-theme="light"] #tabbar{background:#f9f9fb}
+  :root[data-theme="light"] #tabbar{background:var(--bg-el)}
   #timer{background:var(--surface-raised)}
   #toast{background:var(--surface-2)}
   .conn-bar,.whdr.stick,.stats-index{background:var(--bg)}
@@ -1020,8 +1017,8 @@ body.chips-dragging *{cursor:inherit}
 /* Dark: the chosen segment is raised, a step lighter than its track, as on the iPhone. It used to
    be --surface on a --surface-3 track, darker than the track, so the choice read as a dent pressed
    into the control rather than the piece standing on it (design review 1.4.5). */
-:root:not([data-theme="light"]) .seg{background:rgba(118,118,128,.24)}
-:root:not([data-theme="light"]) .seg-sel{background:#636366;box-shadow:0 3px 8px rgba(0,0,0,.24),0 1px 1px rgba(0,0,0,.12)}
+:root:not([data-theme="light"]) .seg{background:var(--surface-2)}
+:root:not([data-theme="light"]) .seg-sel{background:#3a433c;box-shadow:0 3px 8px rgba(0,0,0,.24),0 1px 1px rgba(0,0,0,.12)}
 .seg button{
   position:relative;z-index:1;padding:6px 8px;font-size:14px;font-weight:500;
   letter-spacing:-.006em;color:var(--label);display:flex;align-items:center;
@@ -1048,7 +1045,7 @@ body.chips-dragging *{cursor:inherit}
 .seg.seg-scroll>.seg-sel{display:none}
 .seg.seg-scroll>button.on{background:var(--surface);box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.06)}
 :root[data-theme="light"] .seg.seg-scroll>button.on{background:#fff}
-:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:#636366}
+:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:#3a433c}
 /* Every segment as wide as the widest label (QA 10-05: with flex:1 1 0 the track was sized by the
    labels' sum but split evenly, so "Compact" / "Versteckt" got less than its own width and
    touched the segment's edge). A grid of equal 1fr columns sizes each to the widest one, so the
@@ -2250,7 +2247,7 @@ button.mchip{border:none;font:inherit;font-size:var(--fs-caption);cursor:pointer
    favourites): the system yellow is 1.6:1 on white, so in the light theme those read as blank
    space (design review 1.4.5). Fills and tints keep --yellow. */
 :root{
-  --streak-ink:var(--orange); --win-ink:var(--green); --frost:#64d2ff; --frost-soft:rgba(100,210,255,.16);
+  --streak-ink:var(--orange); --win-ink:var(--green); --frost:#76b9f1; --frost-soft:rgba(118,185,241,.16);
   --gold-ink:var(--yellow);
   /* The status greens and oranges as text, a glyph or a thin bar (the set-vs-last arrows, the
      weekly-sets status, a level's steps): the system colours in the dark theme, a darker shade of
@@ -2262,10 +2259,10 @@ button.mchip{border:none;font:inherit;font-size:var(--fs-caption);cursor:pointer
   --red-ink:var(--red);
 }
 :root[data-theme="light"]{
-  --streak-ink:#e06a00; --win-ink:#1e9e47; --frost:#0a7fc4; --frost-soft:rgba(10,127,196,.12);
+  --streak-ink:#8a5b0b; --win-ink:#236b46; --frost:#2466a0; --frost-soft:rgba(36,102,160,.12);
   --gold-ink:#8f5e00;
-  --green-ink:#1a7f37; --orange-ink:#a85200;
-  --red-ink:#d70015;
+  --green-ink:#236b46; --orange-ink:#8a5b0b;
+  --red-ink:#a83138;
 }
 /* The flame: a warm gradient with a light core; three gentle flickers when it appears, then still. */
 .flame{display:inline-block;flex:none;overflow:visible;vertical-align:-.12em}

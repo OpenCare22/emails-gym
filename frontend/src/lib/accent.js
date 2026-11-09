@@ -1,6 +1,6 @@
 // The accent colour: one of the presets (lib/format.js ACCENTS) or a colour of the user's own.
 //
-// Stored as two synced settings: `accent` names the choice ('lime', 'sky', … or 'custom') and
+// Stored as two synced settings: `accent` names the choice ('sage', 'blue', … or 'custom') and
 // `accentCustom` keeps the user's own colour as '#rrggbb', also while a preset is picked, so
 // going back to it brings the same colour back. An app from before this knows no 'custom' and
 // draws its default green (App.jsx falls back on any key it does not know), and leaves
@@ -16,7 +16,7 @@
 // A grey goes further, so it never looks like a switched-off button (THEMES below, accent.test.js).
 import { ACCENTS, ACCENT_INK } from './format.js'
 
-export const DEFAULT_ACCENT = 'lime'
+export const DEFAULT_ACCENT = 'sage'
 export const CUSTOM = 'custom'
 
 const HEX = /^#[0-9a-f]{6}$/i
@@ -98,8 +98,9 @@ export function inkOn(hex) {
 // --label-2 makes every button look switched off. A grey goes further: to text contrast (4.5:1)
 // on the theme, and at least 2:1 away from --label-2.
 export const THEMES = {
-  dark: { bgs: ['#000000', '#1c1c1e'], min: 3, toward: '#ffffff', label2: ['#8d8d93', '#98989f'] },
-  light: { bgs: ['#f2f2f7', '#ffffff'], min: 3, toward: '#000000', label2: ['#85858b', '#8a8a8e'] },
+  // label2: the muted text, the grey a grey accent could be mistaken for (index.css --label-3)
+  dark: { bgs: ['#0b0d0c', '#161a18'], min: 3, toward: '#ffffff', label2: ['#a0aaa1'] },
+  light: { bgs: ['#f8f9f7', '#ffffff'], min: 3, toward: '#000000', label2: ['#626c64'] },
 }
 // Below this HSL saturation a colour counts as a grey (white, black, #808080, near-whites).
 export const GREY_SAT = 0.25
@@ -195,7 +196,9 @@ export function customAccentVars(hex, theme) {
   const acc = readableIn(c, theme)
   const acc2 = mix(acc, '#000000', 0.25)
   return {
-    '--acc': acc, '--acc-2': acc2, '--on-acc': inkOnBoth(acc, acc2), '--acc-ink': inkIn(acc, theme),
+    // AA (4.5:1) at rest always: black or white reaches 4.58:1 on any colour, so when the
+    // pressed-shade compromise would fall under that, the resting contrast wins.
+    '--acc': acc, '--acc-2': acc2, '--on-acc': contrast(acc, inkOnBoth(acc, acc2)) >= 4.5 ? inkOnBoth(acc, acc2) : inkOn(acc), '--acc-ink': inkIn(acc, theme),
     '--knob-ring': contrast('#ffffff', acc) < 1.5 ? KNOB_RING : 'transparent',
   }
 }

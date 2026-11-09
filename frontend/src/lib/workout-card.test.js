@@ -228,13 +228,13 @@ describe('layoutWorkoutCard', () => {
 
 describe('cardPalette', () => {
   it('is the app’s dark or light look with the accent, darker accent text on light paper', () => {
-    const dark = cardPalette('dark', '#30d158')
-    const light = cardPalette('light', '#30d158')
-    expect(dark).toMatchObject({ bg: '#000000', surface: '#1c1c1e', label: '#ffffff', acc: '#30d158', accText: '#30d158' })
-    expect(light).toMatchObject({ bg: '#f2f2f7', surface: '#ffffff', label: '#000000', acc: '#30d158' })
-    expect(light.accText).not.toBe('#30d158')
-    expect(parseColor(light.accText)[1]).toBeLessThan(parseColor('#30d158')[1])
-    expect(cardPalette('dark', 'nonsense').acc).toBe('#30d158')
+    const dark = cardPalette('dark', '#a7c7a2')
+    const light = cardPalette('light', '#a7c7a2')
+    expect(dark).toMatchObject({ bg: '#0b0d0c', surface: '#161a18', label: '#f5f7f4', acc: '#a7c7a2', accText: '#a7c7a2' })
+    expect(light).toMatchObject({ bg: '#f8f9f7', surface: '#ffffff', label: '#161b17', acc: '#a7c7a2' })
+    expect(light.accText).not.toBe('#a7c7a2')
+    expect(parseColor(light.accText)[1]).toBeLessThan(parseColor('#a7c7a2')[1])
+    expect(cardPalette('dark', 'nonsense').acc).toBe('#a7c7a2')
   })
 })
 

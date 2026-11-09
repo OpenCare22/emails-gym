@@ -7,7 +7,9 @@
 //   imports              importing from other apps: Settings → Data and the Integrations cards
 //                        (Import backup stays: it restores this app's own backups)
 //   health-connect       the Android-only Health Connect card on Integrations
-export const HIDDEN = new Set(['progress-photos', 'structural-balance', 'imports', 'health-connect'])
+//   seasonal             the Seasonal themes module (Halloween, Christmas): their colours would
+//                        replace the Email's Gym accent (DESIGN_PLAN step 1)
+export const HIDDEN = new Set(['progress-photos', 'structural-balance', 'imports', 'health-connect', 'seasonal'])
 
 /** Whether a feature is hidden in this fork. */
 export const hidden = id => HIDDEN.has(id)

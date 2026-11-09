@@ -42,12 +42,12 @@ export function mixColor(a, b, p) {
   return `rgb(${ch(0)}, ${ch(1)}, ${ch(2)})`
 }
 
-export function cardPalette(style, acc = '#30d158') {
+export function cardPalette(style, acc = '#a7c7a2') {
   const light = style === 'light'
-  const a = parseColor(acc) ? acc : '#30d158'
+  const a = parseColor(acc) ? acc : '#a7c7a2'
   return light
-    ? { bg: '#f2f2f7', surface: '#ffffff', tile: '#f2f2f7', label: '#000000', label2: '#6c6c70', acc: a, accText: mixColor(a, '#000000', 0.62), sep: '#e5e5ea', light: true }
-    : { bg: '#000000', surface: '#1c1c1e', tile: '#2c2c2e', label: '#ffffff', label2: '#98989f', acc: a, accText: a, sep: '#38383a', light: false }
+    ? { bg: '#f8f9f7', surface: '#ffffff', tile: '#f0f2ef', label: '#161b17', label2: '#626c64', acc: a, accText: mixColor(a, '#000000', 0.62), sep: '#dce2dc', light: true }
+    : { bg: '#0b0d0c', surface: '#161a18', tile: '#202622', label: '#f5f7f4', label2: '#a0aaa1', acc: a, accText: a, sep: '#333a35', light: false }
 }
 
 // The dumbbell of the app icon (public/icon-512.png) on a 208×72 grid, centred on 0,0.

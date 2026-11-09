@@ -24,23 +24,23 @@ describe('sanitizeAccent', () => {
   })
   it('keeps an unknown preset word (a newer app’s) but not junk', () => {
     expect(sanitizeAccent({ accent: 'mint' }).accent).toBe('mint')
-    expect(sanitizeAccent({ accent: '"><script>' }).accent).toBe('lime')
-    expect(sanitizeAccent({ accent: 42 }).accent).toBe('lime')
+    expect(sanitizeAccent({ accent: '"><script>' }).accent).toBe('sage')
+    expect(sanitizeAccent({ accent: 42 }).accent).toBe('sage')
     expect(sanitizeAccent({ theme: 'dark' })).toEqual({ theme: 'dark' })
   })
 })
 
 describe('accentKey / accentValue', () => {
   it('draws a preset, the own colour, or the default', () => {
-    expect(accentKey({ accent: 'sky' })).toBe('sky')
-    expect(accentKey({})).toBe('lime')
-    expect(accentKey({ accent: 'mint' })).toBe('lime')
-    expect(accentKey({ accent: 'toString' })).toBe('lime')
-    expect(accentKey({ accent: 'custom' })).toBe('lime')
-    expect(accentKey({ accent: 'custom', accentCustom: 'nope' })).toBe('lime')
+    expect(accentKey({ accent: 'blue' })).toBe('blue')
+    expect(accentKey({})).toBe('sage')
+    expect(accentKey({ accent: 'mint' })).toBe('sage')
+    expect(accentKey({ accent: 'toString' })).toBe('sage')
+    expect(accentKey({ accent: 'custom' })).toBe('sage')
+    expect(accentKey({ accent: 'custom', accentCustom: 'nope' })).toBe('sage')
     expect(accentValue({ accent: 'custom', accentCustom: '#123ABC' })).toBe('#123abc')
     // the own colour is kept while a preset is the accent
-    expect(accentValue({ accent: 'red', accentCustom: '#123abc' })).toBe('red')
+    expect(accentValue({ accent: 'terracotta', accentCustom: '#123abc' })).toBe('terracotta')
   })
 })
 
@@ -103,7 +103,7 @@ describe('readable on the theme', () => {
     }
     // a grey that already stands apart is left alone
     expect(readableIn('#333333', 'light')).toBe('#333333')
-    expect(readableIn('#e0e0e0', 'dark')).toBe('#e0e0e0')
+    expect(readableIn('#fafafa', 'dark')).toBe('#fafafa')
     expect(isGrey('#ff00aa')).toBe(false)
   })
   it('lightens a very dark colour in dark mode and darkens a very light one in light mode', () => {
@@ -135,24 +135,22 @@ describe('CSS for the own colour', () => {
     expect(v['--acc']).toBe(readableIn('#000033', 'dark'))
     expect(v['--on-acc']).toBe(inkOn(v['--acc']))
   })
-  it('the button text reads on the pressed shade too, not only at rest', () => {
-    // #eb0037 in dark mode: black reads on it at rest but only 2.9:1 on its pressed shade
-    const red = customAccentVars('#eb0037', 'dark')
-    expect(red['--on-acc']).toBe('#ffffff')
-    expect(contrast(red['--acc-2'], red['--on-acc'])).toBeGreaterThanOrEqual(3)
-    let restMin = 99
+  it('the button text is AA (4.5:1) at rest for every colour, and still reads while pressed', () => {
+    // The fork holds resting text to AA (DESIGN_PLAN step 1); upstream traded rest for the
+    // pressed shade (4.35:1 / 3:1). A press lasts a moment, so 2.9:1 there is the floor.
+    let restMin = 99, pressMin = 99
     for (let r = 0; r < 256; r += 15) for (let g = 0; g < 256; g += 15) for (let b = 0; b < 256; b += 15) {
       const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
       for (const theme of ['dark', 'light']) {
         const v = customAccentVars(hex, theme)
-        expect(contrast(v['--acc-2'], v['--on-acc']), hex + ' ' + theme).toBeGreaterThanOrEqual(3)
         restMin = Math.min(restMin, contrast(v['--acc'], v['--on-acc']))
+        pressMin = Math.min(pressMin, contrast(v['--acc-2'], v['--on-acc']))
       }
     }
-    expect(restMin).toBeGreaterThanOrEqual(4.3)
-    // the ink keeps inkOn's pick whenever that one holds on the pressed shade
-    expect(inkOnBoth('#30d158', mix('#30d158', '#000000', 0.25))).toBe('#000000')
+    expect(restMin).toBeGreaterThanOrEqual(4.5)
+    expect(pressMin).toBeGreaterThanOrEqual(2.9)
   })
+
   // P12 (redesign 1.4.5): the accent as words reaches the text bar, as the presets' --acc-ink does
   it('gives the own colour a text shade at 4.5:1 on the page and on a card, in both themes', () => {
     for (let r = 0; r < 256; r += 51) for (let g = 0; g < 256; g += 51) for (let b = 0; b < 256; b += 51) {
@@ -185,12 +183,12 @@ describe('CSS for the own colour', () => {
     expect(el.dataset.accent).toBe('custom')
     expect(el.style.getPropertyValue('--acc')).toBe('#ff00aa')
     expect(el.style.getPropertyValue('--on-acc')).toBe(inkOn('#ff00aa'))
-    applyAccent(el, 'sky', 'light')
-    expect(el.dataset.accent).toBe('sky')
+    applyAccent(el, 'blue', 'light')
+    expect(el.dataset.accent).toBe('blue')
     expect(el.style.getPropertyValue('--acc')).toBe('')
     expect(el.style.getPropertyValue('--knob-ring')).toBe('')
     applyAccent(el, 'url(x)', 'dark')
-    expect(el.dataset.accent).toBe('lime')
+    expect(el.dataset.accent).toBe('sage')
   })
 })
 
@@ -216,10 +214,10 @@ describe('the accent tints without color-mix()', () => {
 
 describe('the native countdown colours', () => {
   it('takes a preset key or the own colour', () => {
-    expect(accentPair('sky')).toEqual({ accent: ACCENTS.sky, ink: '#ffffff' })
+    expect(accentPair('blue')).toEqual({ accent: ACCENTS.blue, ink: '#101510' })
     expect(accentPair('#ffd60a')).toEqual({ accent: '#ffd60a', ink: '#000000' })
-    expect(accentPair('nonsense')).toEqual({ accent: ACCENTS.lime, ink: '#000000' })
-    expect(accentPair(undefined)).toEqual({ accent: ACCENTS.lime, ink: '#000000' })
+    expect(accentPair('nonsense')).toEqual({ accent: ACCENTS.sage, ink: '#101510' })
+    expect(accentPair(undefined)).toEqual({ accent: ACCENTS.sage, ink: '#101510' })
   })
 })
 
@@ -228,11 +226,11 @@ describe('sync with an app from before own colours', () => {
   it('an older copy picking a preset keeps the own colour for later', () => {
     const mine = { ...base, _ts: 10, accent: 'custom', accentCustom: '#ff00aa', edited: { accent: 10, accentCustom: 10 } }
     // the old app knows nothing of accentCustom; its copy still carries it untouched
-    const old = { ...base, _ts: 20, accent: 'sky', accentCustom: '#ff00aa', edited: { accent: 20, accentCustom: 10 } }
+    const old = { ...base, _ts: 20, accent: 'blue', accentCustom: '#ff00aa', edited: { accent: 20, accentCustom: 10 } }
     const out = mergeStates(mine, old)
-    expect(out.accent).toBe('sky')
+    expect(out.accent).toBe('blue')
     expect(out.accentCustom).toBe('#ff00aa')
-    expect(accentValue(out)).toBe('sky')
+    expect(accentValue(out)).toBe('blue')
   })
   it('an older copy without the field does not lose it, and a newer one draws it', () => {
     const mine = { ...base, _ts: 30, accent: 'custom', accentCustom: '#123456', edited: { accent: 30, accentCustom: 30 } }
@@ -241,16 +239,16 @@ describe('sync with an app from before own colours', () => {
     expect(accentValue(out)).toBe('#123456')
   })
   it('what an old app makes of "custom": its own default, nothing broken', () => {
-    // App.jsx before own colours: ACCENTS[accent] ? accent : 'lime'
+    // App.jsx before own colours: ACCENTS[accent] ? accent : the default
     const S = { accent: 'custom', accentCustom: '#123456' }
-    expect(ACCENTS[S.accent] ? S.accent : 'lime').toBe('lime')
+    expect(ACCENTS[S.accent] ? S.accent : 'sage').toBe('sage')
   })
   it('a malformed colour from the other copy is dropped by the merge', () => {
     const mine = { ...base, _ts: 10, accent: 'red' }
     const theirs = { ...base, _ts: 20, accent: 'custom', accentCustom: '#fff;}*{color:red' }
     const out = mergeStates(mine, theirs)
     expect('accentCustom' in out).toBe(false)
-    expect(accentValue(out)).toBe('lime')
+    expect(accentValue(out)).toBe('sage')
   })
 })
 
@@ -261,7 +259,7 @@ describe('an own colour and a preset picked on two devices', () => {
   const base = { _ts: T, unit: 'kg', workouts: [], routines: [], bodyweight: [], accent: 'custom', accentCustom: '#ff0000' }
   const change = (prev, wall, mut) => { const n = JSON.parse(JSON.stringify(prev)); mut(n); n._ts = stampChange(prev, n, wall); return n }
   it('a new own colour picked later wins both fields, in either merge order', () => {
-    const B = change(base, T + 1000, s => { s.accent = 'sky' })
+    const B = change(base, T + 1000, s => { s.accent = 'blue' })
     const A = change(base, T + 4000, s => { s.accent = 'custom'; s.accentCustom = '#00aa00' })
     for (const out of [mergeStates(A, B), mergeStates(B, A)]) {
       expect(out.accent).toBe('custom')
@@ -270,7 +268,7 @@ describe('an own colour and a preset picked on two devices', () => {
   })
   it('a preset picked later still wins over an own colour picked earlier', () => {
     const A = change(base, T + 1000, s => { s.accent = 'custom'; s.accentCustom = '#00aa00' })
-    const B = change(base, T + 4000, s => { s.accent = 'sky' })
-    for (const out of [mergeStates(A, B), mergeStates(B, A)]) expect(out.accent).toBe('sky')
+    const B = change(base, T + 4000, s => { s.accent = 'blue' })
+    for (const out of [mergeStates(A, B), mergeStates(B, A)]) expect(out.accent).toBe('blue')
   })
 })
