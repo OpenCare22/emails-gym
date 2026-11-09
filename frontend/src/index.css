@@ -3321,7 +3321,8 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .home-hello{padding-top:4px}
 .home-hello h1{font-size:var(--fs-large)}
 .home-hello .sub{font-size:var(--fs-body);color:var(--label-2)}
-.today-card .today-row{margin-top:0}
+.today-card .today-row{margin-top:0;background:none;padding-inline:0}
+.today-card .today-row .ttl{font-size:var(--fs-title3);font-weight:700}
 .today-play{
   width:var(--touch-min);height:var(--touch-min);border-radius:50%;flex:none;
   display:grid;place-items:center;background:var(--acc);color:var(--on-acc);
