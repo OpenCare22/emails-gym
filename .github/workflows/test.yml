@@ -81,7 +81,6 @@ jobs:
               - 'scripts/build-coach-*.mjs'
               - 'catalogue/**'
               - 'frontend/src/lib/**'
-              - 'frontend/src/locales/**'
             images:
               - '.github/workflows/test.yml'
               - 'api/Dockerfile'
@@ -134,14 +133,6 @@ jobs:
         working-directory: frontend
       - name: Bundle size
         run: node scripts/bundle-size.mjs --out bundle-size.json
-        working-directory: frontend
-      - name: Locale packs are in sync
-        run: node scripts/check-locales.mjs
-        working-directory: frontend
-      # check-locales compares the packs to each other, so a key missing from ALL of them is
-      # invisible to it. This walks src/ instead. Report-only (a known backlog of demo strings).
-      - name: Untranslated strings in src (report only)
-        run: node scripts/check-source-strings.mjs
         working-directory: frontend
         working-directory: frontend
       # The fatigue model must never read higher after a rest day than before it.

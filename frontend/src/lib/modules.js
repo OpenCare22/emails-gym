@@ -31,7 +31,7 @@ export const MODULES = [
   { id: 'videos', group: 'training', icon: 'camera', tint: 'var(--teal)', title: 'Form videos',
     desc: 'Film a set and watch it back right under the row.' },
   { id: 'watch', group: 'training', icon: 'watch', tint: 'var(--grey)', title: 'Watch',
-    desc: 'Apple Watch / Wear OS watch' },
+    desc: 'Log sets from your wrist on an Apple Watch.' },
   { id: 'checkin', group: 'training', icon: 'qr', tint: 'var(--blue)', title: 'Gym check-in',
     desc: 'Your membership codes on Home, and NFC stickers that start a workout.' },
   { id: 'body', group: 'body', icon: 'scale', tint: 'var(--teal)', title: 'Body',
@@ -43,7 +43,7 @@ export const MODULES = [
   { id: 'coach', group: 'extras', icon: 'sparkles', tint: 'var(--green)', title: 'AI Coach',
     desc: 'Reviews your training and suggests changes. You still say yes or no.' },
   { id: 'integrations', group: 'extras', icon: 'webhook', tint: 'var(--indigo)', title: 'Integrations',
-    desc: 'Webhooks for Home Assistant and friends, and the MCP server.' },
+    desc: 'Webhooks for Home Assistant and friends.' },
   { id: 'seasonal', group: 'extras', icon: 'pumpkin', tint: 'var(--orange)', title: 'Seasonal themes',
     desc: 'Halloween, Christmas and the advent calendar. Spooky, festive, optional.' },
 ]

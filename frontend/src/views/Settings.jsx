@@ -406,7 +406,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     alerts: () => [S.sound ? t('Sound') : null, canVibrate && S.vibrate !== false ? t('Vibrate') : null, S.timerFlash ? t('Flash') : null].filter(Boolean).join(' · ') || t('Silent'),
     reminders: () => (S.reminder?.on ? (S.reminder.time || DEF.reminder?.time || '') : t('Off')),
     plan: () => (mode === 'rotation' ? t('Rotation') : t('Fixed Week')) + ' · ' + shortWeekday(weekStartOf(S) === SUNDAY ? 0 : 1),
-    units: () => (S.unit || 'kg') + ' · ' + (LANGS[lang] || lang),
+    units: () => (S.unit || 'kg') + (Object.keys(LANGS).length > 1 ? ' · ' + (LANGS[lang] || lang) : ''),
     equipment: () => (S.equipFilterOn && activeProfile ? activeProfile.name : ownsNoDumbbells(S) ? t('Everything but dumbbells') : t('Everything')),
     look: () => themeLabel + ' · ' + accentLabel(S),
     modules: () => { const p = presetOf(S); return p === 'custom' ? t('Custom') : presetCopy()[p][0] },
@@ -756,7 +756,8 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     </>,
 
     units: () => <>
-      <Section>
+      {/* English only in this fork (lib/i18n-core.js LANGS): the picker shows again if a pack returns. */}
+      {Object.keys(LANGS).length > 1 && <Section>
         <SelectRow
           icon="globe" iconTint="var(--blue)" title={t('Language')}
           value={lang} onChange={v => update(s => { s.lang = v; s.langAuto = false })}
@@ -778,7 +779,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
               onChange={v => update(s => { s.enOnly = { ...(s.enOnly || {}), [baseLang(lang)]: v } })} />
           </Row>
         </>}
-      </Section>
+      </Section>}
       <Section footer={t('Switching the unit offers to convert every stored weight.')}>
         <Row icon="scale" iconTint="var(--teal)" title={t('Weight unit')}>
           <Segmented className="seg-inline"

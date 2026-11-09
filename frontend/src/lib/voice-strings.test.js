@@ -43,18 +43,3 @@ describe('VoiceIntents.swift and its strings', () => {
     }
   })
 })
-
-describe('Settings → Siri & Shortcuts', () => {
-  const rows = { '“Start my workout in openGym”': 'Start my workout in {app}', '“Log my weight in openGym”': 'Log my weight in {app}', '“What’s my workout today in openGym”': "What's my workout today in {app}", '“How’s my streak in openGym”': "How's my streak in {app}" }
-  const bare = s => s.replace(/^[“„«「”]\s?|\s?[”“»」]$/g, '')
-
-  it('shows the phrases Siri listens for, in the page’s language', async () => {
-    for (const lang of LPROJ) {
-      const loc = PAGE_LOCALE[lang] || lang
-      const { default: pack } = await import(`../locales/${loc}.js`)
-      for (const [key, phrase] of Object.entries(rows)) {
-        expect(bare(pack[key]), `${loc} ${key}`).toBe(PHRASES[phrase][lang].replace('{app}', 'openGym'))
-      }
-    }
-  })
-})

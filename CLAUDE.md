@@ -44,7 +44,6 @@ cd frontend && npx vitest run -t "some test name"           # one test by name
 cd api && npm test                               # node --test
 
 # Checks CI runs besides the suites
-cd frontend && node scripts/check-locales.mjs && node scripts/check-source-strings.mjs --strict
 node scripts/catalogue/build.mjs --check
 node scripts/build-coach-assets.mjs --check
 
@@ -102,9 +101,8 @@ machine, never in CI (see "Exercise media" below and docs/APP_STORES.md).
 - **`sheets.jsx`**: the bottom sheets (exercise picker, exercise config, workout detail, plan
   import...). It is large; a new sheet can go into `components/` as its own file.
 - **`components/`**: shared UI (charts, modals, timers, media).
-- **`locales/`**: one i18n pack per language, keyed by the English string (`lib/i18n.js`,
-  `i18n-core.js`). A new `t()` string goes into every pack; pt-BR inherits from pt and has a
-  fingerprint test (`scripts/pt-br-inheritance-fingerprint.mjs`).
+- **Text**: English only in this fork. User-facing strings still go through `t()` (`lib/i18n.js`,
+  `i18n-core.js`), which keeps `{0}` placeholders and plurals working; there are no locale packs.
 
 ### API (`api/server.js`)
 

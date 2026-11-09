@@ -19,7 +19,6 @@ want. Run them from the repository root with Node 22 unless noted.
 | Script | When |
 |---|---|
 | `build-hevy-id-map.mjs` | Regenerates `frontend/src/lib/hevy-id-map.js` after Hevy adds templates (needs a Hevy API key) |
-| `de-name-rules.mjs` | The German exercise-name rules. `frontend/src/lib/exercise-names.test.js` holds every German name to them |
 | `catalogue/migration-check.mjs` | Before a catalogue change ships: compares old and new catalogue on copies of real profiles |
 
 Frontend-only helpers (locale checks, bundle size, the service worker stamp) live in
@@ -47,4 +46,3 @@ how `catalogue/` was put together.
 | `catalogue/import-legacy.mjs` | Wrote `catalogue/` from the exercise data up to v1.3.x |
 | `catalogue/drafts-from-pack.py` | Listed the Gym visual exercises the catalogue did not have yet |
 | `catalogue/import-drafts.mjs` | Folded those drafts into `catalogue/` |
-| `catalogue/import-names.mjs` | Folded the name translations into `catalogue/i18n/` |

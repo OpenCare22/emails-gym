@@ -67,7 +67,7 @@ export function dayReminderPush(lang, routine) {
 // predate that and fall back to English. de-CH is de with ß written ss, as in the frontend
 // (lib/i18n-core.js DERIVED_LOCALES).
 const nudgeCopyFor = lang => {
-  if (lang === 'de-CH') {
+  if (lang === 'de-CH' && NUDGE_COPY.de) {
     const ch = s => s.replace(/ß/g, 'ss');
     return Object.fromEntries(Object.entries(NUDGE_COPY.de).map(([k, c]) => [k, { title: ch(c.title), lines: c.lines.map(ch) }]));
   }

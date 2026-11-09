@@ -268,26 +268,9 @@ first profile, so switching it on now does nothing. Do this instead:
 The [AI Coach](AI_COACH.md#turning-it-on), invite codes and recovery codes all live in that
 dashboard, so this is step one for each of them.
 
-### Default language
+### Language
 
-An instance whose people share a language can start everyone in it:
-
-```bash
-DEFAULT_LANG=pt-BR         # any code from Settings → Units & language → Language: de, es, fr, pt-BR, …
-```
-
-The sign-in and create-profile screens open in that language, and so does every profile that
-has never picked one in **Settings → Units & language → Language**. Anyone's own choice there always wins, and
-profiles that existed before this setting keep the language they have — the app cannot tell an
-old profile that chose English from one that never looked, so it leaves them alone. Without
-`DEFAULT_LANG`, a new visitor starts in their browser's language when openGym has it, else
-English. A code the app has no translation for is ignored. The phone app in local mode has no
-server to ask and is unaffected.
-
-Until someone picks a language, it is worked out on each device and not saved with the profile:
-without `DEFAULT_LANG`, the same profile can show in German on one phone and in English on a
-laptop, and the Coach answers in whichever the app is showing. A scheduled review, which no app
-asks for, is written in `DEFAULT_LANG` when it is set.
+This fork is English only, so `DEFAULT_LANG` has no effect: every profile shows in English.
 
 ### The activity log
 

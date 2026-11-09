@@ -20,7 +20,7 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 
 - [x] T-001 Android, Wear OS, Health Connect (merged 4f80b8ee8; ~68 dead `android` platform checks left for the cleanup pass)
 - [ ] T-002 Garmin and Zepp
-- [ ] T-003 English only
+- [x] T-003 English only (build 28.9 MB → 6.9 MB; picker hidden, saved languages load as English)
 - [x] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website (also the API docs page generator and the root js-yaml package)
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)

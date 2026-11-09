@@ -87,7 +87,8 @@ export function validateCatalogue(dir) {
 
   const i18n = {}
   const i18nDir = path.join(dir, 'i18n')
-  for (const f of fs.readdirSync(i18nDir).filter(f => f.endsWith('.json')).sort()) {
+  // English only in this fork: catalogue/i18n/ may be missing altogether.
+  for (const f of (fs.existsSync(i18nDir) ? fs.readdirSync(i18nDir) : []).filter(f => f.endsWith('.json')).sort()) {
     const lang = f.slice(0, -5)
     const file = 'catalogue/i18n/' + f
     if (!LANGS.includes(lang)) { say(file, `unknown language, expected one of: ${LANGS.join(', ')}`); continue }
