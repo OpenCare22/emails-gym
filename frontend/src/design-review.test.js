@@ -47,9 +47,10 @@ describe('design review 1.4.5: shared rules', () => {
   it('raises the chosen segment in the dark theme (lighter than its track)', () => {
     const track = rule(':root:not([data-theme="light"]) .seg'), thumb = rule(':root:not([data-theme="light"]) .seg-sel')
     expect(track).toMatch(/background:var\(--surface-2\)/)
-    expect(thumb).toMatch(/background:#3a433c/)
-    // the thumb is lighter than the track it sits on (#202622)
-    expect(lum(hex('#3a433c'))).toBeGreaterThan(lum(hex(token(dark, '--surface-2'))))
+    // Email's Gym: an off-white pill (the primary text colour) with near-black words on it
+    expect(thumb).toMatch(/background:var\(--label\)/)
+    expect(lum(hex(token(dark, '--label')))).toBeGreaterThan(lum(hex(token(dark, '--surface-2'))))
+    expect(rule(':root:not([data-theme="light"]) .seg button.on')).toMatch(/color:var\(--on-btn\)/)
   })
   it('styles a subtitle and the small line over a title wherever they sit', () => {
     expect(rule('.ss')).toMatch(/color:var\(--label-2\)/)

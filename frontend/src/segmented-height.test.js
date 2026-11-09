@@ -7,9 +7,9 @@ import { resolve } from 'node:path'
 const css = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
 
 describe('segmented control height', () => {
-  it('gives every segment at least 32px', () => {
+  it('gives every segment at least 32px (36px in Email’s Gym)', () => {
     const rule = css.match(/\n\.seg button\{([^}]*)\}/)?.[1] || ''
-    expect(rule).toMatch(/min-height:32px/)
+    expect(rule).toMatch(/min-height:3[2-9]px/)
   })
   it('keeps the inline one in list rows as it was', () => {
     expect(css.match(/\.seg-inline button\{([^}]*)\}/)?.[1]).toMatch(/min-height:28px/)

@@ -573,10 +573,14 @@ h4.sec{
 }
 .btn .icn{font-size:19px}
 .btn:active{transform:scale(var(--press-scale))}
-.btn.primary{background:var(--acc);color:var(--on-acc)}
-.btn.primary:active{background:var(--acc-2)}
+/* The primary action is off-white in the dark theme and near-black in the light one (handoff §1);
+   sage stays for completion and small highlights (.btn.confirm, the tinted button, ticks). */
+.btn.primary{background:var(--btn);color:var(--on-btn)}
+.btn.primary:active{background:var(--label-2);background:color-mix(in srgb,var(--btn) 82%,var(--bg))}
+.btn.confirm{background:var(--acc);color:var(--on-acc)}
+.btn.confirm:active{background:var(--acc-2)}
 .btn.tinted{background:var(--acc-soft);color:var(--acc-ink)}
-.btn.danger{background:rgba(255,69,58,0.15);background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+.btn.danger{background:var(--surface-2);background:color-mix(in srgb,var(--red-ink) 15%,transparent);color:var(--red-ink)}
 .btn.ghost,.btn.plain{background:none;color:var(--acc-ink);font-weight:400}
 /* a ghost or plain button is a control: it scales like the others, no fill flash (P13) */
 /* The quiet text button: Cancel and Done under a sheet's main button, "Lost access?" and "Continue
@@ -1001,15 +1005,15 @@ body.chips-dragging *{cursor:inherit}
    padding box, which is what the thumb needs. */
 .seg{
   position:relative;display:flex;
-  background:var(--surface-3);border-radius:9px;padding:2px;isolation:isolate;
+  background:var(--surface-3);border-radius:999px;padding:3px;isolation:isolate;
 }
 .seg>button{flex:1 1 0;min-width:0}
-:root[data-theme="light"] .seg{background:rgba(118,118,128,.12)}
+:root[data-theme="light"] .seg{background:var(--surface-3)}
 .seg-sel{
-  position:absolute;z-index:0;top:2px;bottom:2px;inset-inline-start:2px;
-  width:calc((100% - 4px)/var(--n));
+  position:absolute;z-index:0;top:3px;bottom:3px;inset-inline-start:3px;
+  width:calc((100% - 6px)/var(--n));
   transform:translateX(calc(100% * var(--i)));
-  background:var(--surface);border-radius:7px;
+  background:var(--surface);border-radius:999px;
   box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.06);
   transition:transform var(--med) var(--ease);
 }
@@ -1018,11 +1022,13 @@ body.chips-dragging *{cursor:inherit}
    be --surface on a --surface-3 track, darker than the track, so the choice read as a dent pressed
    into the control rather than the piece standing on it (design review 1.4.5). */
 :root:not([data-theme="light"]) .seg{background:var(--surface-2)}
-:root:not([data-theme="light"]) .seg-sel{background:#3a433c;box-shadow:0 3px 8px rgba(0,0,0,.24),0 1px 1px rgba(0,0,0,.12)}
+/* Email's Gym: the chosen segment is an off-white pill with near-black words (the Friends render). */
+:root:not([data-theme="light"]) .seg-sel{background:var(--label);box-shadow:none}
+:root:not([data-theme="light"]) .seg button.on{color:var(--on-btn)}
 .seg button{
-  position:relative;z-index:1;padding:6px 8px;font-size:14px;font-weight:500;
+  position:relative;z-index:1;padding:6px 10px;font-size:var(--fs-subhead);font-weight:500;border-radius:999px;
   letter-spacing:-.006em;color:var(--label);display:flex;align-items:center;
-  justify-content:center;gap:5px;min-height:32px;transition:opacity var(--fast),transform var(--fast) var(--ease);
+  justify-content:center;gap:5px;min-height:36px;transition:opacity var(--fast),transform var(--fast) var(--ease);
 }
 .seg button .icn{font-size:var(--fs-callout)}
 .seg button:not(.on){color:var(--label-2);font-weight:400}
@@ -1041,11 +1047,11 @@ body.chips-dragging *{cursor:inherit}
    Where the row does fit, the segments still share it out evenly (design review 1.4.5). */
 .seg.seg-scroll{overflow-x:auto;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
 .seg.seg-scroll::-webkit-scrollbar{display:none}
-.seg.seg-scroll>button{flex:1 0 auto;padding-inline:12px;white-space:nowrap;border-radius:7px;transition:background var(--fast),opacity var(--fast)}
+.seg.seg-scroll>button{flex:1 0 auto;padding-inline:12px;white-space:nowrap;border-radius:999px;transition:background var(--fast),opacity var(--fast)}
 .seg.seg-scroll>.seg-sel{display:none}
 .seg.seg-scroll>button.on{background:var(--surface);box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.06)}
 :root[data-theme="light"] .seg.seg-scroll>button.on{background:#fff}
-:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:#3a433c}
+:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:var(--label);color:var(--on-btn)}
 /* Every segment as wide as the widest label (QA 10-05: with flex:1 1 0 the track was sized by the
    labels' sum but split evenly, so "Compact" / "Versteckt" got less than its own width and
    touched the segment's edge). A grid of equal 1fr columns sizes each to the widest one, so the
@@ -3307,3 +3313,36 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .lb-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb-sub{font-size:var(--fs-footnote);color:var(--label-2)}
 .lb-value{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ---------------------------------------------------- Email's Gym Home (Phase 2 step 5) -- */
+.home-top{display:flex;align-items:center;justify-content:space-between;min-height:var(--touch-min);margin:calc(var(--sat) + 4px) 0 2px}
+.home-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:var(--fs-card);letter-spacing:-.01em}
+.home-brand svg{color:var(--label)}
+.home-hello{padding-top:4px}
+.home-hello h1{font-size:var(--fs-large)}
+.home-hello .sub{font-size:var(--fs-body);color:var(--label-2)}
+.today-card .today-row{margin-top:0}
+.today-play{
+  width:var(--touch-min);height:var(--touch-min);border-radius:50%;flex:none;
+  display:grid;place-items:center;background:var(--acc);color:var(--on-acc);
+}
+.today-play .icn{font-size:20px;--icon-stroke:2;color:inherit}
+.metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--card-gap);margin-bottom:var(--card-gap)}
+.metric-pair .card{margin:0}
+.metric-card{display:flex;flex-direction:column;gap:6px;min-height:112px}
+.metric-head{display:flex;align-items:center;gap:8px;color:var(--label-2);font-size:var(--fs-subhead);font-weight:500}
+.metric-head .icn{font-size:18px;color:var(--acc)}
+.metric-value{font-size:1.75rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric-unit{font-size:var(--fs-body);font-weight:500;color:var(--label-2)}
+.metric-off{font-size:var(--fs-body);font-weight:600;color:var(--label-2)}
+.metric-note{font-size:var(--fs-footnote);color:var(--label-3)}
+.week-chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.week-chart-head h2{font-size:var(--fs-card);font-weight:600}
+.week-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:132px}
+.week-bar{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.week-bar-n{font-size:var(--fs-caption);color:var(--label-2);min-height:1.2em;font-variant-numeric:tabular-nums}
+.week-bar-track{flex:1;width:100%;max-width:28px;display:flex;align-items:flex-end;border-radius:8px;background:var(--surface-2)}
+.week-bar-fill{display:block;width:100%;min-height:0;border-radius:8px;background:var(--acc)}
+.week-bar.future .week-bar-track{background:transparent;border:1px dashed var(--sep)}
+.week-bar.today .week-bar-day{color:var(--label);font-weight:600}
+.week-bar-day{font-size:var(--fs-caption);color:var(--label-3)}
