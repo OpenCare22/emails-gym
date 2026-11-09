@@ -8,6 +8,7 @@
 //
 // Names of services are names, not translated. Everything else is an English key for t().
 
+import { hidden } from './fork-hidden.js'
 export const CATEGORIES = [
   { id: 'health', title: 'Health & devices' },
   { id: 'training', title: 'Training apps' },
@@ -89,6 +90,9 @@ const healthTrouble = h => !!(h && ((h.on && h.error === 'permission') || (healt
  * Answers { status: key of PILL | null, action: 'connect' | 'manage' | 'import' | 'export' | 'open' | null }.
  */
 export function cardState(id, ctx) {
+  // Hidden in this fork (lib/fork-hidden.js): the import cards and the Android-only store.
+  if (hidden('health-connect') && id === 'health-connect') return null
+  if (hidden('imports') && (id === 'hevy' || id === 'files')) return null
   const phone = ctx.mobile ? ctx.platform : null
   switch (id) {
     case 'apple-health':

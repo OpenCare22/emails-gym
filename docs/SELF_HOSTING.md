@@ -279,8 +279,8 @@ signups, and every admin action (disabling an account, creating or revoking an i
 lives in `./data/audit.log` as one JSON object per line, so `tail -f data/audit.log` and `jq`
 work on it directly, and the dashboard reads the same file.
 
-It is on by default and keeps the last 5,000 events or 90 days, whichever comes first
-(`AUDIT_LOG=0` turns it off entirely; `AUDIT_MAX` and `AUDIT_DAYS` change the caps). **IP
+It is off by default in this fork (`AUDIT_LOG=1` turns it on). Once on, it keeps the last 5,000
+events or 90 days, whichever comes first ( `AUDIT_MAX` and `AUDIT_DAYS` change the caps). **IP
 addresses are not recorded** unless you set `AUDIT_IP=net` (network only, e.g. `203.0.113.0/24`)
 or `AUDIT_IP=full`. Neither the browser's user-agent nor the passkey id of a failed sign-in is
 ever stored: the first is a fingerprint, and the second would let you follow an unknown device

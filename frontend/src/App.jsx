@@ -18,6 +18,7 @@ import { workoutVolume } from './lib/history.js'
 import { setSystemBarsLight } from './lib/system-bars.js'
 import { initBackButton } from './lib/back.js'
 import { installEdgeSwipeBack, BACK_PREVIEW_EVENT } from './lib/edge-swipe-back.js'
+import { hidden } from './lib/fork-hidden.js'
 import { pageMotion } from './lib/page-motion.js'
 import { startWatchSync, bindWatchAppActions, patchSetIn, watchStatus, watchClaimed, onWatchClaim } from './lib/watch-sync.js'
 import { readWatchPrefs, readWatchStatus } from './lib/watch-settings.js'
@@ -345,8 +346,8 @@ function Shell() {
       <Route path="/history" element={<History />} />
       <Route path="/library" element={<Library />} />
       <Route path="/muscles" element={<Muscles />} />
-      <Route path="/structural-balance" element={<StructuralBalance />} />
-      {isOn(S, 'body') && <Route path="/progress-photos" element={<ProgressPhotos />} />}
+      {!hidden('structural-balance') && <Route path="/structural-balance" element={<StructuralBalance />} />}
+      {isOn(S, 'body') && !hidden('progress-photos') && <Route path="/progress-photos" element={<ProgressPhotos />} />}
       {isOn(S, 'body') && <Route path="/measurements" element={<Measurements />} />}
       <Route path="/settings" element={<SettingsRoute />} />
       <Route path="/settings/:page" element={<SettingsRoute />} />

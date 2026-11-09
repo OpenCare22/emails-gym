@@ -8,6 +8,7 @@
 import { t } from '../lib/i18n.js'
 import { ACCENT_NAMES } from '../lib/format.js'
 import { MODULES } from '../lib/modules.js'
+import { hidden } from '../lib/fork-hidden.js'
 
 // `mod`: the module (lib/modules.js) a page belongs to; with it off the page and its rows are gone,
 // from the root and from the search alike (pageVisible, searchSettings).
@@ -186,15 +187,15 @@ export const SEARCH = [
   { page: 'data', title: 'Export as spreadsheet (CSV)', icon: 'share', tint: 'var(--green)', kw: 'csv spreadsheet excel sheets export workouts sets body weight measurements' },
   { page: 'data', title: 'Auto-backup on changes', icon: 'folder', tint: 'var(--blue)', kw: 'auto backup automatic', when: c => c.mobile },
   { page: 'data', title: 'Import backup', icon: 'download', tint: 'var(--teal)', kw: 'import restore backup json zip' },
-  { page: 'data', title: 'Import from another app', icon: 'download', tint: 'var(--teal)', kw: 'strong hevy fitnotes gymmane apple health csv import' },
-  { page: 'data', title: 'Import from Hevy', icon: 'key', tint: 'var(--teal)', kw: 'hevy api import' },
+  { page: 'data', title: 'Import from another app', icon: 'download', tint: 'var(--teal)', kw: 'strong hevy fitnotes gymmane apple health csv import', when: () => !hidden('imports') },
+  { page: 'data', title: 'Import from Hevy', icon: 'key', tint: 'var(--teal)', kw: 'hevy api import', when: () => !hidden('imports') },
   { page: 'data', title: 'Photos & videos', icon: 'image', tint: 'var(--teal)', kw: 'media storage photos videos upload', when: c => c.hasMedia },
   { page: 'data', title: 'Reset everything', icon: 'trash', tint: 'var(--red)', kw: 'delete wipe reset erase' },
   // Integrations: the cards (lib/integrations.js cardState says where each shows)
   { page: 'integrations', title: 'Apple Health', icon: 'heart', tint: 'var(--red)', mod: 'health', kw: 'apple health healthkit iphone heart rate watch', when: c => !c.mobile },
   { page: 'integrations', title: 'Webhooks', icon: 'webhook', tint: 'var(--indigo)', mod: 'integrations', kw: 'webhook webhooks home assistant n8n ntfy node-red zapier ifttt automation notify', when: c => c.demo || !c.user || (c.integrations || []).includes('webhook') || !!c.user?.admin },
-  { page: 'integrations', title: 'Hevy', icon: 'key', tint: 'var(--teal)', kw: 'hevy api key import', when: c => !c.demo },
-  { page: 'integrations', title: 'Import a file', icon: 'download', tint: 'var(--teal)', kw: 'import strong fitnotes hevy csv gymmane apple health export file' },
+  { page: 'integrations', title: 'Hevy', icon: 'key', tint: 'var(--teal)', kw: 'hevy api key import', when: c => !hidden('imports') && !c.demo },
+  { page: 'integrations', title: 'Import a file', icon: 'download', tint: 'var(--teal)', kw: 'import strong fitnotes hevy csv gymmane apple health export file', when: () => !hidden('imports') },
   { page: 'integrations', title: 'Spreadsheet (CSV)', icon: 'share', tint: 'var(--green)', kw: 'csv spreadsheet excel export' },
   { page: 'integrations', mod: 'health', title: 'Garmin', icon: 'watch', tint: 'var(--grey)', kw: 'garmin fenix forerunner venu watch heart rate' },
   { page: 'integrations', mod: 'health', title: 'COROS', icon: 'watch', tint: 'var(--grey)', kw: 'coros watch heart rate' },

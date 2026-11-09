@@ -15,3 +15,8 @@
 - **2026-11-09: In-app AI chat with each person's own API key is wanted.** That's the existing
   AI Coach chat, which today uses one admin-set key for everyone (per-user keys exist only in the
   phone app). Making the server-side Coach take a per-user key, stored sealed, is Phase 8.
+- **2026-11-09: Hidden, not deleted (T-007):** progress photos, structural balance and importing
+  from other apps, behind one list in `frontend/src/lib/fork-hidden.js` (delete an id there to bring
+  it back). The audit log is off unless `AUDIT_LOG=1`. Review after a week or two of use.
+- **2026-11-09: Phase 1 tickets T-003 to T-007 done by Claude, not Codex** (Codex was out of
+  tokens). T-001 and T-002 were Codex's, reviewed and checked under Node 22 before merging.

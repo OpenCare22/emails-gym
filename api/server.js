@@ -905,7 +905,8 @@ setInterval(() => { const now = Date.now(); for (const [k, v] of presence) if (!
 // db.json and every workout is in state-<uid>.json, both readable by any admin — and a security
 // feature that ships switched off protects nobody. IP addresses are the exception: off unless you
 // ask for them, because they are the one field here that says where somebody physically is.
-const AUDIT_ON = !/^(0|false|no|off)$/i.test(process.env.AUDIT_LOG || '');
+// Off unless AUDIT_LOG=1 in this fork (upstream has it on by default; docs/decisions.md).
+const AUDIT_ON = /^(1|true|yes|on)$/i.test(process.env.AUDIT_LOG || '');
 const AUDIT_MAX = Math.max(0, +(process.env.AUDIT_MAX || 5000) || 0);     // 0 = no count cap
 const AUDIT_DAYS = Math.max(0, +(process.env.AUDIT_DAYS || 90) || 0);     // 0 = no age cap
 const AUDIT_IP = /^full$/i.test(process.env.AUDIT_IP || '') ? 'full'

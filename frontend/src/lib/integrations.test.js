@@ -1,5 +1,7 @@
 // Settings → Integrations (v1.4.4): which card shows where, and what it says.
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+// Upstream's entry points, with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('./fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { cardState, directory, webhookUrlProblem, normalizeWebhookUrl, CARDS, WORKS_WITH, PILL } from './integrations.js'
 
 const web = { mobile: false, platform: null, user: null, demo: false, health: null, server: null, offered: [] }

@@ -145,7 +145,7 @@ const BACKUP = [
   { id: 'b-auto', route: '/settings/data', anchor: 'data-auto', optional: true },
   { id: 'b-health', route: '/settings/data', anchor: 'data-health', optional: true },
   { id: 'b-import', route: '/settings/data', anchor: 'data-import' },
-  { id: 'b-apps', route: '/settings/data', anchor: 'data-apps' },
+  { id: 'b-apps', route: '/settings/data', anchor: 'data-apps', optional: true },   // hidden in this fork (lib/fork-hidden.js)
   { id: 'b-up2', route: '/settings/data', anchor: 'sp-back', go: '/settings' },
   { id: 'b-sync', route: '/settings', anchor: 'settings-account' },
   { id: 'b-done', route: null, anchor: null },

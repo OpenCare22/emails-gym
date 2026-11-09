@@ -24,7 +24,7 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [x] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website (also the API docs page generator and the root js-yaml package)
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
-- [ ] T-007 Hide progress photos, structural balance, data imports, audit logging
+- [x] T-007 Hide progress photos, structural balance, data imports (one switch: `frontend/src/lib/fork-hidden.js`), audit log off by default (`AUDIT_LOG=1` turns it on). Also hides the Health Connect card. Decide after a week or two of use: delete or restore.
 
 ## Next
 

@@ -43,6 +43,7 @@ import { CUSTOM, accentKey, adjustedIn, applyAccent, cleanHex, inkOn, isGrey } f
 import { forgetCoach } from '../lib/coach-api.js'
 import { coachAvailable } from '../lib/coach.js'
 import { REST_MAX, REST_PAUSE_MIN, REST_PAUSE_MAX, fmtRest, fmtDuration } from '../lib/duration.js'
+import { hidden } from '../lib/fork-hidden.js'
 import { starterPlanSheet, confirmSheet, importFromApp, importFromHevy, equipmentProfileSheet, plateInventorySheet, dumbbellInventorySheet, barDefaultsSheet, menuSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { durationSheet } from '../components/DurationWheel.jsx'
@@ -999,12 +1000,14 @@ export default function Settings({ page = null, find = null, via = null, entryKe
       {MOBILE && on('health') && <HealthLinkRow nav={nav} />}
       <Section title={t('Bring data in')}>
         <Row icon="download" iconTint="var(--teal)" title={t('Import backup')} accessory="chevron" onClick={() => fileRef.current.click()} tour="data-import" />
-        <Row icon="download" iconTint="var(--teal)" title={t('Import from another app')}
-          subtitle={t('Strong, Hevy, FitNotes, Liftosaur, Fitbod, StrongLifts, JEFIT and more, or body weight from Apple Health')}
-          accessory="chevron" onClick={() => importRef.current.click()} tour="data-apps" />
-        <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
-          subtitle={t('Pull your history with a Hevy Pro API key')}
-          accessory="chevron" onClick={importFromHevy} />
+        {!hidden('imports') && <>
+          <Row icon="download" iconTint="var(--teal)" title={t('Import from another app')}
+            subtitle={t('Strong, Hevy, FitNotes, Liftosaur, Fitbod, StrongLifts, JEFIT and more, or body weight from Apple Health')}
+            accessory="chevron" onClick={() => importRef.current.click()} tour="data-apps" />
+          <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
+            subtitle={t('Pull your history with a Hevy Pro API key')}
+            accessory="chevron" onClick={importFromHevy} />
+        </>}
       </Section>
       {hasMedia && <Section><MediaRow /></Section>}
       <Section>
