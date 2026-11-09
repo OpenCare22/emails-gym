@@ -22,7 +22,7 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [ ] T-002 Garmin and Zepp
 - [ ] T-003 English only
 - [ ] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website
-- [ ] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI)
+- [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [ ] T-006 mcp/
 - [ ] T-007 Hide progress photos, structural balance, data imports, audit logging
 

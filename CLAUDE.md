@@ -61,10 +61,8 @@ cd frontend && npm run build:mobile   # VITE_MOBILE build + 180 px media from ca
 
 There is no linter/formatter config and no TypeScript; match the existing style by hand.
 
-GitHub (`github.com/DuarteSantos8/openGym`) is the home of the project; `.github/workflows/mirror.yml`
-pushes `main` and `v*` tags to the GitLab mirror (fast-forward only, never push or merge there).
-Pull requests are gated by `.github/workflows/test.yml`; `ios.yml` compiles the iPhone app on a Mac
-runner. Release packages (App Store IPA) are built and signed on the release
+This is a fork, at `github.com/OpenCare22/emails-gym`, of `github.com/DuarteSantos8/openGym`.
+Pull requests are gated by `.github/workflows/test.yml`. Release packages (App Store IPA) are built and signed on the release
 machine, never in CI (see "Exercise media" below and docs/APP_STORES.md).
 
 ## Architecture

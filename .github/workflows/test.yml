@@ -332,8 +332,7 @@ jobs:
           tags: opengym-api:coach
           cache-from: type=gha,scope=ci-api-coach
           cache-to: type=gha,mode=max,scope=ci-api-coach
-      # No target, exactly like docker-publish.yml: what that workflow ships is whatever stage
-      # is last, and that untargeted image is what every self-hoster pulls as :latest.
+      # No target, exactly like `docker compose build`: the last stage is what the server runs.
       - name: api, as published
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:

@@ -178,13 +178,11 @@ packages are put together and signed on the release machine (`scripts/ios/finish
 
 ```mermaid
 flowchart LR
-  PR[Pull request] --> T["GitHub Actions<br/>test.yml, catalogue.yml, ios.yml"]
+  PR[Pull request] --> T["GitHub Actions<br/>test.yml"]
   T --> MAIN[main]
-  MAIN --> MIR["mirror.yml"] --> GL["GitLab mirror CI<br/>tests, image checks, scans, SBOMs"]
   MAIN --> PG["pages.yml<br/>demo"]
-  REL[Published release] --> DP["docker-publish.yml<br/>GHCR images"]
   RM["Release machine"] --> ART["APK, AAB, IPA<br/>signed locally"]
 ```
 
-GitHub is the home of the project. GitLab is a fast-forward-only mirror. Release steps are in
+This fork lives at github.com/OpenCare22/emails-gym. Release steps are in
 [APP_STORES.md](APP_STORES.md) and the [changelog](../CHANGELOG.md) format is described at its top.

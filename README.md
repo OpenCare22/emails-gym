@@ -164,8 +164,7 @@ Traefik and nginx, and there are separate guides for
 
 > [!NOTE]
 > Images are published from the same tag to `ghcr.io/duartesantos8/opengym-{api,web}`
-> (what `docker-compose.yml` pulls) and `registry.gitlab.com/duartesantos8/opengym/{api,web}`. Swap
-> the `image:` lines if you prefer GitLab's registry, or run `docker compose up -d --build` to build
+> (what `docker-compose.yml` pulls). Or run `docker compose up -d --build` to build
 > locally. Either way you don't need Node on the host.
 
 <details>
@@ -327,11 +326,8 @@ plan is in [ROADMAP.md](ROADMAP.md), and the issues sit in the
 
 ### Where the code lives
 
-GitHub is the home of the project. [gitlab.com/DuarteSantos8/opengym](https://gitlab.com/DuarteSantos8/opengym)
-is a mirror, updated by a GitHub Actions workflow on every push to `main` and every release tag. It
-exists because its CI builds the multi-arch images and the SBOMs for its registry (the APKs are
-built and signed on the release machine and attached to the GitHub release). Nothing is merged there by hand. In the changelog, `!NN` refers to a GitLab merge request
-from the weeks in August and September 2026 when the project lived there.
+This is a personal fork, at [github.com/OpenCare22/emails-gym](https://github.com/OpenCare22/emails-gym),
+of [openGym](https://github.com/DuarteSantos8/openGym) by Duarte Santos.
 
 ## How openGym is built
 
@@ -383,9 +379,5 @@ version's source under the same license.
 > 180 px in this repository and on self-hosted servers, larger only inside the app packages. A
 > non-commercial fork may keep them unmodified with the notice; anything else needs your own licence
 > from gymvisual.com. The exercise text in `catalogue/` is openGym's and open to contributions.
-
-**Contributing:** pull requests are signed off once with the [Contributor License Agreement](CLA.md):
-you keep the copyright in your work, openGym may use and relicense it (so the app can stay in the
-App Store and Google Play long term), and every version released under the AGPL stays AGPL.
 
 Full third-party notices, including the body-diagram geometry, are in [NOTICE.md](NOTICE.md).

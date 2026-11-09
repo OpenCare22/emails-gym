@@ -93,9 +93,6 @@ needs a phone build to be judged, say so and we'll put it on TestFlight or send 
 A first-time contributor's workflows wait for a maintainer to approve them, so "no checks yet"
 just means nobody has pressed the button.
 
-Merge requests still open on the GitLab mirror are reviewed too and land on `main` here. New work
-should come as a GitHub pull request.
-
 ## Good first issues
 
 - More starter plans
@@ -126,10 +123,3 @@ Open an issue with what you did, what you expected, what happened, and your brow
 login or passkey problems, include your `RP_ID` and `ORIGIN` (not the contents of `data/`); most
 login issues are an origin mismatch.
 
-## Contributor License Agreement
-
-Before your first pull request is merged, you sign the [Contributor License Agreement](CLA.md) once,
-by commenting the sentence the CLA check asks for on your pull request. It covers all your past and
-future contributions. You keep the copyright in your work; openGym may use and relicense it, which
-is what keeps the app possible in the App Store and Google Play long term. Every version released
-under the [GNU AGPL v3.0](LICENSE) stays available under it.
