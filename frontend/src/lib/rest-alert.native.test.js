@@ -196,53 +196,6 @@ describe('the alarm buzz in the Android app', () => {
   })
 })
 
-// The native half cannot run here; what it must do with the flag is read off its source.
-describe('the Android side of Vibrate off', () => {
-  const src = name => readFileSync(new URL(`../../android/app/src/main/java/ch/duartesantos/opengym/${name}.java`, import.meta.url), 'utf8')
-  const alert = src('RestAlert')
-
-  it('reads the flag from the page, defaulting to on for an older page', () => {
-    expect(src('RestAlertPlugin')).toMatch(/call\.getBoolean\("vibrate", Boolean\.TRUE\)/)
-  })
-
-  it('posts on a channel created without vibration, and only buzzes by hand when allowed to', () => {
-    expect(alert).toMatch(/QUIET_CHANNEL_ID = "rest-over-quiet"/)
-    expect(alert).toMatch(/if \(!vibrate\) return QUIET_CHANNEL_ID;/)
-    expect(alert).toMatch(/channel\.enableVibration\(false\)/)
-    expect(alert).toMatch(/if \(!shown && vibrate\) vibrateFallback\(ctx\);/)
-    expect(alert).toMatch(/if \(vibrate\) b\.setVibrate\(VIBRATE\);/)
-    expect(alert.match(/\.setVibrate\(/g)).toHaveLength(1)
-  })
-
-  it('keeps the flag for an end the countdown or a moved alarm fires', () => {
-    // fireFromCountdown and updateAlarm build their own intents from the last schedule.
-    expect(alert.match(/intent\.putExtra\("vibrate", lastVibrate\);/g)).toHaveLength(2)
-    expect(alert).toMatch(/intent\.putExtra\("vibrate", vibrate\);/)
-  })
-})
-
-describe('the Android side of the alarm buzz (#375)', () => {
-  const src = name => readFileSync(new URL(`../../android/app/src/main/java/ch/duartesantos/opengym/${name}.java`, import.meta.url), 'utf8')
-  const alert = src('RestAlert')
-  const plugin = src('RestAlertPlugin')
-
-  it('reads the flag from the page, off for an older page, and offers buzz()', () => {
-    expect(plugin).toMatch(/call\.getBoolean\("alarmBuzz", Boolean\.FALSE\)/)
-    expect(plugin).toMatch(/@PluginMethod\s+public void buzz\(PluginCall call\)/)
-  })
-
-  it('buzzes with the alarm usage, on every API level the app runs on', () => {
-    expect(alert).toMatch(/VibrationAttributes\.createForUsage\(VibrationAttributes\.USAGE_ALARM\)/)
-    expect(alert).toMatch(/setUsage\(AudioAttributes\.USAGE_ALARM\)/)
-  })
-
-  it('posts the notification on the quiet channel then, so the ringer-on phone buzzes once', () => {
-    expect(alert).toMatch(/boolean vibrate = intent\.getBooleanExtra\("vibrate", true\) && !alarmBuzz;/)
-    expect(alert).toMatch(/if \(alarmBuzz\) buzz\(ctx, VIBRATE\);/)
-    expect(alert.match(/intent\.putExtra\("alarmBuzz", lastAlarmBuzz\);/g)).toHaveLength(2)
-  })
-})
-
 // Fresh install, notifications not decided yet: the first rest pops the permission dialog. The
 // QA left the app with the dialog open; the alarm waited behind the answer, so nothing rang, and
 // once answered the schedule was refused ("at must be in the future") and blocked what followed.
@@ -386,15 +339,6 @@ describe('spoken cues through the phone', () => {
     alert = await import('./rest-alert.js')
     await expect(alert.speakNative('Rest is over')).resolves.toBe(false)
     expect(unhandled).toEqual([])
-  })
-
-  it('Android ducks for a line and lets go when nothing is left to say', () => {
-    const java = readFileSync(new URL('../../android/app/src/main/java/ch/duartesantos/opengym/SpeechCue.java', import.meta.url), 'utf8')
-    expect(java).toMatch(/AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK|RestAlert\.duck\(/)
-    expect(java).toMatch(/RestAlert\.unduck\(/)
-    expect(java).not.toMatch(/AUDIOFOCUS_GAIN\b(?!_TRANSIENT)/)
-    const manifest = readFileSync(new URL('../../android/app/src/main/AndroidManifest.xml', import.meta.url), 'utf8')
-    expect(manifest).toMatch(/android\.intent\.action\.TTS_SERVICE/)
   })
 
   it('the iPhone speaks in the mixing, ducking session and offers speak and hush', () => {

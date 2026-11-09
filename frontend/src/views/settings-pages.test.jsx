@@ -243,7 +243,7 @@ describe('the search lands on a row', () => {
     expect(searchSettings('install', { ...web, androidWeb: true, desktopWeb: false }, tr).map(h => h.title)).toEqual(['In Chrome: ⋮ menu → Add to Home screen'])
     // Windows and Linux are neither: Chrome's install icon, not an iPhone's Share menu (night QA 10-19).
     expect(searchSettings('install', web, tr).map(h => h.title)).toEqual(['In Chrome or Edge: the install icon in the address bar'])
-    expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true, autoBackup: true }, tr).map(h => h.title)).toEqual(['Backup folder'])
+    expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true, autoBackup: true }, tr).map(h => h.title)).toEqual([])
     expect(searchSettings('backup folder', { ...guestWeb, mobile: true, android: true }, tr)).toEqual([])
   })
 
@@ -462,7 +462,7 @@ describe('searchSettings', () => {
     // the AI Coach module's own row on Settings → Modules is the one hit a web guest gets
     expect(searchSettings('coach', guestWeb, tr).filter(h => h.page !== 'modules')).toEqual([])
     expect(searchSettings('coach', { ...guestWeb, mobile: true }, tr)[0].page).toBe('coach')
-    expect(searchSettings('vibrate silent', { ...guestWeb, mobile: true, android: true }, tr).map(h => h.title)).toEqual(['Vibrate on silent too'])
+    expect(searchSettings('vibrate silent', { ...guestWeb, mobile: true, android: true }, tr).map(h => h.title)).toEqual([])
     expect(searchSettings('   ', guestWeb, tr)).toEqual([])
   })
 

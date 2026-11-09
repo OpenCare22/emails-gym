@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => {
   })
   state.enableHealth = vi.fn(async () => { state.health = { ...state.health, on: true }; return { ok: true, health: state.health } })
   state.disableHealth = vi.fn(async ({ removeWritten }) => { state.health = { ...state.health, on: false, written: removeWritten ? {} : state.health.written }; return state.health })
-  state.openHealthConnect = vi.fn(async () => {})
+  state.openHealthSettings = vi.fn(async () => {})
   state.menuSheet = vi.fn()
   state.toast = vi.fn()
   return state
@@ -50,7 +50,7 @@ vi.mock('../lib/health-sync.js', () => ({
   loadHealth: () => Promise.resolve(mocks.health),
   enableHealth: (...a) => mocks.enableHealth(...a),
   disableHealth: (...a) => mocks.disableHealth(...a),
-  openHealthConnect: (...a) => mocks.openHealthConnect(...a),
+  openHealthSettings: (...a) => mocks.openHealthSettings(...a),
   onHealthChange: () => () => {},
 }))
 vi.mock('./MobileOnboarding.jsx', () => ({ ConnectSheet: () => null }))

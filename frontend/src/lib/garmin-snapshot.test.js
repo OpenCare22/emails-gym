@@ -1,7 +1,6 @@
 // The Garmin watch's cut-down snapshot (lib/garmin-snapshot.js). The fixture in
 // frontend/garmin/test/snapshot.json is what the watch's Monkey C code is written against
-// (frontend/garmin/source/Core.mc); it is built here from the Wear OS fixture, which the phone
-// builds (watch-sync.wear.test.js). Changes on purpose: UPDATE_GARMIN_FIXTURES=1 npx vitest run …
+// (frontend/garmin/source/Core.mc); it is built here from the shared watch snapshot. Changes on purpose: UPDATE_GARMIN_FIXTURES=1 npx vitest run …
 import { describe, expect, it } from 'vitest'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -9,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { garminSnapshot, garminWindow, garminTotals, GARMIN_MAX_BYTES } from './garmin-snapshot.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const wearSnap = () => JSON.parse(readFileSync(join(here, '..', '..', 'android', 'wear', 'src', 'test', 'resources', 'snapshot.json'), 'utf8'))
+const watchSnap = () => JSON.parse(readFileSync(join(here, '__fixtures__', 'watch-snapshot.json'), 'utf8'))
 const bytes = v => new TextEncoder().encode(JSON.stringify(v)).length
 
 const row = (done, extra = {}) => ({ w: 50, r: 8, sec: null, done, warmup: false, ...extra })
@@ -17,14 +16,14 @@ const ex = (id, sets, extra = {}) => ({ id, name: 'Exercise ' + id, mode: 'reps'
 
 describe('the Garmin snapshot', () => {
   it('is the fixture the watch is written against', () => {
-    const out = garminSnapshot(wearSnap())
+    const out = garminSnapshot(watchSnap())
     const file = join(here, '..', '..', 'garmin', 'test', 'snapshot.json')
     if (process.env.UPDATE_GARMIN_FIXTURES) writeFileSync(file, JSON.stringify(out, null, 2) + '\n')
     expect(JSON.parse(readFileSync(file, 'utf8'))).toEqual(JSON.parse(JSON.stringify(out)))
   })
 
   it('keeps the same fields as the other watches, with where each exercise sits', () => {
-    const out = garminSnapshot(wearSnap())
+    const out = garminSnapshot(watchSnap())
     expect(out.active.id).toBe('w-1')
     expect(out.active.count).toBe(2)
     expect(out.active.entries.map(e => e.i)).toEqual([0, 1])
@@ -65,7 +64,7 @@ describe('the Garmin snapshot', () => {
   })
 
   it('lists the other routines by name only', () => {
-    const snap = wearSnap()
+    const snap = watchSnap()
     snap.ready = {
       today: { routineIds: ['r1'], name: 'Legs', entries: [ex('a', [row(false)], { best: { w: 60, r: 5 } })] },
       others: Array.from({ length: 12 }, (_, k) => ({ routineIds: ['o' + k], name: 'Routine ' + k, entries: [ex('x', [row(false)])] })),

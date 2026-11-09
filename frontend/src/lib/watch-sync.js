@@ -1,8 +1,6 @@
 // The watch link, the page's side. Two transports, one protocol:
 //   iPhone + Apple Watch   native ios/App/App/WatchBridgePlugin.swift (WatchConnectivity), the
 //                          watch app ios/App/Watch
-//   Android + Wear OS      native android/app/.../WatchBridgePlugin.java (the Wearable Data
-//                          Layer), the watch app android/wear (docs/WEAR_OS.md)
 //   any + Zepp OS          lib/watch-relay.js: the same calls over the user's own server (the
 //                          watch's Side Service lives in the Zepp app), watch-zepp/ (docs/ZEPP_OS.md)
 // Both plugins are called WatchBridge and answer the same calls, and both watches read the same
@@ -39,7 +37,6 @@ import { readWatchPrefs, settingsForWatch, writeWatchStatus, readWatchStatus, on
 import { garminSnapshot } from './garmin-snapshot.js'
 import { plannedType } from './health-connect.js'
 import { exView, exConverted, exUnitOf, viewEntry, viewRow, shownWeight, storedWeight } from './ex-unit.js'
-import { streakInfo } from './streak.js'
 
 export const SNAPSHOT_VERSION = 1
 const APPLIED_KEY = 'gym_watch_applied'
@@ -433,8 +430,8 @@ export function bindWatchAppActions (h) {
 let pluginP = null
 // Inside an object: a Capacitor plugin proxy answers `then`, so a promise must never resolve with
 // the bare proxy (lib/rest-alert.js, the Coach hang #42).
-// The iPhone's (Apple Watch) or the Android phone's (Wear OS); the web has none.
-export const WATCH_PLATFORMS = ['ios', 'android']
+// The iPhone's Apple Watch link; the web has none.
+export const WATCH_PLATFORMS = ['ios']
 const watchPlugin = () => pluginP || (pluginP = (async () => {
   if (!MOBILE || !WATCH_PLATFORMS.includes(await nativePlatform())) return null
   const { registerPlugin } = await import('@capacitor/core')
@@ -618,17 +615,6 @@ export function watchExtras (S) {
   }
 }
 
-/**
- * The week streak for the watch's Tile and complication (Wear OS; the Apple Watch ignores it):
- * weeks in a row, and whether this week has a workout yet (lib/streak.js).
- */
-export function streakFor (S, today = todayISO()) {
-  try {
-    const st = streakInfo(S, today)
-    return { weeks: st.current, thisWeekDone: !!st.thisWeekDone }
-  } catch { return { weeks: 0, thisWeekDone: false } }
-}
-
 export async function startWatchSync ({ useStore, useUI }) {
   const p = await watchPlugin()
   if (!p) return () => {}
@@ -703,7 +689,6 @@ async function runLink (p, { useStore, useUI }, { health = true, clips: withClip
       // Apple Health on the watch pauses with the Health module, as the phone's own sync does.
       const hOn = healthOn && isOn(S, 'health')
       snap.settings = { ...settingsForWatch(prefs, hOn), ...watchExtras(S) }
-      if (prefs.enabled && isOn(S, 'motivation')) snap.streak = streakFor(S)
       // Discarded here: the watch drops its Apple Health workout instead of saving it (#776).
       const discarded = discardedFor(Date.now(), S)
       if (discarded.length) snap.discarded = discarded
