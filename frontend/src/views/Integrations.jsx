@@ -26,7 +26,6 @@ import { isOn } from '../lib/modules.js'
    webhooks are new, and they live on the server (api/integrations). lib/integrations.js decides
    which card shows where; this file only draws them. */
 
-export const MCP_DOCS = 'https://github.com/DuarteSantos8/openGym/blob/main/mcp/README.md'
 export const INTEGRATIONS_DOCS = 'https://github.com/DuarteSantos8/openGym/blob/main/docs/INTEGRATIONS.md'
 
 const sheet = render => useUI.getState().openSheet(render)
@@ -142,9 +141,6 @@ export default function IntegrationsPage({ android = false, ios = false }) {
         if (action === 'connect') return addWebhookSheet(webhookCtx)
         return webhookListSheet(webhookCtx)
       case 'coach': return nav(MOBILE ? '/coach/setup' : '/coach')
-      case 'mcp':
-        if (status === 'server') return infoSheet(card, t('The MCP server runs next to your own openGym server and reads your data there.'), MCP_DOCS)
-        return window.open(MCP_DOCS, '_blank', 'noopener')
       default:
     }
   }

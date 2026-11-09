@@ -52,11 +52,6 @@ export const CARDS = [
     desc: 'Plans and reviews from the model you pick.',
     syncs: ['Reads your plan and the last weeks of training when you ask.', 'Set up on its own page.'],
   },
-  {
-    id: 'mcp', cat: 'ai', name: 'MCP server', translate: true, icon: 'plug', tint: 'var(--purple)',
-    desc: 'Let Claude Desktop, Cursor and friends read your training log.',
-    syncs: ['Runs next to your server and reads your data from there.', 'Read-only, apart from logging a workout you ask it to.'],
-  },
 ]
 export const CARD = Object.fromEntries(CARDS.map(c => [c.id, c]))
 
@@ -125,9 +120,6 @@ export function cardState(id, ctx) {
     case 'coach':
       if (ctx.mobile) return { status: ctx.coachMode ? 'connected' : 'off', action: ctx.coachMode ? 'manage' : 'connect' }
       return ctx.coach ? { status: 'connected', action: 'open' } : null
-    case 'mcp':
-      if (ctx.demo || !ctx.user) return { status: 'server', action: null }
-      return { status: null, action: 'open' }
     default:
       return null
   }

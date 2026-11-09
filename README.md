@@ -134,8 +134,6 @@ if you want to try it before installing anything.
   what you logged, and answers questions about your training. You approve every change. It runs
   on your server, or on the phone alone, with your own provider key (Anthropic, OpenAI, Gemini or
   any OpenAI-compatible endpoint, Ollama included).
-- An [MCP server](mcp/README.md) so an assistant like Claude Desktop can answer questions about your
-  training history, and log a workout you describe to it. Local; not part of the Docker build.
 - [Integrations](docs/INTEGRATIONS.md) in one place: Apple Health, Health Connect (Garmin, Fitbit,
   Withings and friends come in through them), imports, and signed webhooks to Home Assistant, n8n or
   ntfy when you finish a workout, set a record or weigh in.
@@ -342,10 +340,10 @@ What that does and doesn't mean:
   are the maintainer's call. Changes are tested on a staging instance and on real phones before
   they are tagged.
 - **Tests hold the logic in place.** The training logic is covered by unit tests, and pull requests
-  run the frontend, API and MCP suites in CI. That is the guard against plausible-looking code
+  run the frontend and API suites in CI. That is the guard against plausible-looking code
   that is wrong, whoever or whatever wrote it.
 - **The app itself doesn't need an LLM.** Nothing in a default install calls an AI service. The AI
-  coach and the MCP server are opt-in, and the coach only talks to the provider you configure, with
+  coach is opt-in, and only talks to the provider you configure, with
   your own key.
 
 Community pull requests are written by their authors, with whatever tools they like, and reviewed

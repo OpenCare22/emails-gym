@@ -10,9 +10,8 @@ describe('the directory', () => {
     expect(cardState('apple-health', web)).toEqual({ status: 'device', action: null })
     expect(cardState('health-connect', web)).toEqual({ status: 'device', action: null })
     expect(cardState('webhook', web)).toEqual({ status: 'server', action: null })
-    expect(cardState('mcp', web)).toEqual({ status: 'server', action: null })
     expect(ids(web)).not.toContain('coach')   // the server's Coach, not offered here
-    expect(directory(web).map(c => c.id)).toEqual(['health', 'training', 'automation', 'ai'])
+    expect(directory(web).map(c => c.id)).toEqual(['health', 'training', 'automation'])
   })
 
   it('a phone shows its own store only, by what the store says', () => {
@@ -42,7 +41,6 @@ describe('the directory', () => {
     expect(cardState('webhook', conn('connected'))).toEqual({ status: 'connected', action: 'manage' })
     expect(cardState('webhook', conn('attention'))).toEqual({ status: 'attention', action: 'manage' })
     expect(cardState('webhook', conn('paused')).status).toBe('off')
-    expect(cardState('mcp', user)).toEqual({ status: null, action: 'open' })
   })
 
   it('the demo has no Hevy key to spend and no server', () => {

@@ -9,7 +9,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT" || exit 1
 
 LINKED=""
-for d in . frontend api mcp; do
+for d in . frontend api; do
   if [ -d "$d" ] && [ ! -e "$d/node_modules" ] && [ -d "$MAIN/$d/node_modules" ] && [ "$ROOT" != "$MAIN" ]; then
     ln -s "$MAIN/$d/node_modules" "$d/node_modules" && LINKED="$LINKED $d/node_modules"
   fi
@@ -29,7 +29,6 @@ if [ "${1:-}" != "quick" ]; then
   run api-tests sh -c 'cd api && npm test --silent'
   # --retry 1: media-sync.test.js can time out under full-suite load (docs/decisions.md).
   run frontend-tests sh -c "cd frontend && npx vitest run --retry 1 $ICONS"
-  [ -d mcp ] && run mcp-tests sh -c 'cd mcp && npm test --silent'
 fi
 run locales sh -c 'cd frontend && node scripts/check-locales.mjs'
 run strings sh -c 'cd frontend && node scripts/check-source-strings.mjs --strict'

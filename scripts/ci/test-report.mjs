@@ -4,7 +4,7 @@
 // they run, which tests are slow, and what failed. CI writes the result to the job summary
 // ($GITHUB_STEP_SUMMARY) and keeps the JSON as an artifact; run it locally the same way.
 //
-//   vitest (frontend, mcp):
+//   vitest (frontend):
 //     node scripts/ci/test-report.mjs --label Frontend --root frontend \
 //       --vitest frontend/test-results.json --coverage frontend/coverage/coverage-summary.json \
 //       [--bundle frontend/bundle-size.json] --out stats/frontend.json

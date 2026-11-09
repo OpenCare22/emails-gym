@@ -6,7 +6,7 @@
 // The last kind is often deliberate here (CSS, native Java/Swift and Dockerfiles cannot run
 // under vitest), so it is counted, not judged. Report only; never fails the build.
 //
-//   node scripts/ci/test-audit.mjs frontend/src frontend/scripts api/test mcp/test [--json out.json]
+//   node scripts/ci/test-audit.mjs frontend/src frontend/scripts api/test [--json out.json]
 import { appendFileSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'

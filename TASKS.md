@@ -23,7 +23,7 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [ ] T-003 English only
 - [ ] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
-- [ ] T-006 mcp/
+- [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
 - [ ] T-007 Hide progress photos, structural balance, data imports, audit logging
 
 ## Next

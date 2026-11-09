@@ -23,8 +23,6 @@ api/        Backend: server.js (plain node:http) plus small testable modules bes
 web/        Multi-stage Dockerfile (builds frontend, adds catalogue/media, serves with nginx) and
             nginx.conf.template (serves the app, proxies /api).
 catalogue/  The exercise database: exercises/<id>.json, i18n/, licensed 180 px media/.
-mcp/        Optional stdio MCP server: reads DATA_DIR, and its one write tool (log_workout)
-            saves through the api. Not in the Docker build.
 scripts/    Build, CI and release helpers (scripts/README.md).
 website/    opengym.ch, plain HTML/CSS/JS, deployed separately.
 helm/, kubernetes/, contrib/nix/   Other ways to deploy.
@@ -46,7 +44,6 @@ cd frontend && npm test                          # vitest run, the whole suite
 cd frontend && npx vitest run src/lib/progression.test.js   # one file
 cd frontend && npx vitest run -t "some test name"           # one test by name
 cd api && npm test                               # node --test
-cd mcp && npm test
 
 # Checks CI runs besides the suites (run `npm ci` in the repo root once, for js-yaml)
 cd frontend && node scripts/check-locales.mjs && node scripts/check-source-strings.mjs --strict
@@ -141,14 +138,6 @@ together: `lib/sync-merge.js` and `api/sync-stamps.js` (parity test), `lib/glyph
 `api/queue.js` (mirrored test cases only, nothing compares the code). The other way round,
 `lib/coach-local.js` imports `api/coach/core/` directly so the phones run the same coach pipeline.
 
-### MCP server (`mcp/src`)
-
-Stdio MCP bridge (`@modelcontextprotocol/sdk`) that reads one user's data straight from
-`DATA_DIR`. `state.js` loads and derives the data, `tools.js` defines the read tools (zod schemas),
-`labels.js` maps keys to readable labels, `index.js` wires it together. The one write tool,
-`log_workout` (`write-tools.js`), never writes the file: it builds the workout with
-`frontend/src/lib/log-workout.js` and saves it with `PUT /api/data` over a paired-session token
-(`api-client.js`, `scripts/pair.mjs`), the way a device syncs. See `mcp/README.md`.
 
 ### Passkeys and self-hosting constraints
 
