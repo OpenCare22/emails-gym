@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { effectiveRoutineIds, effectiveRoutines } from '../lib/history.js'
-import { todayISO } from '../lib/format.js'
+import { FRIENDS_SCREEN } from '../lib/fork-flags.js'
 import { t } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 import Elapsed from './Elapsed.jsx'
@@ -20,7 +19,20 @@ function Tab({ active, icon, label, onClick, dot, tour }) {
   )
 }
 
-export default function TabBar({ onStart }) {
+// Email's Gym navigation (DESIGN_PLAN step 3): Home · Workouts · Progress · Friends. A screen
+// without a tab of its own lights the tab it belongs to:
+//   Workouts  /plan (routines, programmes), /history, /library
+//   Progress  /stats, /measurements, /muscles (and the hidden photos and structural balance)
+//   Home      /home, /settings, /checkin, the Coach
+// Starting a workout lives on Home's Today card. A workout you stepped away from comes back from
+// the Resume pill above the bar, with its running time.
+const PARENT = {
+  plan: 'plan', history: 'plan', library: 'plan',
+  stats: 'stats', measurements: 'stats', muscles: 'stats', 'structural-balance': 'stats', 'progress-photos': 'stats',
+  settings: 'home', checkin: 'home', coach: 'home', admin: 'home',
+}
+
+export default function TabBar() {
   const nav = useNavigate()
   const loc = useLocation()
   const S = useStore(s => s.S)
@@ -31,47 +43,38 @@ export default function TabBar({ onStart }) {
   const trouble = useConnectionTrouble()
   if (!user && !isGuest) return null
   const cur = loc.pathname.split('/')[1] || 'home'
-  // A screen without a tab of its own lights the tab it is opened from (Muscles from both).
-  const PARENT = { history: 'stats', 'structural-balance': 'stats', 'progress-photos': 'stats', measurements: 'stats', settings: 'home', checkin: 'home', muscles: 'library' }
-  const parent = cur === 'muscles' && loc.state?.from === '/stats' ? 'stats' : PARENT[cur]
+  const parent = PARENT[cur]
   const on = k => cur === k || parent === k
 
-  // Root tabs are peers, not another level to unwind with Android Back. The tab you are already
-  // on takes you to the top of its page instead (lib/scroll-top.js).
+  // Root tabs are peers, not another level to unwind with Back. The tab you are already on takes
+  // you to the top of its page instead (lib/scroll-top.js).
+  // A tab with several pages of its own (Workouts: Routines, History, Exercises) treats each of
+  // them as its top: tapped again there, that page scrolls up (Exercises: to its search field).
+  const ROOTS = { '/plan': ['/plan', '/history', '/library'] }
   const switchTab = path => {
-    if (loc.pathname !== path || loc.search) nav(path, { replace: true })
-    else retapTab(path)
+    const here = (ROOTS[path] || [path]).find(p => loc.pathname === p)
+    if (here && !loc.search) retapTab(here)
+    else nav(path, { replace: true })
   }
 
-  const running = !!S.active && cur !== 'workout' && !S.active.editingWorkoutId && !S.active.backfill && S.active.start > 0
-  const startWorkout = () => {
-    if (!S.active) {
-      // A weekday can hold several routines; start the combined session if any of them has
-      // exercises, otherwise fall through to the picker.
-      if (effectiveRoutines(S, todayISO()).some(r => r.ex.length)) { onStart(effectiveRoutineIds(S, todayISO())); return }
-    }
-    nav('/workout')
-  }
+  // A session away from its screen: the pill brings it back (the marker stays where it was, #21).
+  const away = !!S.active && cur !== 'workout'
+  const running = away && !S.active.editingWorkoutId && !S.active.backfill && S.active.start > 0
+  const resumeLabel = S.active?.editingWorkoutId ? t('Edit workout') : t('Resume')
 
   return (
     <nav id="tabbar">
+      {away && (
+        <button type="button" className="tab-resume" data-tour="start" onClick={() => nav('/workout')} aria-label={resumeLabel}>
+          <Icon name="play" />
+          <span>{resumeLabel}</span>
+          {running && <span className="tab-time"><Elapsed start={S.active.start} /></span>}
+        </button>
+      )}
       <Tab active={on('home')} icon="house" label={t('Home')} dot={trouble} onClick={() => switchTab('/home')} tour="tab-home" />
-      <Tab active={on('plan')} icon="calendar" label={t('Plan')} onClick={() => switchTab('/plan')} tour="tab-plan" />
-      {/* On the workout screen itself there is nothing to resume, so the button reads as the
-          tab it is and stays lit (#29); anywhere else it brings you back to the exercise you
-          were on — the marker is kept in S.active.cur and never moves on its own (#21). The
-          glyph is always play: start and resume are one concept, and an exercise is a dumbbell.
-          A live session you stepped away from shows its running time instead of a word, the
-          button still named Resume; a past workout being edited or logged after the fact has no
-          clock to run. */}
-      <button data-tour="start" className={'start' + (S.active ? ' rec' : '') + (S.active && cur === 'workout' ? ' on' : '')} onClick={startWorkout}
-        aria-label={running ? t('Resume') : undefined}>
-        <span className="cir"><Icon name="play" /></span>
-        {running ? <span className="tab-time"><Elapsed start={S.active.start} /></span>
-          : <span>{S.active ? (cur === 'workout' ? t('Workout') : S.active.editingWorkoutId ? t('Edit workout') : t('Resume')) : t('Start')}</span>}
-      </button>
-      <Tab active={on('stats')} icon="chart" label={t('Stats')} onClick={() => switchTab('/stats')} tour="tab-stats" />
-      <Tab active={on('library')} icon="dumbbell" label={t('Exercises')} onClick={() => switchTab('/library')} tour="tab-library" />
+      <Tab active={on('plan')} icon="dumbbell" label={t('Workouts')} onClick={() => switchTab('/plan')} tour="tab-plan" />
+      <Tab active={on('stats')} icon="chart" label={t('Progress')} onClick={() => switchTab('/stats')} tour="tab-stats" />
+      {FRIENDS_SCREEN && <Tab active={on('friends')} icon="users" label={t('Friends')} onClick={() => switchTab('/friends')} tour="tab-friends" />}
     </nav>
   )
 }

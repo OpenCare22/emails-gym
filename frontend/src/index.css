@@ -3269,3 +3269,47 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
   .kpis .tile{padding:10px 11px}
   .kpis .tile .v{font-size:var(--fs-title3)}
 }
+
+/* ---------------------------------------- Email's Gym navigation (Phase 2 step 3) -- */
+/* Four tabs, no centre button; a running workout away from its screen comes back from the
+   Resume pill above the bar. Labels are 11px, the active tab is sage text (--acc-ink, 4.5:1). */
+#tabbar{align-items:stretch}
+#tabbar button{font-size:var(--fs-caption2);min-height:var(--touch-min);justify-content:center}
+#tabbar .tab-resume{
+  position:absolute;inset-inline-start:50%;bottom:calc(100% + 10px);transform:translateX(-50%);
+  flex:none;flex-direction:row;gap:8px;align-items:center;justify-content:center;
+  min-height:var(--touch-min);padding:0 18px;border-radius:999px;
+  background:var(--btn);color:var(--on-btn);font-size:var(--fs-subhead);font-weight:600;
+  box-shadow:0 6px 20px -6px rgba(0,0,0,.45);
+}
+[dir="rtl"] #tabbar .tab-resume{transform:translateX(50%)}
+#tabbar .tab-resume .icn{font-size:18px;--icon-stroke:2;color:inherit}
+#tabbar .tab-resume .tab-time{font-variant-numeric:tabular-nums;opacity:.85}
+#tabbar .tab-resume:active{transform:translateX(-50%) scale(var(--press-scale))}
+
+/* The Workouts tab's three pages: Routines · History · Exercises. */
+.workouts-switch{margin:0 0 14px}
+
+/* Friends (handoff §4C): a quiet ranked list, the user's own row with a hairline in sage. */
+.friends .seg{margin-bottom:6px}
+.friends-metric{margin:0 2px 14px}
+.friends-state{padding:28px 8px;text-align:center;color:var(--label-2)}
+.friends-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:40px 16px}
+.friends-empty>.icn{font-size:40px;color:var(--label-3)}
+.friends-empty h2{font-size:var(--fs-section);font-weight:600}
+.friends-empty p{max-width:32ch}
+.lb-list{list-style:none;display:flex;flex-direction:column;gap:var(--card-gap)}
+.lb-row{
+  display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;
+  background:var(--surface);border-radius:var(--r-card);border:1px solid transparent;
+}
+.lb-row.lb-self{border-color:var(--acc-line);background:var(--surface);background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.lb-rank{width:1.5em;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;color:var(--label-2)}
+.lb-avatar{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:var(--surface-2);color:var(--label);font-weight:600;font-size:var(--fs-subhead);
+}
+.lb-who{flex:1;min-width:0;display:flex;flex-direction:column}
+.lb-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-sub{font-size:var(--fs-footnote);color:var(--label-2)}
+.lb-value{font-weight:600;font-variant-numeric:tabular-nums}
