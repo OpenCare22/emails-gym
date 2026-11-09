@@ -6,15 +6,14 @@ A map of the code for people about to change it. For running an instance, read
 
 ## The big picture
 
-One React app runs everywhere: in a browser against your server, inside the Android and iPhone
-apps (Capacitor), and as the browser-only demo. The server is small on purpose: plain `node:http`,
+One React app runs everywhere: in a browser against your server, inside the iPhone
+app (Capacitor), and as the browser-only demo. The server is small on purpose: plain `node:http`,
 JSON files on disk, passkeys for sign-in.
 
 ```mermaid
 flowchart LR
   subgraph Devices
     B[Browser / PWA]
-    A[Android app<br/>APK or Google Play]
     I[iPhone app]
     W[Apple Watch]
     WG[Widgets and<br/>Live Activity]
@@ -27,7 +26,6 @@ flowchart LR
   end
 
   B -- HTTPS, cookie --> N
-  A -- HTTPS, bearer token --> N
   I -- HTTPS, bearer token --> N
   N -- /api --> API
   API --> D
@@ -38,7 +36,6 @@ flowchart LR
   AI["AI provider<br/>(optional Coach)"]
   API -.Coach jobs.-> AI
   I -.on-device Coach.-> AI
-  A -.on-device Coach.-> AI
 ```
 
 The phone apps also work with no server at all. Then the phone is the account and the state lives
@@ -52,7 +49,7 @@ in a file in the app's private storage (MOBILE.md explains the modes).
 | `frontend/src/lib/` | Pure helpers, each with a `*.test.js` beside it: progression, 1RM, recovery, sync merge, imports, media, the native bridges |
 | `frontend/src/locales/` | One pack per language. The key is the English text, English itself has no pack |
 | `frontend/src/{instr,exercise-names,exercise-desc}/`, `lib/exercises-data.js` | Generated from `catalogue/` by `scripts/catalogue/build.mjs`. Don't edit by hand |
-| `frontend/android/`, `frontend/ios/` | The Capacitor shells and the native plugins (rest alarm, Health Connect, Apple Health, watch, widgets, animation packs) |
+| `frontend/ios/` | The Capacitor shell and the native plugins (rest alarm, Apple Health, watch, widgets, animation packs) |
 | `api/` | `server.js` (routes, sessions, storage), plus small modules split out so they can be tested alone: `media.js`, `sync-stamps.js`, `queue.js`, `nudge.js`, `rate-limit.js`, `durable.js`, `password.js`, `passkeys-store.js`, `device-link.js` |
 | `api/coach/` | The optional AI Coach. `core/` has no server state and is shared with the phone apps |
 | `api/integrations/` | Settings → Integrations on the server: providers (the webhook first), sealed per-profile connections in `DATA_DIR/integrations/`, a durable outbox with idempotency, backoff and rate limits ([INTEGRATIONS.md](INTEGRATIONS.md)) |
@@ -73,7 +70,7 @@ flowchart TB
   S --> L
   S -- "debounced push, pull, merge" --> API["lib/api.js<br/>the only fetch wrapper"]
   S -- "file mirror" --> M["lib/mobile.js<br/>Capacitor Filesystem"]
-  L -. "native bridges" .-> P["Capacitor plugins<br/>android/ and ios/"]
+  L -. "native bridges" .-> P["Capacitor plugins<br/>ios/"]
 ```
 
 - **State.** `useStore.js` holds everything a profile owns (`S`): routines, workouts, weigh-ins,
@@ -157,14 +154,11 @@ decides where each size may go, and the build follows it:
 flowchart LR
   C["catalogue/media<br/>180 px stills + clips"] --> WEB["web image, demo, self-hosted"]
   C --> CI["CI builds (iOS simulator, tests)"]
-  Q["private quality folders<br/>240 to 1080 px<br/>(release machine only)"] --> APK["APK: built in"]
-  Q --> AAB["Google Play: built in + Play asset packs"]
   Q --> IPA["App Store: built in + Apple-hosted packs"]
 ```
 
 Nothing larger than 180 px is ever committed, served by a server, or uploaded to CI. The store
-packages are put together and signed on the release machine (`scripts/android/build-release.sh`,
-`scripts/ios/finish-ipa.sh`).
+packages are put together and signed on the release machine (`scripts/ios/finish-ipa.sh`).
 
 ## Native extras (iPhone)
 
@@ -176,9 +170,7 @@ packages are put together and signed on the release machine (`scripts/android/bu
   Apple Watch taking the workout, the iPhone runs the workout session itself so AirPods Pro 3 measure
   the heart rate, which fills the same per-set fields the watch does.
 - **Widgets and the Live Activity** (`ios/App/OpenGymWidgets`): the page writes a small snapshot to
-  the App Group (`lib/widgets.js` → `WidgetBridgePlugin.swift`), the widgets read it. On Android the
-  same snapshot goes to SharedPreferences (`WidgetBridgePlugin.java`) and `OpenGymWidgetProvider.java`
-  draws the Home Screen widget. A tap opens an `opengym://` link the page routes (`lib/widget-links.js`).
+  the App Group (`lib/widgets.js` → `WidgetBridgePlugin.swift`), the widgets read it. A tap opens an `opengym://` link the page routes (`lib/widget-links.js`).
 - **Animation packs** (`ios/App/AnimationPacksDownloader`, `AnimationPacksPlugin.swift`): the
   sharper animation sizes as Apple-hosted Background Assets.
 

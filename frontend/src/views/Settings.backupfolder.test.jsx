@@ -87,10 +87,10 @@ const mount = async () => { await act(async () => { root.render(<Settings page="
 const shown = () => !!host.querySelector('.backup-folder-row')
 
 describe('the backup folder rows', () => {
-  it('show on Android with auto-backup on', async () => {
+  it('does not offer the removed Android folder picker', async () => {
     mocks.S.autoBackup = true
     await mount()
-    expect(shown()).toBe(true)
+    expect(shown()).toBe(false)
   })
   it('not with auto-backup off', async () => {
     mocks.S.autoBackup = false
@@ -108,13 +108,6 @@ describe('the backup folder rows', () => {
 // Android QA: the Auto-backup row still said Documents/openGym after another folder was chosen.
 describe('the Auto-backup row', () => {
   const subtitle = () => [...host.querySelectorAll('.lrow')].find(r => r.textContent.includes('Auto-backup on changes'))?.querySelector('.lrow-s')?.textContent
-  it('names the chosen folder', async () => {
-    mocks.S.autoBackup = true
-    mocks.folder = { uri: 'content://tree/Sync', label: 'SyncFolder' }
-    await mount()
-    expect(subtitle()).toContain('“SyncFolder”')
-    expect(subtitle()).not.toContain('Documents/openGym')
-  })
   it('names Documents/openGym with no folder chosen', async () => {
     mocks.S.autoBackup = true
     await mount()

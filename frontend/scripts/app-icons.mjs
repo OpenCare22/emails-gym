@@ -10,9 +10,6 @@
  *   resources/icons/<id>.svg                                  the source (the glyph ones only)
  *   public/app-icons/<id>.png                                 112 px preview for the settings row
  *   ios/App/App/Assets.xcassets/AppIcon-<Name>.appiconset/    1024 px, opaque (Apple refuses alpha)
- *   android/app/src/main/res/mipmap-<dpi>/ic_launcher_<id>{,_round,_foreground}.png
- *   android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_<id>{,_round}.xml
- *   android/app/src/main/res/values/app_icons.xml             the adaptive icons' background colours
  * The default icon keeps the files @capacitor/assets made for it (docs/MOBILE.md); only its
  * preview comes from here.
  *
@@ -25,10 +22,7 @@ import { fileURLToPath } from 'node:url'
 import { APP_ICON_VARIANTS } from '../src/lib/app-icon-variants.js'
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const RES = 'android/app/src/main/res'
 
-// Launcher icon in px per density (48 dp), and the adaptive layer (108 dp) beside it.
-export const DENSITIES = { ldpi: 0.75, mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 }
 export const PREVIEW = 112
 export const IOS_SIZE = 1024
 
@@ -226,19 +220,6 @@ ${rects.map(([x, y, w, h]) => `    <rect x="${x}" y="${y}" width="${w}" height="
 </svg>
 `
 
-// The same layers as the default icon's (mipmap-anydpi-v26/ic_launcher.xml): the whole square icon
-// as the foreground, inset to the 72 dp the launcher's mask shows, so every variant sits exactly
-// where the original does. The colour behind it only shows where a launcher moves the layers.
-const adaptive = id => `<?xml version="1.0" encoding="utf-8"?>
-<!-- Written by scripts/app-icons.mjs. -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_${id}_background" />
-    <foreground>
-        <inset android:drawable="@mipmap/ic_launcher_${id}_foreground" android:inset="16.7%" />
-    </foreground>
-</adaptive-icon>
-`
-
 const iosContents = `{
   "images" : [
     {
@@ -258,7 +239,6 @@ const iosContents = `{
 /** Every file this script owns, as [path relative to frontend/, () => contents]: drawn on demand. */
 export function files(rects = glyph()) {
   const out = []
-  const colors = []
   for (const v of APP_ICON_VARIANTS) {
     out.push([`public/app-icons/${v.id}.png`, () => draw(v, PREVIEW, { rects })])
     if (v.id === 'default') continue
@@ -266,21 +246,7 @@ export function files(rects = glyph()) {
     const set = `ios/App/App/Assets.xcassets/${v.ios}.appiconset`
     out.push([`${set}/Contents.json`, () => iosContents])
     out.push([`${set}/icon-1024.png`, () => draw(v, IOS_SIZE, { rects })])
-    for (const [dpi, f] of Object.entries(DENSITIES)) {
-      out.push([`${RES}/mipmap-${dpi}/ic_launcher_${v.id}.png`, () => draw(v, Math.round(48 * f), { rects })])
-      out.push([`${RES}/mipmap-${dpi}/ic_launcher_${v.id}_round.png`, () => draw(v, Math.round(48 * f), { rects, round: true })])
-      out.push([`${RES}/mipmap-${dpi}/ic_launcher_${v.id}_foreground.png`, () => draw(v, Math.round(108 * f), { rects })])
-    }
-    out.push([`${RES}/mipmap-anydpi-v26/ic_launcher_${v.id}.xml`, () => adaptive(v.id)])
-    out.push([`${RES}/mipmap-anydpi-v26/ic_launcher_${v.id}_round.xml`, () => adaptive(v.id)])
-    colors.push(`    <color name="ic_launcher_${v.id}_background">${v.bg}</color>`)
   }
-  out.push([`${RES}/values/app_icons.xml`, () => `<?xml version="1.0" encoding="utf-8"?>
-<!-- Written by scripts/app-icons.mjs: behind each alternate launcher icon. -->
-<resources>
-${colors.join('\n')}
-</resources>
-`])
   return out
 }
 

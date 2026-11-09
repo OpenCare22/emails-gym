@@ -91,18 +91,11 @@ const rowTitled = title => [...host.querySelectorAll('.lrow')].find(r => r.query
 const switchIn = row => row.querySelector('[role="switch"]') || row.querySelector('input[type="checkbox"]') || row.querySelector('button')
 
 describe('Settings — vibrate when the phone is on silent', () => {
-  it('Android app: offered right under Vibrate, off by default, and writes the setting', async () => {
+  it('does not offer the removed Android silent vibration setting', async () => {
     mocks.MOBILE = true
     mocks.android = true
     await mount()
-    const row = rowTitled(TITLE)
-    expect(row).toBeTruthy()
-    expect(row.querySelector('.lrow-s').textContent).toBe('The end of a rest or a hold buzzes like an alarm, even in silent mode.')
-    const rows = [...host.querySelectorAll('.lrow')]
-    expect(rows.indexOf(row)).toBe(rows.indexOf(rowTitled('Vibrate')) + 1)
-    expect(switchIn(row).getAttribute('aria-checked')).toBe('false')
-    act(() => { switchIn(row).click() })
-    expect(mocks.S.vibrateOnSilent).toBe(true)
+    expect(rowTitled(TITLE)).toBeUndefined()
   })
 
   it('not offered while Vibrate is off', async () => {
