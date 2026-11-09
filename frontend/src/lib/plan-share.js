@@ -42,7 +42,7 @@ const PLAN_UNITS = new Set(['kg', 'lb'])
 // A plan's numbers are in the unit that wrote it. Missing unit is deliberately legacy-compatible:
 // old files were read as already being in the recipient's unit, so keep their values unchanged.
 const planUnit = value => value === 'lbs' ? 'lb' : PLAN_UNITS.has(value) ? value : null
-const unitError = () => { throw new Error(t('this isn’t an openGym plan file')) }
+const unitError = () => { throw new Error(t('this isn’t an Email’s Gym plan file')) }
 
 function declaredPlanUnit(data) {
   let declared = null
@@ -289,7 +289,7 @@ export function buildProgrammeBundle(S, id) {
  * is trained.
  */
 export function parsePlan(raw, destinationUnit = 'kg') {
-  const notPlan = () => Object.assign(new Error(t('this isn’t an openGym plan file')), { code: 'not-plan' })
+  const notPlan = () => Object.assign(new Error(t('this isn’t an Email’s Gym plan file')), { code: 'not-plan' })
   let data = raw
   if (typeof raw === 'string') { try { data = JSON.parse(raw) } catch { throw notPlan() } }
   const destination = planUnit(destinationUnit)
@@ -558,8 +558,8 @@ const PLAN_CSS = `
   .ticks { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 3pt; margin-top: 4pt; }
   .ticks i { display: block; width: 9pt; height: 9pt; border: 1px solid #c4c9d2; border-radius: 2pt; }
 
-  .ss { border-inline-start: 2.5pt solid var(--lime); padding-inline-start: 8pt; margin: 4pt 0; }
-  .ss-tag { font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--lime-ink); font-weight: 700; padding-top: 5pt; }
+  .ss { border-inline-start: 2.5pt solid var(--sage); padding-inline-start: 8pt; margin: 4pt 0; }
+  .ss-tag { font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--sage-ink); font-weight: 700; padding-top: 5pt; }
   .ss .ex:last-child { border-bottom: 0; }
 
   table.week th { width: 32%; text-transform: none; letter-spacing: 0; font-size: 9pt; color: var(--ink); font-weight: 600; padding: 4pt 8pt 4pt 0; border-bottom: 1px solid var(--rule-soft); }

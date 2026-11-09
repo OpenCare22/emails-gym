@@ -92,7 +92,7 @@ export function wrappedCards(st, S) {
   const personality = personalityOf(st)
   const [pName, pLine] = PERSONALITY[personality]()
 
-  cards.push({ id: 'intro', kicker: t('Your year in openGym'), big: String(y), bigKind: 'number', title: t('Grab a shake. This one is all about you.'), lines: [t('Tap to start')] })
+  cards.push({ id: 'intro', kicker: t('Your year in Email’s Gym'), big: String(y), bigKind: 'number', title: t('Grab a shake. This one is all about you.'), lines: [t('Tap to start')] })
 
   const perWeek = st.perWeek
   cards.push({
@@ -189,7 +189,7 @@ export function wrappedCards(st, S) {
     ...(st.topExercise ? [{ label: t('Signature move'), value: exName(st.topExercise.id, st.topExercise.name), wide: true }] : []),
     { label: t('Training personality'), value: pName, wide: true },
   ]
-  cards.push({ id: 'summary', kicker: t('Your {0} in openGym', String(y)), big: '', bigKind: 'none', title: t('That is a wrap. See you in {0}.', String(y + 1)), lines: [], tiles })
+  cards.push({ id: 'summary', kicker: t('Your {0} in Email’s Gym', String(y)), big: '', bigKind: 'none', title: t('That is a wrap. See you in {0}.', String(y + 1)), lines: [], tiles })
   return cards
 }
 

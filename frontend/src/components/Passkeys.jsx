@@ -238,7 +238,7 @@ export function DeviceLinkSheet({ close }) {
       <Button variant="primary" onClick={() => setLink(null)}>{t('Make a new code')}</Button>
     </> : <>
       <div className="muted small" style={{ marginBottom: 14 }}>
-        {t('Scan this with the other device, or open openGym there and enter the code on the sign-in screen. It works once, for {0} minutes.', LINK_MINUTES)}
+        {t('Scan this with the other device, or open Email’s Gym there and enter the code on the sign-in screen. It works once, for {0} minutes.', LINK_MINUTES)}
       </div>
       <div className="ci-qr-plate" style={{ width: 'fit-content', margin: '0 auto 14px' }}><QrCanvas value={url} size={200} /></div>
       {/* Read out or typed character by character: left to right in every language. */}
@@ -284,7 +284,7 @@ export function PairSheet({ close }) {
       <Button variant="primary" onClick={() => setPair(null)}>{t('Make a new code')}</Button>
     </> : <>
       <div className="muted small" style={{ marginBottom: 14 }}>
-        {t('On the openGym app, choose “Connect to my server”, then enter this address and the code below. It expires in 5 minutes.')}
+        {t('On the Email’s Gym app, choose “Connect to my server”, then enter this address and the code below. It expires in 5 minutes.')}
       </div>
       {/* Read out or typed character by character: left to right in every language. */}
       <div className="card" dir="ltr" style={{ textAlign: 'center', fontSize: 30, fontWeight: 700, letterSpacing: '.16em', padding: '18px 0' }}>{pair.code}</div>

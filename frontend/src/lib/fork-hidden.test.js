@@ -12,7 +12,7 @@ const tr = s => s
 
 describe('what this fork hides (Phase 1, hide before delete)', () => {
   it('hides exactly the four features the plan names', () => {
-    expect([...HIDDEN].sort()).toEqual(['health-connect', 'imports', 'progress-photos', 'seasonal', 'structural-balance'])
+    expect([...HIDDEN].sort()).toEqual(['app-icons', 'health-connect', 'imports', 'progress-photos', 'seasonal', 'structural-balance'])
     for (const id of HIDDEN) expect(hidden(id)).toBe(true)
     expect(hidden('body')).toBe(false)
   })

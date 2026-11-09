@@ -172,12 +172,12 @@ export default function Wrapped() {
   const share = c => {
     const body = S.body
     useUI.getState().openSheet(closeSheet => <ShareCardSheet title={t('Share this card')} close={closeSheet} toast={m => useUI.getState().toast(m)}
-      name={`opengym-${year}-${c.id}.png`} shareTitle={t('Your {0} in openGym', String(year))}
+      name={`opengym-${year}-${c.id}.png`} shareTitle={t('Your {0} in Email’s Gym', String(year))}
       render={pref => wrappedCardImage(c, { ...pref, year, body })} />)
   }
   const hideBody = () => update(s => { s.wrappedBody = false })
   const last = idx === cards.length - 1
-  return <div className={'wrapped' + (still ? ' still' : '')} ref={root} role="dialog" aria-modal="true" aria-label={t('Your {0} in openGym', String(year))}>
+  return <div className={'wrapped' + (still ? ' still' : '')} ref={root} role="dialog" aria-modal="true" aria-label={t('Your {0} in Email’s Gym', String(year))}>
     <div className="wr-glow" aria-hidden="true"><i /><i /><i /></div>
     <div className="wr-top">
       <div className="wr-progress" aria-hidden="true">
