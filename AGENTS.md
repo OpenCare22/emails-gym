@@ -18,34 +18,22 @@ This repo is **Email's Gym**, a personal fork of openGym by Duarte Santos. Read 
 
 ## Team worktrees (Codex tickets)
 
-Ticket worktrees have no `node_modules`. Before running any command, link the main checkout's
-installs (never run `npm install` or `npm ci` in a worktree):
+Ticket worktrees have no `node_modules`; never run `npm install` or `npm ci` in one. Run every
+check with:
 
 ```bash
-for d in . frontend api mcp; do [ -d "$d" ] && [ ! -e "$d/node_modules" ] && ln -s "/Users/emilmladenov/Code/emails-gym/$d/node_modules" "$d/node_modules"; done
+sh scripts/fork/check.sh          # all checks (api + frontend suites, locales, strings, catalogue, coach assets, api docs, build)
+sh scripts/fork/check.sh quick    # everything except the two test suites
 ```
 
-Skip `mcp` if the ticket deleted it. Remove the symlinks before you finish, so they are not part
-of the diff.
-
-## Checks
-
-```bash
-cd frontend && npx vitest run            # whole frontend suite
-cd api && npm test
-cd frontend && node scripts/check-locales.mjs && node scripts/check-source-strings.mjs --strict
-node scripts/catalogue/build.mjs --check
-node scripts/build-coach-assets.mjs --check
-node scripts/build-api-docs.mjs --check
-cd frontend && npm run build
-```
+It links the main checkout's `node_modules` for the run and removes the links when it exits.
+For a single test file, link them yourself the same way, and remove the links before you finish.
 
 Known flake: `src/lib/media-sync.test.js` › "signed in, evicts synced main files over the cap"
-can time out (5 s) when the whole suite runs at once. If it is the only failure, rerun that file
-alone; if it passes, the suite counts as green. Say so in your result.
+can time out (5 s) when the whole suite runs at once; `check.sh` retries failed tests once.
 
-On this Mac's Node 26 (CI uses 22), the two tests in `frontend/scripts/app-icons.test.mjs` fail
-because Node 26's zlib writes different PNG bytes. That is expected: don't regenerate or edit the
-icons to make them pass. Claude re-runs every ticket under Node 22 before merging.
+On this Mac's Node 26 (CI uses 22), `frontend/scripts/app-icons.test.mjs` fails because Node 26's
+zlib writes different PNG bytes, so `check.sh` skips it unless Node is 22. Don't regenerate or edit
+the icons to make it pass. Claude re-runs every ticket under Node 22 before merging.
 
 In your result, list every check you ran with its pass/fail counts, and anything you couldn't run.
