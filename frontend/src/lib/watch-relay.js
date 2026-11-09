@@ -1,14 +1,6 @@
-// The watch relay, the page's side (docs/ZEPP_OS.md). A Zepp OS watch talks to the phone through a
-// Side Service that runs inside the Zepp app, never inside openGym, so the two meet on the user's
-// own openGym server instead: the page leaves its snapshot there and picks up what the watch sent
-// (api/watch-relay.js, the /api/watch/* routes). This is a WatchBridge with the native plugin's
-// calls, so lib/watch-sync.js runs the very same sync over it (startLinkSync): the same snapshot,
-// the same events, applied through the same actions.
-//
-// Signed in to a server only (the web app, or a phone paired with one). Without a paired Zepp
-// watch it asks the server once at start and when the app comes back, and sends nothing.
+// Shared watch relay transport over the user's server (api/watch-relay.js).
+// The mailbox uses the native watch snapshot and event protocol.
 import { api } from './api.js'
-import { startLinkSync } from './watch-sync.js'
 
 // How often the page looks for the watch's events while it is open. The phone's page sleeps in a
 // pocket anyway; what waits on the server is picked up when it wakes (watch-sync.js onVisible).
@@ -25,7 +17,7 @@ export async function relayLinks (call = api) {
   const r = await call('/api/watch/links')
   return Array.isArray(r?.links) ? r.links : []
 }
-/** A code for the Zepp app's openGym settings page: { code, exp }. */
+/** A pairing code for a relay client: { code, exp }. */
 export async function relayPairCode (call = api) {
   const r = await call('/api/watch/pair', { method: 'POST', body: '{}' })
   return { code: String(r?.code || ''), exp: Number(r?.exp) || 0 }
@@ -81,17 +73,15 @@ export function relayBridge ({ call = api, doc = globalThis.document, pollMs = R
       const tm = setInterval(() => { if (paired && (!doc || doc.visibilityState !== 'hidden')) fn() }, pollMs)
       return { remove: () => clearInterval(tm) }
     },
-    // The native link's extras, which a Zepp watch has no use for.
+    // Native-only extras are not supported by this transport.
     async openOnWatch () { return {} },
     async sendClips () { return {} },
     async dropClips () { return {} },
   }
 }
 
-/** Started once by the app: the sync of lib/watch-sync.js over the relay. Returns the stop. */
-export async function startWatchRelay ({ useStore, useUI }) {
-  const stop = await startLinkSync(relayBridge({ signedIn: () => !!useStore.getState().user }), { useStore, useUI }, { health: false, clips: false })
-  // Signed in or out since: asked again.
-  const offUser = useStore.subscribe((s, prev) => { if ((s.user?.id || null) !== (prev.user?.id || null)) relayChanged() })
-  return () => { offUser(); stop() }
+// Compatibility entry point for App.jsx. The removed watch integration no longer starts
+// server polling or sends snapshots. Keep the shared relay transport above available.
+export async function startWatchRelay () {
+  return () => {}
 }

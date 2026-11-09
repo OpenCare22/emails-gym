@@ -17,7 +17,6 @@ media are licensed separately (NOTICE.md).
 frontend/   React 19 + Vite app (src/views, src/components, src/store, src/lib, src/sheets.jsx).
             ios/ is the Capacitor shell (docs/MOBILE.md); ios/ also holds the watch
             app (Watch, WatchCore, WatchWidgets), the widgets and the animation-pack downloader.
-            garmin/ is the Garmin Connect IQ watch app (Monkey C; docs/GARMIN.md), on a cut-down snapshot (lib/garmin-snapshot.js).
 api/        Backend: server.js (plain node:http) plus small testable modules beside it.
             coach/ is the optional AI coach; coach/core/ is shared with the phone apps.
             openapi.yaml documents every route.

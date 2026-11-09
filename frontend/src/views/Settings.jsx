@@ -62,7 +62,6 @@ import { platformNow } from '../lib/platform-now.js'
 import { pathBefore } from '../lib/nav.js'
 import WatchSettingsPage from './WatchSettings.jsx'
 import IntegrationsPage from './Integrations.jsx'
-import ZeppSettingsPage from './ZeppSettings.jsx'
 import ModulesPage from './Modules.jsx'
 import { isOn, presetOf } from '../lib/modules.js'
 import { presetCopy } from '../lib/modules-copy.js'
@@ -416,7 +415,6 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     integrations: () => '',
     about: () => 'v' + __APP_VERSION__,
     watch: () => '',
-    zepp: () => '',
   }
 
   const open = id => {
@@ -474,7 +472,6 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     integrations: () => <IntegrationsPage android={android} ios={ios} />,
     // The phone's health store (#200, #544): its switches, moved here from Data & backup in 1.4.4.
     'apple-health': () => <HealthPage key="apple-health" S={S} toast={toast} />,
-    zepp: () => <ZeppSettingsPage />,
     gym: () => <GymReminderPage />,
     'gym-find': () => <GymFindPage />,
     'gym-edit': () => <GymEditPage />,

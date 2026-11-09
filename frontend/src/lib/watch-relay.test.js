@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
-// The watch relay (lib/watch-relay.js, docs/ZEPP_OS.md): a WatchBridge over the user's own server,
+// The watch relay (lib/watch-relay.js): a WatchBridge over the user's own server,
 // so lib/watch-sync.js runs its one sync over it. The snapshot goes up as the native link sends it,
 // the watch's events come down and go through the same actions, acknowledged once applied.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { relayBridge, relayChanged, relayPairCode, relayUnlink, relayLinks } from './watch-relay.js'
+import { startWatchRelay, relayBridge, relayChanged, relayPairCode, relayUnlink, relayLinks } from './watch-relay.js'
 import { startLinkSync, bindWatchActions, _resetWatchSync } from './watch-sync.js'
 
 beforeEach(() => { localStorage.clear(); _resetWatchSync() })
@@ -107,7 +107,7 @@ describe('the sync over the relay', () => {
     const snap = JSON.parse(s.box.snapshot)
     expect(snap.active).toMatchObject({ id: 'w-1', name: 'Push day' })
     expect(snap.active.entries[0]).toMatchObject({ id: '0025', name: 'Barbell Bench Press' })
-    // no Apple Health on a Zepp watch: nothing to measure there
+    // Health is disabled for this relay transport.
     expect(snap.settings.health).toBe(false)
     expect(setDone).toHaveBeenCalledTimes(1)
     expect(setDone).toHaveBeenCalledWith(0, 0, { w: 62.5, r: 8, at: 1761743100000, hr: { avg: 128, max: 141 } })
@@ -126,5 +126,19 @@ describe('the sync over the relay', () => {
     await vi.runOnlyPendingTimersAsync()
     expect(s.calls.filter(c => c.startsWith('PUT'))).toEqual([])
     stop()
+  })
+})
+
+describe('app startup without the removed watch integration', () => {
+  it('does not read the store, subscribe or contact the server', async () => {
+    const useStore = { getState: vi.fn(() => { throw new Error('unexpected store read') }), subscribe: vi.fn() }
+    const fetch = vi.spyOn(globalThis, 'fetch')
+    try {
+      const stop = await startWatchRelay({ useStore, useUI: {} })
+      expect(fetch).not.toHaveBeenCalled()
+      expect(useStore.getState).not.toHaveBeenCalled()
+      expect(useStore.subscribe).not.toHaveBeenCalled()
+      expect(() => stop()).not.toThrow()
+    } finally { fetch.mockRestore() }
   })
 })
