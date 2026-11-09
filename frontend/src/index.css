@@ -3271,21 +3271,15 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 }
 
 /* ---------------------------------------- Email's Gym navigation (Phase 2 step 3) -- */
-/* Four tabs, no centre button; a running workout away from its screen comes back from the
-   Resume pill above the bar. Labels are 11px, the active tab is sage text (--acc-ink, 4.5:1). */
-#tabbar{align-items:stretch}
-#tabbar button{font-size:var(--fs-caption2);min-height:var(--touch-min);justify-content:center}
-#tabbar .tab-resume{
-  position:absolute;inset-inline-start:50%;bottom:calc(100% + 10px);transform:translateX(-50%);
-  flex:none;flex-direction:row;gap:8px;align-items:center;justify-content:center;
-  min-height:var(--touch-min);padding:0 18px;border-radius:999px;
-  background:var(--btn);color:var(--on-btn);font-size:var(--fs-subhead);font-weight:600;
-  box-shadow:0 6px 20px -6px rgba(0,0,0,.45);
-}
-[dir="rtl"] #tabbar .tab-resume{transform:translateX(50%)}
-#tabbar .tab-resume .icn{font-size:18px;--icon-stroke:2;color:inherit}
-#tabbar .tab-resume .tab-time{font-variant-numeric:tabular-nums;opacity:.85}
-#tabbar .tab-resume:active{transform:translateX(-50%) scale(var(--press-scale))}
+/* Four tabs around the round Start button. The disc is the primary action: off-white with a
+   near-black glyph in the dark theme (near-black and white in the light one); a running session
+   rings it in sage. Labels are 11px, the active tab is sage text (--acc-ink, 4.5:1). */
+#tabbar button{font-size:var(--fs-caption2);min-height:var(--touch-min);justify-content:flex-end}
+#tabbar button.start .cir{background:var(--btn);color:var(--on-btn);box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
+#tabbar button.start span{color:var(--label)}
+#tabbar button.start.rec .cir{background:var(--btn);color:var(--on-btn);box-shadow:0 0 0 3px var(--acc)}
+#tabbar button.start.rec span{color:var(--acc-ink)}
+#tabbar button.start.rec .cir::after{border-color:var(--acc)}
 
 /* The Workouts tab's three pages: Routines · History · Exercises. */
 .workouts-switch{margin:0 0 14px}

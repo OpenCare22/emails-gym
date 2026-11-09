@@ -72,14 +72,12 @@ describe('root tab history', () => {
     expect(router.state.historyAction).toBe('REPLACE')
   })
 
-  it('the Resume pill pushes the workout, and Back returns to the tab it was tapped on', async () => {
-    useStore.setState({ S: { ...useStore.getState().S, active: { id: 'a', entries: [], cur: 0, start: Date.now() } } })
-    await tap('Progress')
-    const pill = host.querySelector('.tab-resume')
-    await act(async () => pill.click())
+  it('preserves the workout chooser return path', async () => {
+    useStore.setState({ S: { ...useStore.getState().S, routines: [] } })
+    await tap('Start')
     expect(router.state.location.pathname).toBe('/workout')
     await go(-1)
-    expect(router.state.location.pathname).toBe('/stats')
+    expect(router.state.location.pathname).toBe('/home')
     expect(onStart).not.toHaveBeenCalled()
   })
 })

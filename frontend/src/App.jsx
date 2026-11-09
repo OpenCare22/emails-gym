@@ -382,7 +382,7 @@ function Shell() {
           would ride along with the page for the length of it. Decides for itself when to show —
           including on the sign-in screen, when the server has just ended the session. */}
       <SyncBanner />
-      {!noTabs && <TabBar />}
+      {!noTabs && <TabBar onStart={startFlow} />}
       {!noTabs && authed && <ScrollTopButton off={loc.pathname === '/workout'} path={loc.pathname} />}
       <RestTimer />
       <Modals />

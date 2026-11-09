@@ -48,7 +48,7 @@ export const STEPS = [
   { id: 'go-library', route: '/plan', anchor: 'tab-library', go: '/library' },
   { id: 'lib-search', route: '/library', anchor: 'lib-search' },
   { id: 'lib-filters', route: '/library', anchor: 'lib-filters' },
-  { id: 'start', route: '/library', anchor: 'start', intercept: true, optional: true },   // the Start button moves to Home's Today card (Phase 2 step 5)
+  { id: 'start', route: '/library', anchor: 'start', intercept: true },
   { id: 'set', route: '/workout', anchor: 'set', sandbox: 'practice' },
   { id: 'tick', route: '/workout', anchor: 'tick', sandbox: 'practice', tap: true },
   { id: 'rest', route: '/workout', anchor: 'rest', sandbox: 'practice', when: c => c.rest, optional: true },
