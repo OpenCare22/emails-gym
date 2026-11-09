@@ -5,7 +5,7 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 0 done (`phase-0/baseline`). Phase 1 in progress on `phase-1/strip`. Baseline recorded in PLAN.md (all green apart from one
+Phase 0 done (`phase-0/baseline`). Phase 1 done on `phase-1/strip` (not merged to main, not pushed): all seven tickets in, Node 22 green from HEAD (api 793 pass / 3 skipped, frontend 7396 pass), Docker stack rebuilt and healthy. Next: Emil tries it on the phone, then merge and start Phase 2. Baseline recorded in PLAN.md (all green apart from one
 known timeout flake). Stack runs with `docker compose up -d --build` on http://localhost:8080.
 
 ## Phase 0: Fork, run, baseline
@@ -28,6 +28,8 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 
 ## Next
 
+- Phase 2: Integrations' "Works with" note still says "Apple Health or Health Connect" (`frontend/src/views/Integrations.jsx`).
+- Leftover on disk: `~/Code/emails-gym/mcp/node_modules` (untracked, ignored) can be deleted by hand.
 - Phase 2: routine share links still point at upstream's `https://opengym.ch/r` (`frontend/src/lib/routine-link.js` LINK_BASE). Point them at our own server's `/#/r/<payload>`.
 - Phase 8 note: per-user API keys for the in-app Coach chat (see docs/decisions.md).
 - Design assets for Phase 2 (`design/` handoff, icons, renders) still need to be added to the repo.
