@@ -44,4 +44,8 @@ Known flake: `src/lib/media-sync.test.js` › "signed in, evicts synced main fil
 can time out (5 s) when the whole suite runs at once. If it is the only failure, rerun that file
 alone; if it passes, the suite counts as green. Say so in your result.
 
+On this Mac's Node 26 (CI uses 22), the two tests in `frontend/scripts/app-icons.test.mjs` fail
+because Node 26's zlib writes different PNG bytes. That is expected: don't regenerate or edit the
+icons to make them pass. Claude re-runs every ticket under Node 22 before merging.
+
 In your result, list every check you ran with its pass/fail counts, and anything you couldn't run.
