@@ -21,12 +21,13 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [x] T-001 Android, Wear OS, Health Connect (merged 4f80b8ee8; ~68 dead `android` platform checks left for the cleanup pass)
 - [ ] T-002 Garmin and Zepp
 - [ ] T-003 English only
-- [ ] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website
+- [x] T-004 Helm, Kubernetes, Nix, Cloudflare, fastlane, website (also the API docs page generator and the root js-yaml package)
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
 - [ ] T-007 Hide progress photos, structural balance, data imports, audit logging
 
 ## Next
 
+- Phase 2: routine share links still point at upstream's `https://opengym.ch/r` (`frontend/src/lib/routine-link.js` LINK_BASE). Point them at our own server's `/#/r/<payload>`.
 - Phase 8 note: per-user API keys for the in-app Coach chat (see docs/decisions.md).
 - Design assets for Phase 2 (`design/` handoff, icons, renders) still need to be added to the repo.

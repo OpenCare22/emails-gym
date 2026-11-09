@@ -15,7 +15,7 @@
 <a href="https://github.com/DuarteSantos8/openGym/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/DuarteSantos8/openGym/test.yml?branch=main&label=tests&style=flat-square&labelColor=0c0e12&color=a3e635" alt="Tests"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-a3e635?style=flat-square&labelColor=0c0e12&color=a3e635" alt="AGPL-3.0"></a>
 
-<a href="https://apps.apple.com/app/id6822275400"><img src="website/app-store-badge.svg" alt="Download on the App Store" height="40"></a>
+<a href="https://apps.apple.com/app/id6822275400">Download upstream openGym on the App Store</a>
 <a href="https://github.com/DuarteSantos8/openGym/releases/latest"><img src="assets/readme/badge-android.svg" alt="Download the Android APK" height="40"></a>
 <a href="docs/SELF_HOSTING.md"><img src="assets/readme/badge-selfhost.svg" alt="Self-host with Docker" height="40"></a>
 
@@ -158,7 +158,7 @@ part of the image, so there's nothing else to download.
 To reach it from your phone with passkeys you need HTTPS on a domain; that's a two-line change in
 `.env`. The [self-hosting guide](docs/SELF_HOSTING.md) walks through Cloudflare Tunnel, Caddy,
 Traefik and nginx, and there are separate guides for
-[HTTPS on a LAN](docs/SELF_HOSTING_HTTPS.md), [a Mac with Tailscale](docs/SELF_HOSTING_MAC.md) and [Kubernetes](docs/SELF_HOSTING_KUBERNETES.md).
+[HTTPS on a LAN](docs/SELF_HOSTING_HTTPS.md) and [a Mac with Tailscale](docs/SELF_HOSTING_MAC.md).
 
 > [!NOTE]
 > Images are published from the same tag to `ghcr.io/duartesantos8/opengym-{api,web}`

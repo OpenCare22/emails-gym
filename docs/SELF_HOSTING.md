@@ -18,7 +18,7 @@ This guide takes you from "just cloned it" to "using it from my phone over the i
 - [Troubleshooting](#troubleshooting)
 
 HTTPS on a LAN without a public domain has [its own guide](SELF_HOSTING_HTTPS.md), and so do
-[a Mac at home with Tailscale](SELF_HOSTING_MAC.md) and [Kubernetes](SELF_HOSTING_KUBERNETES.md). Short answers to common questions are in the [FAQ](FAQ.md).
+[a Mac at home with Tailscale](SELF_HOSTING_MAC.md). Short answers to common questions are in the [FAQ](FAQ.md).
 
 ## 1. Run it locally (5 minutes)
 
@@ -471,9 +471,6 @@ from Settings → Account → "Pair the mobile app", as with a passkey.
 
 ## 5. Fitting it into an existing stack
 
-Running Kubernetes? Example manifests (Deployment, PVCs, Service, Gateway API route) are in
-`kubernetes/`, described in [SELF_HOSTING_KUBERNETES.md](SELF_HOSTING_KUBERNETES.md).
-
 The defaults assume openGym is the only thing here: a service called `api` on port 3000, and nginx
 on port 80 inside its container. If you are merging this into a compose file that already has an
 `api`, or you put the web container behind your own reverse proxy on a different port, four
@@ -492,7 +489,7 @@ SESSION_DAYS=90            # how long a sign-in lasts
 `NGINX_PORT` stays 80 under Docker. The web container runs as an unprivileged user (uid 101),
 which can bind a port below 1024 only because Docker sets `net.ipv4.ip_unprivileged_port_start=0`
 in the container. On another runtime (Kubernetes, rootless Podman) set `NGINX_PORT` to 1024 or
-higher, e.g. 8080, or set that sysctl yourself; the Helm chart and `kubernetes/` use 8080.
+higher, e.g. 8080, or set that sysctl yourself.
 
 `RESOLVER` only matters off Docker. nginx re-resolves `BACKEND` on every `/api` request so a
 recreated API container does not leave it proxying to a dead IP, and `127.0.0.11` is where

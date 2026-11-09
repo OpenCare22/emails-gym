@@ -55,8 +55,6 @@ in a file in the app's private storage (MOBILE.md explains the modes).
 | `web/` | The nginx image: builds the frontend, adds `catalogue/media`, proxies `/api` |
 | `catalogue/` | The exercise database: one JSON per exercise, translations, the licensed 180 px media |
 | `scripts/` | Build and release helpers, see [scripts/README.md](../scripts/README.md) |
-| `website/` | opengym.ch, plain HTML |
-| `helm/`, `kubernetes/`, `contrib/nix/` | Other ways to deploy |
 
 ## Frontend
 
@@ -178,7 +176,6 @@ packages are put together and signed on the release machine (`scripts/ios/finish
 flowchart LR
   PR[Pull request] --> T["GitHub Actions<br/>test.yml"]
   T --> MAIN[main]
-  MAIN --> PG["pages.yml<br/>demo"]
   RM["Release machine"] --> ART["APK, AAB, IPA<br/>signed locally"]
 ```
 

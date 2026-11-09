@@ -9,7 +9,7 @@
 //   encoding  d = deflate-raw (CompressionStream), j = plain JSON (a browser without one)
 //
 // It lives in the URL FRAGMENT: browsers never send that part to a server, so opengym.ch only
-// serves the page (website/r/index.html) and never sees the routine. The same payload opens the
+// serves the page (upstream's website/r/index.html) and never sees the routine. The same payload opens the
 // app as opengym://r#<payload>, Android's https://opengym.ch/r filter, or a web app at
 // <server>/#/r/<payload>.
 //

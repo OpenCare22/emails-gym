@@ -78,9 +78,6 @@ jobs:
               - '.github/workflows/test.yml'
               - 'scripts/ci/**'
               - 'api/**'
-              - 'website/api.html'
-              - 'scripts/build-api-docs.mjs'
-              - 'website/*.html'
               - 'scripts/build-coach-*.mjs'
               - 'catalogue/**'
               - 'frontend/src/lib/**'
@@ -206,10 +203,6 @@ jobs:
       # that forgets to regenerate it would surface as "the Coach can't find that exercise".
       - name: Generated Coach assets are current
         run: node scripts/build-coach-assets.mjs --check
-      # website/api.html is generated from api/openapi.yaml and committed. Same reason.
-      - run: npm ci --no-audit --no-fund
-      - name: Generated API docs are current
-        run: node scripts/build-api-docs.mjs --check
       - name: Coach core loads in plain node
         run: node api/scripts/check-core-loadable.mjs
       - name: Stats

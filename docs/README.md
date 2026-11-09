@@ -24,10 +24,8 @@ to install.
 | [Self-hosting](SELF_HOSTING.md) | You're setting up an instance. Start here: running it, passkeys and HTTPS, users, backups, updates, troubleshooting |
 | [HTTPS at home](SELF_HOSTING_HTTPS.md) | You want valid certificates on your LAN without exposing the server to the internet |
 | [On a Mac](SELF_HOSTING_MAC.md) | You want to run it on a Mac at home, with Colima instead of Docker Desktop and Tailscale for HTTPS |
-| [Kubernetes](SELF_HOSTING_KUBERNETES.md) | You run a cluster instead of Docker Compose |
 | [AI coach](AI_COACH.md) | You're deciding whether to turn the coach on, and with which provider |
 | [Integrations](INTEGRATIONS.md) | You're turning on webhooks (`INTEGRATIONS`), or letting them reach your home network |
-| [NixOS](NIX.md) | You run NixOS and want openGym native: flake packages and a NixOS module, no Docker |
 | [Security](../SECURITY.md) | You host it for other people, or want to report a vulnerability |
 
 All settings live in `.env`; [`.env.example`](../.env.example) explains each one, and the

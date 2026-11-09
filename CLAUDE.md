@@ -24,8 +24,6 @@ web/        Multi-stage Dockerfile (builds frontend, adds catalogue/media, serve
             nginx.conf.template (serves the app, proxies /api).
 catalogue/  The exercise database: exercises/<id>.json, i18n/, licensed 180 px media/.
 scripts/    Build, CI and release helpers (scripts/README.md).
-website/    opengym.ch, plain HTML/CSS/JS, deployed separately.
-helm/, kubernetes/, contrib/nix/   Other ways to deploy.
 docs/       Guides indexed in docs/README.md; docs/dev/ holds feature design notes.
 ```
 
@@ -45,11 +43,10 @@ cd frontend && npx vitest run src/lib/progression.test.js   # one file
 cd frontend && npx vitest run -t "some test name"           # one test by name
 cd api && npm test                               # node --test
 
-# Checks CI runs besides the suites (run `npm ci` in the repo root once, for js-yaml)
+# Checks CI runs besides the suites
 cd frontend && node scripts/check-locales.mjs && node scripts/check-source-strings.mjs --strict
 node scripts/catalogue/build.mjs --check
 node scripts/build-coach-assets.mjs --check
-node scripts/build-api-docs.mjs --check
 
 # Builds
 cd frontend && npm run build

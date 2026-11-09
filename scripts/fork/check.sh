@@ -34,7 +34,6 @@ run locales sh -c 'cd frontend && node scripts/check-locales.mjs'
 run strings sh -c 'cd frontend && node scripts/check-source-strings.mjs --strict'
 run catalogue node scripts/catalogue/build.mjs --check
 run coach-assets node scripts/build-coach-assets.mjs --check
-run api-docs node scripts/build-api-docs.mjs --check
 run build sh -c 'cd frontend && npm run build --silent'
 
 if [ -n "$FAILED" ]; then echo "FAILED:$FAILED"; exit 1; fi

@@ -7,7 +7,6 @@ want. Run them from the repository root with Node 22 unless noted.
 
 | Script | What it does |
 |---|---|
-| `build-api-docs.mjs` | `website/api.html` from `api/openapi.yaml`. `--check` fails when it is stale |
 | `build-coach-assets.mjs` | `api/coach/core/library-data.js` and `prompts.js`, the Coach's copy of the catalogue and its prompts. `--check` in CI |
 | `build-coach-library.mjs` | Old name of the one above, only forwards to it |
 | `catalogue/validate.mjs` | Checks every entry in `catalogue/` (fields, words, ids) |

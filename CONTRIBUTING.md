@@ -12,8 +12,6 @@ frontend/  React + Vite app (src/views, src/components, src/store, src/lib). Bui
 api/       Backend: server.js on plain node:http, three dependencies (@simplewebauthn/server,
            web-push, undici). coach/ is the optional AI coach; openapi.yaml documents every route.
 web/       Multi-stage Dockerfile (builds the frontend, serves it with nginx) and the nginx template.
-website/   The static project site at opengym.ch.
-kubernetes/ Example manifests (docs/SELF_HOSTING_KUBERNETES.md).
 docs/      User and operator guides (index: docs/README.md); docs/dev/ has feature design notes.
 scripts/   Build and release helpers (scripts/README.md).
 catalogue/ The exercise catalogue: one JSON file per exercise, translations in i18n/, and the
