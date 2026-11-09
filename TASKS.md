@@ -5,8 +5,11 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 0 done (`phase-0/baseline`). Phase 1 done on `phase-1/strip` (not merged to main, not pushed): all seven tickets in, Node 22 green from HEAD (api 793 pass / 3 skipped, frontend 7396 pass), Docker stack rebuilt and healthy. Next: Emil tries it on the phone, then merge and start Phase 2. Baseline recorded in PLAN.md (all green apart from one
-known timeout flake). Stack runs with `docker compose up -d --build` on http://localhost:8080.
+Phase 1 merged into main (local, not pushed). Phase 2 in progress on `phase-2/make-it-mine`
+(Claude coding, Codex out of tokens): steps 1-3 of docs/fork/DESIGN_PLAN.md done and committed
+(tokens + contrast test, branding + Inter + icons, four-tab navigation + Friends screen).
+Next: step 4 (shared components: primary button off-white, light selected segment, cards) and
+step 5 (Home redesign, active workout restyle, Today card with the Start button the tour points at).
 
 ## Phase 0: Fork, run, baseline
 
@@ -25,6 +28,16 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
 - [x] T-007 Hide progress photos, structural balance, data imports (one switch: `frontend/src/lib/fork-hidden.js`), audit log off by default (`AUDIT_LOG=1` turns it on). Also hides the Health Connect card. Decide after a week or two of use: delete or restore.
+
+## Phase 2: Make it mine (branch `phase-2/make-it-mine`)
+
+- [x] Step 1 tokens: handoff colours on the existing theme, sage/blue/terracotta/lavender, contrast test
+- [x] Step 2 branding: Email’s Gym everywhere visible, slab E icons/boot/print/share, Inter bundled, CSP hash
+- [x] Step 3 navigation: Home · Workouts · Progress · Friends, Resume pill, Friends empty state (fork-flags.js)
+- [ ] Step 4 shared components (primary button off-white, selected segment light, cards 16px)
+- [ ] Step 5 screens: Home (greeting, week strip, Today card + Start, metric cards, weekly chart), workout, rest
+- [ ] Step 6 checks: 375/390/430, light/dark, every accent, reduced motion, real iPhone install
+- Later (Phase 9): rename "openGym" in frontend/ios Swift files and remove upstream app-icon assets
 
 ## Next
 
