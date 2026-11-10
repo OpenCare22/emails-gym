@@ -1,6 +1,6 @@
 # Build my plan: a personal training plan from the whole catalogue
 
-Status: design for Emil's approval, 2026-11-10. Replaces T-017's "Find a program for me" (which only
+Status: approved by Emil 2026-11-10, with sex added to the person model. Replaces T-017's "Find a program for me" (which only
 picked one of the 7 templates).
 
 ## Intent
@@ -111,7 +111,21 @@ From the answers, a small profile with the reason for each value:
   to steer emphasis (gaining: more compound volume; losing: keep heavy work, add easy cardio
   sessions or steps), never shown as a label.
 - **Recovery:** age over 50 or a novice: one fewer hard set per exercise in weeks 1 to 2 and longer
-  rest on compounds. Sex adjusts nothing in v1 except wording; kept for nutrition.
+  rest on compounds.
+- **Sex** (Emil: it should count). Muscle and strength gains respond to the same training at
+  similar rates in women and men (research A/B, ACSM 2026), so sex never changes the safety rules
+  or picks a different "kind" of plan. It changes defaults, each overridable and named in the
+  rationale:
+  - **Default emphasis:** with no focus areas chosen, a female profile gets glutes and legs as the
+    default focus (one extra lower-body slot or set per week); a male profile gets none by default.
+    Choosing focus areas replaces the default.
+  - **Rest and volume:** women tend to recover faster between sets at the same relative effort,
+    so isolation rest goes to the low end (60 s) and accessory sets may take one more set within
+    the level's weekly range.
+  - **Upper-body starting point:** smaller upper-body jumps (the smallest increment the equipment
+    allows) and assisted or machine versions first for vertical pulls and dips-style pushes when
+    the ability checks show they can't yet do a few bodyweight reps.
+  - "Prefer not to say" uses the neutral defaults.
 - **Goal emphasis:** hypertrophy, recomposition, weight gain, strength, general, hybrid.
 
 ### 3. The plan rules (`lib/plan-model.js`, the one file the coach reviews)
@@ -188,7 +202,8 @@ routines and a programme with `src: { model, version, seed }`.
 - The two friends as fixtures: A gets a 3 to 4 day upper/lower or full-body split with isolation
   work and RIR 1 to 2 after week 2; B gets 3 full-body days of mostly compound barbell or dumbbell
   lifts, RIR 3 to 4 in weeks 1 to 2, little isolation. Their exercise lists overlap by less than
-  half.
+  half. A Friend A with the same body numbers but female gets glutes and legs as default emphasis
+  and shorter isolation rests, with the reason in the rationale; same safety rules.
 - For a matrix of answers (days 2 to 5, minutes 30 to 90, each equipment, each level, each
   injury): every session fits its minutes; every exercise is in the catalogue, not `excluded`,
   available with the equipment, not stressing a flagged area; each muscle group hit at least
