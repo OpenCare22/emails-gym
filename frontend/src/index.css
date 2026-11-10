@@ -3465,18 +3465,18 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .friends-tabs{margin:0 0 14px}
 .feed-list{list-style:none;display:flex;flex-direction:column;gap:var(--card-gap)}
 .feed-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-card,16px);background:var(--surface);border:1px solid var(--sep)}
-.feed-self{background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.feed-self{background:var(--surface);background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
 .feed-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .feed-line{font-weight:500}
 .feed-kudos{display:inline-flex;align-items:center;gap:6px;min-width:44px;min-height:44px;justify-content:center;border-radius:999px;padding:0 12px;background:var(--surface-2);color:var(--label-2)}
-.feed-kudos.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--surface-2))}
+.feed-kudos.on{color:var(--acc);background:var(--surface-2);background:color-mix(in srgb,var(--acc) 14%,var(--surface-2))}
 /* Trophies and card backgrounds (lib/trophies.js): original patterns in the Email's Gym colours. */
 .medal-grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin:12px 0}
 .medal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 6px;border-radius:var(--radius-card,16px);background:var(--surface-2)}
 .medal-badge{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-size:20px;color:var(--label);border:2px solid var(--sep)}
 .medal-gold .medal-badge{border-color:var(--acc);color:var(--acc)}
 .medal-silver .medal-badge{border-color:var(--label-2)}
-.medal-bronze .medal-badge{border-color:color-mix(in srgb,var(--acc) 40%,var(--label-3))}
+.medal-bronze .medal-badge{border-color:var(--label-3);border-color:color-mix(in srgb,var(--acc) 40%,var(--label-3))}
 .medal-name{font-size:var(--fs-footnote);font-weight:600;line-height:1.25}
 .medal-locked{opacity:.55}
 .friend-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:18px 16px;border-radius:var(--radius-card,16px);margin-bottom:6px}
@@ -3487,9 +3487,9 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .bg-swatch:disabled{opacity:.5}
 .bg-name{font-weight:600}
 .cardbg-plain{background:var(--surface)}
-.cardbg-stripes{background:repeating-linear-gradient(-28deg,color-mix(in srgb,var(--acc) 22%,var(--surface)) 0 10px,var(--surface) 10px 22px)}
+.cardbg-stripes{background:repeating-linear-gradient(-28deg,var(--surface-2) 0 10px,var(--surface) 10px 22px);background:repeating-linear-gradient(-28deg,color-mix(in srgb,var(--acc) 22%,var(--surface)) 0 10px,var(--surface) 10px 22px)}
 .cardbg-grid{background:linear-gradient(var(--sep) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,var(--sep) 1px,var(--surface) 1px) 0 0/18px 18px}
-.cardbg-peaks{background:linear-gradient(135deg,transparent 0 45%,color-mix(in srgb,var(--acc) 26%,var(--surface)) 45% 55%,transparent 55%) 0 100%/28px 28px repeat-x,var(--surface)}
-.cardbg-rings{background:radial-gradient(circle at 85% 30%,transparent 0 14px,color-mix(in srgb,var(--acc) 30%,var(--surface)) 14px 17px,transparent 17px 26px,color-mix(in srgb,var(--acc) 20%,var(--surface)) 26px 28px,transparent 28px),var(--surface)}
-.cardbg-gold{background:linear-gradient(120deg,color-mix(in srgb,var(--warning) 30%,var(--surface)),var(--surface) 70%)}
+.cardbg-peaks{background:var(--surface-2);background:linear-gradient(135deg,transparent 0 45%,color-mix(in srgb,var(--acc) 26%,var(--surface)) 45% 55%,transparent 55%) 0 100%/28px 28px repeat-x,var(--surface)}
+.cardbg-rings{background:var(--surface-2);background:radial-gradient(circle at 85% 30%,transparent 0 14px,color-mix(in srgb,var(--acc) 30%,var(--surface)) 14px 17px,transparent 17px 26px,color-mix(in srgb,var(--acc) 20%,var(--surface)) 26px 28px,transparent 28px),var(--surface)}
+.cardbg-gold{background:linear-gradient(120deg,var(--surface-2),var(--surface) 70%);background:linear-gradient(120deg,color-mix(in srgb,var(--yellow) 30%,var(--surface)),var(--surface) 70%)}
 .lb-who[role=button]{cursor:pointer}
