@@ -30,6 +30,7 @@ if [ "${1:-}" != "quick" ]; then
   # --retry 1: media-sync.test.js can time out under full-suite load (docs/decisions.md).
   run frontend-tests sh -c "cd frontend && npx vitest run --retry 1 $ICONS"
 fi
+run library node scripts/library/build.mjs --check
 run catalogue node scripts/catalogue/build.mjs --check
 run coach-assets node scripts/build-coach-assets.mjs --check
 run build sh -c 'cd frontend && npm run build --silent'
