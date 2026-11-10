@@ -7,10 +7,50 @@ import { create } from 'zustand'
 import { api } from './api.js'
 import { mergeHeartRate } from './health-read.js'
 import { addWeighIn } from './weigh-ins.js'
+import { buildCompletedWorkout } from './finish-workout.js'
+import { lastBW } from './history.js'
+import { t } from './i18n.js'
 
 export const SRC = 'google'
 export const STALE_MS = 30 * 60 * 1000
 const CACHE = 'gym_ghealth_v1'
+
+const EXERCISE_IDS = { RUNNING: '0685', WALKING: '2258', HIKING: '2258', BIKING: '5214', ELLIPTICAL: '2192', ROWING: '1161', SWIMMING: '6944' }
+const STRENGTH_TYPES = new Set(['FREE_WEIGHTS', 'FUNCTIONAL_STRENGTH_TRAINING', 'CIRCUIT_TRAINING'])
+const exerciseTime = value => typeof value === 'number' ? value : Date.parse(value)
+
+/** Today and the six preceding calendar days, with explicit import consent only. */
+export function importableExercises(S, exercises, { today }) {
+  const cutoff = new Date(Date.parse(today + 'T12:00:00Z') - 6 * 864e5).toISOString().slice(0, 10)
+  const seen = new Set(S.ghDismissed || [])
+  const workouts = S.workouts || []
+  for (const w of workouts) if (w.src?.gh) seen.add(w.src.gh)
+  return (exercises || []).filter(e => {
+    if (!e?.id || seen.has(e.id) || STRENGTH_TYPES.has(e.type) || !e.d || e.d < cutoff || e.d > today) return false
+    const start = exerciseTime(e.start), end = exerciseTime(e.end)
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || !(e.minutes > 0)) return false
+    if (workouts.some(w => Math.min(end, exerciseTime(w.end)) - Math.max(start, exerciseTime(w.start)) > (end - start) / 2)) return false
+    seen.add(e.id)
+    return true
+  }).sort((a, b) => exerciseTime(b.start) - exerciseTime(a.start)).slice(0, 3)
+}
+
+/** Dismissals sync as one setting; retain the 200 most recently dismissed ids. */
+export function dismissExercise(S, id) {
+  S.ghDismissed = [...(S.ghDismissed || []).filter(old => old !== id), id].slice(-200)
+}
+
+/** Use the same persisted boundary as a session finished in the app. */
+export function workoutFromExercise(e, S) {
+  const start = exerciseTime(e.start), end = exerciseTime(e.end)
+  // Logged speeds are canonical km/h (lib/speed.js); history converts for the profile.
+  const speed = e.distanceKm > 0 && e.minutes > 0 ? e.distanceKm * 60 / e.minutes : 0
+  const workout = buildCompletedWorkout({
+    id: `gh:${e.id}`, d: e.d, start, name: e.name || t('Workout'), bw: S.bodyweight?.length ? lastBW(S).w : null,
+    entries: [{ id: EXERCISE_IDS[e.type] || '2258', sets: [{ min: e.minutes, speed, done: true, at: end }] }],
+  }, { end })
+  return { ...workout, src: { gh: e.id }, ...(e.avgHr ? { hr: { avg: e.avgHr, src: 'gh', n: 0 } } : {}) }
+}
 
 /** Steps on a day ('YYYY-MM-DD'), or null. */
 export const stepsOn = (data, d) => (data?.steps && Number.isFinite(data.steps[d]) ? data.steps[d] : null)

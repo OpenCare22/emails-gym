@@ -115,6 +115,7 @@ export const DEF = {
   // running ({ id, startedOn, pausedOn?, cycle, bump, saved }) or null. Starting one writes its
   // schedule into `week` or `rotation` above, so everything that reads those follows it.
   programmes: {}, programme: null,
+  ghDismissed: [], // Fitbit activity ids, synced as one setting, newest 200 retained.
   exWeights: {}, workouts: [], active: null, customEx: [], gifSize: 'full',
   // Stats activity heatmap metric. Profiles without this key continue to open on time.
   heatmapMetric: 'time',
