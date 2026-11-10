@@ -226,12 +226,12 @@ async function pressProgression(index = 0) {
   return button
 }
 
-// Discard lives in the Finish sheet only (#751); the header's ⌄ only leaves the screen.
+// Discard in the workout menu asks for confirmation; ⌄ only leaves the screen.
 async function requestDiscard() {
-  const button = container.querySelector('.whdr-finish')
+  const button = container.querySelector('button[aria-label="Workout options"]')
   expect(button).toBeTruthy()
   await act(async () => { button.dispatchEvent(new dom.Event('click', { bubbles: true })) })
-  const { onDiscard } = finishWorkoutSheet.mock.calls.at(-1)[0]
+  const { onClick: onDiscard } = menuItemsOf(mocks.menuSheet.mock.calls.at(-1)[0]).find(it => it.label === 'Discard workout')
   expect(onDiscard).toBeTypeOf('function')
   await act(async () => { onDiscard() })
 }
@@ -2460,27 +2460,25 @@ describe('workout view header menu', () => {
   }
   const item = (menu, label) => menuItemsOf(menu).find(it => it.label === label)
 
-  // The header ⋮ now leads with "Add routine"; the layouts moved to a nested "Layout" sheet.
+  // Layouts live in a nested Layout sheet under the workout menu.
   const openLayout = async menu => {
     await act(async () => { item(menu, 'Layout').onClick() })
     return mocks.menuSheet.mock.calls.at(-1)[0]
   }
 
-  it('leads with Workout settings and the three things done mid-session, folds the rest under More, no Discard (#751), then a Layout sheet with the four layouts marked current', async () => {
+  it('leads with Finish and Discard, keeps settings and session actions, then a Layout sheet with the four layouts marked current', async () => {
     await mount([exercise('plain-bench', [false])], 0, { active: { workoutView: 'list', routineIds: [] } })
 
     const menu = await openMenu()
-    // v1.4.4: four rows on show, the once-in-a-while ones in one More fold.
+    // Finish and Discard lead; the once-in-a-while actions stay in More.
     expect(menu.sections.map(g => g.more ? 'more' : g.items.filter(Boolean).map(it => it.label))).toEqual([
-      ['Workout settings'], ['Add exercise', 'Add session note', 'Layout'], 'more',
+      ['Finish workout', 'Discard workout'], ['Workout settings'], ['Add exercise', 'Add session note', 'Layout'], 'more',
     ])
-    expect(menuItemsOf({ sections: menu.sections[2].more }).map(it => it.label)).toEqual(['Add routine', 'Rename workout', 'Don’t count for progression'])
-    // No Discard here: it ended this menu as a red trash, right where the exercise ⋯ keeps
-    // Remove exercise, and got hit by mistake (#751). The Finish sheet has it.
+    expect(menuItemsOf({ sections: menu.sections[3].more }).map(it => it.label)).toEqual(['Add routine', 'Rename workout', 'Don’t count for progression'])
     expect(menuItemsOf(menu).map(it => it.label)).toEqual([
-      'Workout settings', 'Add exercise', 'Add session note', 'Layout', 'Add routine', 'Rename workout', 'Don’t count for progression',
+      'Finish workout', 'Discard workout', 'Workout settings', 'Add exercise', 'Add session note', 'Layout', 'Add routine', 'Rename workout', 'Don’t count for progression',
     ])
-    expect(menuItemsOf(menu).some(it => it.danger)).toBe(false)
+    expect(menuItemsOf(menu).filter(it => it.danger).map(it => it.label)).toEqual(['Discard workout'])
     expect(item(menu, 'Workout settings').sub).toBe('1:30 rest · Silent')
     expect(item(menu, 'Don’t count for progression')).toMatchObject({ sub: 'Every exercise in this workout', on: false })
     expect(item(menu, 'Layout').sub).toBe('List')
@@ -3449,9 +3447,9 @@ describe('mark all sets done while logging a past workout', () => {
       exercise('plain-row', [false], { sets: [{ w: 40, r: 8, done: false, phase: 'warmup' }, { w: 70, r: 8, done: false }] }),
     ], 0, { active: { backfill: { durationMin: 60, replaceId: null }, routineIds: [] } })
     const menu = await openMenu()
-    // The one thing to do in a past workout leads the rows on show, ahead of Add exercise.
-    expect(menu.sections[1].items.filter(Boolean)[0].label).toBe('Mark all sets done')
-    await act(async () => { menu.sections[1].items.filter(Boolean)[0].onClick() })
+    // Mark all sets done leads the session actions, ahead of Add exercise.
+    expect(menu.sections[2].items.filter(Boolean)[0].label).toBe('Mark all sets done')
+    await act(async () => { menu.sections[2].items.filter(Boolean)[0].onClick() })
     expect(mocks.S.active.entries.every(e => e.sets.every(s => s.done))).toBe(true)
     expect(mocks.S.active.entries.map(e => e.topW)).toEqual([60, 70])
     expect(mocks.workoutCompleteSheet).toHaveBeenCalledTimes(1)
@@ -3567,14 +3565,15 @@ describe('the workout screen chrome (v1.3.11)', () => {
   const click = async el => { await act(async () => { el.dispatchEvent(new dom.Event('click', { bubbles: true })) }) }
   const openMore = () => click(container.querySelector('button[aria-label="More"]'))
 
-  it('has a labelled Finish pill and a ⌄ that leaves the screen with the session still running', async () => {
+  it('opens Finish from the workout menu and keeps ⌄ leaving the session running', async () => {
     await mount([exercise('plain-bench', [false])])
-    const pill = container.querySelector('.whdr-finish')
-    expect(pill.textContent).toBe('Finish')
+    expect(container.querySelector('.whdr-finish')).toBeNull()
+    await click(container.querySelector('button[aria-label="Workout options"]'))
+    expect(menuItemsOf(lastMenu()).slice(0, 2).map(it => it.label)).toEqual(['Finish workout', 'Discard workout'])
     expect(container.querySelector('button[aria-label="Discard"]')).toBeNull()
-    // the pill opens the Finish sheet, whose Discard is the screen's own (with its confirm)
+    // Finish opens the existing sheet, whose Discard still asks for confirmation.
     finishWorkoutSheet.mockClear()
-    await click(pill)
+    await act(async () => { item('Finish workout').onClick() })
     expect(finishWorkoutSheet).toHaveBeenCalledOnce()
     finishWorkoutSheet.mock.calls[0][0].onDiscard()
     expect(mocks.confirmSheet.mock.calls.at(-1)[0].title).toBe('Discard workout?')
@@ -3594,12 +3593,15 @@ describe('the workout screen chrome (v1.3.11)', () => {
     expect(finishWorkoutSheet).not.toHaveBeenCalled()
     expect(container.querySelector('button[aria-label="Close editor"]')).toBeTruthy()
     expect(container.querySelector('button[aria-label="Minimize"]')).toBeNull()
+    await click(container.querySelector('button[aria-label="Workout options"]'))
+    expect(menuItemsOf(lastMenu()).map(it => it.label)).not.toContain('Finish workout')
+    expect(menuItemsOf(lastMenu()).map(it => it.label)).not.toContain('Discard workout')
   })
 
-  it('leads the workout menu with Workout settings, which opens its sheet', async () => {
+  it('keeps Workout settings after Finish and Discard, opening its sheet', async () => {
     await mount([exercise('plain-bench', [false])], 0, { restSec: 0, sound: true })
     await click(container.querySelector('button[aria-label="Workout options"]'))
-    const ws = menuItemsOf(lastMenu())[0]
+    const ws = menuItemsOf(lastMenu())[2]
     expect(ws).toMatchObject({ label: 'Workout settings', sub: 'No rest timer · Sound', accent: true })
     ws.onClick()
     expect(mocks.workoutSettingsSheet).toHaveBeenCalledOnce()

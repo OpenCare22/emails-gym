@@ -25,6 +25,7 @@ let container
 
 function setActive(entries, { cur = 0, wc, hints = { swipeSets: true }, editing = false } = {}) {
   const S = clone(DEF)
+  S.workoutView = 'cards' // These tests exercise the card rows and controls.
   if (wc) S.wc = { ...S.wc, ...wc }
   S.hints = hints
   S.active = {

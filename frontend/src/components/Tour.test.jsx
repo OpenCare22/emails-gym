@@ -30,7 +30,7 @@ import { openTour, closeTour, tourState, readTour, noteStep, SAMPLE_ROUTINE_ID, 
 import Tour, { _setAnchorWait } from './Tour.jsx'
 
 const clone = o => JSON.parse(JSON.stringify(o))
-const ANCHORS = ['today', 'start', 'plan-mode', 'plan-views', 'plan-menu', 'lib-search', 'lib-filters', 'set', 'tick', 'swipe', 'workout-more', 'finish', 'stats-tiles',
+const ANCHORS = ['today', 'start', 'plan-mode', 'plan-views', 'plan-menu', 'lib-search', 'lib-filters', 'set', 'tick', 'swipe', 'workout-more', 'stats-tiles',
   'settings-look', 'settings-units', 'settings-data', 'tab-home', 'tab-plan', 'tab-stats', 'tab-library', 'settings-gear']
 const TABS = { 'tab-home': '/home', 'tab-plan': '/plan', 'tab-stats': '/stats', 'tab-library': '/library', 'settings-gear': '/settings' }
 let root, host, where, tapped, made
@@ -214,7 +214,7 @@ describe('the stops', () => {
     expect(touch.defaultPrevented).toBe(true)
   })
   it('a missing optional stop is passed over in the direction of travel', async () => {
-    useStore.setState({ S: { ...clone(DEF), restSec: 90 } })
+    useStore.setState({ S: { ...clone(DEF), workoutView: 'cards', restSec: 90 } })
     await run('tick')
     expect(step()).toBe('tick')
     await click(btn('Next'))   // no tick, so no rest timer: the rest stop has nothing to show
@@ -359,7 +359,7 @@ describe('the practice workout', () => {
     expect(where).toBe('/home')
   })
   it('the practice is over before the way to Stats, on Home', async () => {
-    await run('finish')
+    await run('more')
     await click(btn('Next'))
     expect(step()).toBe('go-stats')
     expect(useStore.getState().tourSandbox).toBe(false)

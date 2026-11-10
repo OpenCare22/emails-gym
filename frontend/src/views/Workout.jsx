@@ -1694,9 +1694,7 @@ function ActiveWorkout() {
     // The confirm names what it changes: this workout, never the routine behind it.
     else exConfigSheet(ex, null, commit, null, routine, seed, null, t('Add to this workout'), { freestyle: freestyle ? 'add' : false })
   })
-  // Ending the session without saving it, from the Finish sheet only. It used to end the header ⋯
-  // as a red trash too, right where the exercise ⋯ keeps Remove exercise, and after a hard session
-  // the two got mixed up (#751).
+  // Ending the session without saving it, confirmed from the workout menu or Finish sheet.
   // Named for the watch first: gone from its snapshot it would look finished, and be saved to Apple Health (#776).
   // The watch's own Discard (confirmed there) runs this too.
   const discardNow = () => { markDiscarded(useStore.getState().S.active?.id); update(s => { s.active = null }); stopRest(); stopWork(); nav('/home') }
@@ -1727,15 +1725,19 @@ function ActiveWorkout() {
     title: t('Gym'),
     items: gyms.map(g => ({ icon: 'house', label: gymLabel(g), on: g.id === gymNow?.id, onClick: () => askSwitchGym(g) })),
   })
-  // The header ⋯, in groups: the settings you change at the gym first (their own sheet, the same
+  // The header ⋯, in groups: Finish and Discard, settings (their own sheet, the same
   // values as Settings), then what you do to this workout most: add an exercise, write the
   // session note, switch the layout. Adding a whole routine, renaming and keeping the session out
-  // of progression are once-in-a-while and fold under More (v1.4.4). Nothing in it throws the
-  // session away: that is the Finish sheet's (#751).
+  // of progression are once-in-a-while and fold under More (v1.4.4). Finish and confirmed
+  // discard lead the menu for active workouts.
   // Layout here stays this session's own (s.active.workoutView); the settings sheet's Layout is
   // the saved one.
   const openViewMenu = () => menuSheet({
     sections: [
+      ...(!editing ? [{ items: [
+        { icon: 'checkCircle', label: t('Finish workout'), onClick: () => finishWorkoutSheet({ onDiscard: discardWorkout }) },
+        { icon: 'trash', label: t('Discard workout'), danger: true, onClick: discardWorkout },
+      ] }] : []),
       { items: [
         { icon: 'gear', accent: true, chevron: true, label: t('Workout settings'),
           sub: [S.restSec > 0 ? t('{0} rest', fmtRest(S.restSec)) : t('No rest timer'), S.sound ? t('Sound') : t('Silent')].join(' · '),
@@ -2390,15 +2392,14 @@ function ActiveWorkout() {
 
   return <WorkoutScrollAnchor enabled={collapseOn} collapsed={[...collapsed].join(',')}>
     {/* In list mode the whole session scrolls under the header, so the header (name, clock,
-        set counter, discard/finish, progress) stays pinned — the one thing you want in view
+        set counter, workout menu, progress) stays pinned — the one thing you want in view
         while you are somewhere in the middle of a long stack. Cards mode never scrolls far. */}
     <div className={'whdr' + (listMode ? ' stick' : '')} ref={hdrRef}>
     {/* In season, a corner web under the header's own buttons (components/Seasonal.jsx). */}
     <SeasonDeco spot="workout-hdr" workout />
     {/* ⌄ leaves the screen and keeps the session running (the tab bar's Resume brings it back);
-        in the editor of a saved workout it is the ✕ that closes the editor. Finish is a labelled pill
-        rather than a check that looked like a set tick: it opens the Finish sheet (Finish and save,
-        Discard, the only way to discard, #751), the editor's Save saves at once. */}
+        in the editor of a saved workout it is the ✕ that closes the editor.
+        The editor's Save saves at once; active workouts finish through the ⋯ menu. */}
     <div className="hdr whdr-bar">
       {editing
         ? <button className="iconbtn" aria-label={t('Close editor')} title={t('Close editor')} onClick={() => exitWorkoutEdit()}><Icon name="xmark" /></button>
@@ -2408,8 +2409,8 @@ function ActiveWorkout() {
         : <span className="whdr-gym"><Icon name="house" />{gymShown}</span>)}</div>
       {!chipRow && sessionMap}
       <button className="iconbtn" data-tour="workout-more" aria-label={t('Workout options')} title={t('Workout options')} onClick={openViewMenu}><Icon name="more" /></button>
-      <button className="btn primary pill whdr-finish" data-tour="finish" aria-label={editing ? t('Save changes') : undefined}
-        onClick={() => (editing ? finishWorkout() : finishWorkoutSheet({ onDiscard: discardWorkout }))}>{editing ? t('Save') : t('Finish')}</button>
+      {editing && <button className="btn primary pill whdr-finish" aria-label={t('Save changes')}
+        onClick={() => finishWorkout()}>{t('Save')}</button>}
     </div>
     {/* The volume so far rides at the end of the progress bar (#774): one line that never wraps,
         so a growing number cannot reflow the header the way a third item in the line above did
@@ -2580,7 +2581,7 @@ function ActiveWorkout() {
     </>}
     <div style={{ height: 16 }} />
     {/* Finish is a full-width primary button once every set is done; before that it is the quiet
-        "Finish workout early" line, since the header's Finish already covers the early way out. */}
+        "Finish workout early" line, since the workout menu already covers the early way out. */}
     {(() => {
       const exDone = A.entries.filter(e => e.sets.length && e.sets.every(s => s.done)).length
       const allDone = A.entries.length > 0 && exDone === A.entries.length

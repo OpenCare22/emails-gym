@@ -140,3 +140,11 @@ describe('Session muscles sheet (#670)', () => {
     expect(value(CHEST)).toBe('0/1')
   })
 })
+
+it('opens a workout in Focus by default, showing one set at a time', () => {
+  expect(DEF.workoutView).toBe('focus')
+  setActive([entry(BENCH, [row(), row()])])
+  render()
+  expect(container.querySelectorAll('[data-testid="focus-set"]')).toHaveLength(1)
+  expect(container.querySelector('.setrow')).toBeNull()
+})

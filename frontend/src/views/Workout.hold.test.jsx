@@ -23,6 +23,7 @@ let container
 
 function renderWorkout(entries) {
   const S = clone(DEF)
+  S.workoutView = 'cards' // These tests exercise the card rows and controls.
   S.sound = true
   S.active = { id: 'hold-test', d: '2026-09-23', start: Date.now(), routineId: null, name: 'Hold', bw: null, cur: 0, entries }
   useStore.setState({ S, user: null })
