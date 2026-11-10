@@ -1,6 +1,7 @@
 // The web image's Content-Security-Policy runs the one inline script in index.html by its hash.
 // Change that script and the hash in web/Dockerfile has to change with it, or the app loads
 // without its first-paint language and direction. Read off the files themselves.
+import { runInNewContext } from 'node:vm'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { dirname, join } from 'node:path'
@@ -35,5 +36,24 @@ describe('web Content-Security-Policy', () => {
     const sets = conf.split('\n').filter(l => /^\s*add_header X-Frame-Options/.test(l)).length
     const csp = conf.split('\n').filter(l => /^\s*add_header Content-Security-Policy "\$\{CONTENT_SECURITY_POLICY\}" always;/.test(l)).length
     expect(csp).toBe(sets)
+  })
+})
+
+describe('first-paint theme', () => {
+  const script = read('frontend/index.html').match(/<script>([\s\S]*?)<\/script>/)[1]
+  it.each([
+    ['light', false, 'light'], ['light', true, 'light'],
+    ['system', true, 'light'], ['system', false, undefined],
+    ['dark', true, undefined], [undefined, true, undefined],
+  ])('boots %s with light preference %s as %s', (theme, light, expected) => {
+    const attrs = {}
+    runInNewContext(script, {
+      localStorage: { getItem: () => JSON.stringify({ theme }) },
+      navigator: { language: 'en' },
+      document: { documentElement: { setAttribute: (key, value) => { attrs[key] = value } } },
+      window: { matchMedia: () => ({ matches: light }), addEventListener() {} },
+      setTimeout() {},
+    })
+    expect(attrs['data-theme']).toBe(expected)
   })
 })

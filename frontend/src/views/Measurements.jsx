@@ -148,12 +148,12 @@ function ManageMeasurements({ close }) {
     {groups.map(group => <Section title={t(group)} key={group} className="measure-options">
       {MEASUREMENT_FIELDS.filter(f => f.group === group).map(field => <div className="lrow" key={field.key}>
         <span className="lrow-m"><span className="lrow-t">{t(field.label)}</span></span>
-        <Switch checked={(S.measurementEnabled || []).includes(field.key)} onChange={on => toggleBuiltin(field.key, on)} />
+        <Switch aria-label={t(field.label)} checked={(S.measurementEnabled || []).includes(field.key)} onChange={on => toggleBuiltin(field.key, on)} />
       </div>)}
       {group === 'Other' && S.customMeasurements.map(field => <div key={field.id}>
         <div className="lrow">
           <span className="lrow-m"><span className="lrow-t">{field.name}</span><span className="lrow-s">{t('Custom')}</span></span>
-          <Switch checked={field.enabled !== false} onChange={on => toggleCustom(field.id, on)} />
+          <Switch aria-label={field.name} checked={field.enabled !== false} onChange={on => toggleCustom(field.id, on)} />
         </div>
         <SelectRow title={t('Measurement unit')} value={measurementUnit(S.unit, field)}
           options={unitOptions(customMeasurementUnits(field, S.measurements))}
@@ -253,7 +253,7 @@ export default function Measurements() {
       return <div className="card measure-history" key={entry.d}>
         <div className="row between">
           <div><b>{fmtDate(entry.d, true)}</b><div className="small dim" style={{ marginTop: 2 }}>{t(count === 1 ? '{0} measurement' : '{0} measurements', count)}</div></div>
-          <div className="row" style={{ gap: 4 }}>
+          <div className="row" style={{ gap: 8 }}>
             <button className="iconbtn" onClick={() => measurementLogSheet(entry.d)} aria-label={t('Edit')}><Icon name="pencil" /></button>
             <button className="iconbtn" style={{ color: 'var(--red)' }} onClick={() => remove(entry)} aria-label={t('Delete')}><Icon name="trash" /></button>
           </div>

@@ -391,6 +391,7 @@ button.conn:active{filter:brightness(1.12)}
   display:flex;align-items:center;justify-content:center;font-size:18px;
   transition:background var(--fast),transform var(--fast);
 }
+.iconbtn.home-week-arrow{width:30px;height:30px}
 .iconbtn:active{transform:scale(var(--press-scale-sm))}
 /* invisible hit-area extension: these look right at their size but fall short of a
    finger-sized target, so the pseudo element widens what the tap lands on without
@@ -398,6 +399,8 @@ button.conn:active{filter:brightness(1.12)}
    only grow vertically or the neighbour would steal the edge of the tap. */
 .iconbtn,.chip,.seg button,.helpbtn{position:relative}
 .iconbtn::before,.chip::before,.seg button::before,.helpbtn::before{content:'';position:absolute;inset:-6px}
+/* Grow each axis only as far as 44px: 36px buttons with an 8px gap must not overlap. */
+.iconbtn::before{inset:0;inset-block:min(0px, calc((100% - 44px)/2));inset-inline:min(0px, calc((100% - 44px)/2))}
 .seg button::before{inset:-6px 0}
 .iconbtn.on-ss{background:var(--acc-soft);color:var(--acc-ink)}
 .iconbtn:disabled{opacity:.32}
@@ -2126,9 +2129,9 @@ body.no-tabbar #timer.countin{box-shadow:inset 0 var(--hair) 0 var(--acc),0 -10p
 .bodymap.bm-mini .bm-sil{fill:color-mix(in srgb,var(--label) 34%,var(--surface))}
 .bodymap.bm-mini .bm-v path{stroke-width:3}
 /* The live session's body (#670, components/SessionMuscles.jsx): at the end of the exercise
-   chips, and no taller than their 37px row, so it moves nothing in any layout. */
+   chips. The drawing stays 32px tall inside the row's 44px hit area. */
 .iconbtn.whdr-map{width:auto;height:32px;padding:0 2px;border-radius:10px}
-.wchips-row{display:flex;align-items:center;gap:4px}
+.wchips-row{display:flex;align-items:center;gap:6px}
 .wchips-row>.wchips{flex:1;min-width:0}
 .whdr-map .bodymap.bm-mini{gap:1px}
 .whdr-map .bodymap.bm-mini .bm-v{height:30px}
@@ -2536,6 +2539,7 @@ body.totop-on.resting #app{padding-bottom:calc(232px + var(--sab))}
 /* --- accent swatches --- */
 .swatches{display:flex;gap:12px;flex-wrap:wrap}
 .swatch{width:32px;height:32px;border-radius:50%;flex:none;position:relative;transition:transform var(--fast)}
+.swatch::before{content:'';position:absolute;inset:-6px}
 .swatch:active{transform:scale(var(--press-scale-sm))}
 /* The ring takes no taps: over the own colour it lay on the colour input, so the picker never opened. */
 .swatch.on::after{content:'';position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 2px var(--label);pointer-events:none}
@@ -2547,7 +2551,7 @@ body.totop-on.resting #app{padding-bottom:calc(232px + var(--sab))}
     conic-gradient(#ff453a,#ff9f0a,#ffd60a,#30d158,#40c8e0,#0a84ff,#bf5af2,#ff375f,#ff453a);
   color:var(--label-2);
 }
-.swatch-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;border-radius:50%;cursor:pointer;-webkit-appearance:none;appearance:none}
+.swatch-input{position:absolute;inset:-6px;width:44px;height:44px;opacity:0;border:0;padding:0;margin:0;border-radius:0;cursor:pointer;-webkit-appearance:none;appearance:none}
 .swatch-note{margin-top:-4px}
 /* Settings → App icon: the previews in the shape of a home-screen icon, the chosen one ringed like a swatch. */
 .app-icons{flex-basis:100%;padding-inline-start:41px;display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:12px}
@@ -2652,20 +2656,22 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 /* One numbered chip per unit, filled as far as it is done: an outline waiting, half full started,
    full when every work set is ticked, so the state reads without the colour. The current one has
    the accent ring. Every chip is the same height whatever its state, and the row scrolls sideways
-   (.chips), so nothing here can move the page while you type. 28px chips with the strip's own
-   padding keep the row at about the height of the line it replaces. */
-.chips.wchips{gap:6px;padding:4px 5px 5px;margin-bottom:2px}   /* room for the current chip's ring: the strip clips */
-.wchip{
+   (.chips), so nothing here can move the page while you type. Each 28px face has a 44px target. */
+.chips.wchips{gap:0;padding:0 1px;margin-bottom:2px}
+/* Each 28px face lives in its own 44px slot. Extensions on the old 34px
+   pitch would overlap, and the scrolling strip would clip their vertical edges. */
+.wchip{flex:none;position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:8px;background:none}
+.wchip-face{
   flex:none;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:2px;
   min-width:28px;height:28px;padding:0 8px;border-radius:99px;
   font-size:var(--fs-footnote);font-weight:600;font-variant-numeric:tabular-nums;color:var(--label-2);
   background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--sep);
 }
 .wchip .icn{width:12px;height:12px}
-.wchip.partial{background:linear-gradient(to top,rgba(255,159,10,0.45) 50%,var(--surface) 50%);background:linear-gradient(to top,color-mix(in srgb,var(--orange) 45%,var(--surface)) 50%,var(--surface) 50%);box-shadow:inset 0 0 0 1.5px var(--orange);color:var(--label)}
-.wchip.done{background:var(--green);background:color-mix(in srgb,var(--green) 70%,var(--surface));box-shadow:none;color:var(--label)}
-.wchip.cur{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--acc);color:var(--label)}
-.wchip.partial.cur{box-shadow:inset 0 0 0 1.5px var(--orange),0 0 0 2px var(--bg),0 0 0 3.5px var(--acc)}
+.wchip.partial .wchip-face{background:linear-gradient(to top,rgba(255,159,10,0.45) 50%,var(--surface) 50%);background:linear-gradient(to top,color-mix(in srgb,var(--orange) 45%,var(--surface)) 50%,var(--surface) 50%);box-shadow:inset 0 0 0 1.5px var(--orange);color:var(--label)}
+.wchip.done .wchip-face{background:var(--green);background:color-mix(in srgb,var(--green) 70%,var(--surface));box-shadow:none;color:var(--label)}
+.wchip.cur .wchip-face{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--acc);color:var(--label)}
+.wchip.partial.cur .wchip-face{box-shadow:inset 0 0 0 1.5px var(--orange),0 0 0 2px var(--bg),0 0 0 3.5px var(--acc)}
 /* part of the give-back above — one edge for all three insets of a row in the list view */
 @media (max-width:404px){
   .wl-unit{padding:10px 8px 2px}

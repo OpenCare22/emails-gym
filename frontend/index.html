@@ -9,6 +9,9 @@
   // i18n-core RTL_LANGS is the runtime source of truth — keep this list in sync.
   try {
     var s = JSON.parse(localStorage.getItem('gym_state_v1') || '{}');
+    if (s.theme === 'light' || (s.theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
     var l = s.lang || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
     document.documentElement.lang = l;
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
@@ -102,6 +105,11 @@
   #boot.fail .h{font-size:19px;font-weight:600;margin:0 0 8px}
   #boot.fail code{display:block;margin:14px 0 18px;padding:10px;border-radius:12px;background:#161a18;color:#c4cec5;font-size:12px;text-align:left;word-break:break-word;-webkit-user-select:text;user-select:text}
   #boot.fail button{font:inherit;font-weight:600;color:#101510;background:#f5f7f4;border:0;border-radius:12px;min-height:44px;padding:0 28px}
+  html[data-theme="light"] #boot{background:#f8f9f7}
+  html[data-theme="light"] #boot .db{fill:#161b17}
+  html[data-theme="light"] #boot.fail div{color:#161b17}
+  html[data-theme="light"] #boot.fail code{background:#f0f2ef;color:#414a43}
+  html[data-theme="light"] #boot.fail button{background:#161b17;color:#ffffff}
   @media (prefers-reduced-motion:reduce){
     #boot path{animation:none}
   }

@@ -546,12 +546,12 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             straight to the session. Home and Stats still log weight by hand. */}
         {on('body') && <Row icon="scale" iconTint="var(--green)" title={t('Weigh in before workouts')}
           subtitle={t('Asks for your body weight when a workout starts. Off starts the session straight away.')}>
-          <Switch checked={S.weighIn !== false} onChange={v => update(s => { s.weighIn = v })} />
+          <Switch aria-label={t('Weigh in before workouts')} checked={S.weighIn !== false} onChange={v => update(s => { s.weighIn = v })} />
         </Row>}
         {(wakeOK || !MOBILE) && (
           <Row icon="phoneScreen" iconTint="var(--yellow)" title={t('Keep screen awake')}
             subtitle={wakeOK ? t('The screen stays on while a workout is running, so you don’t have to unlock your phone between sets.') : t('Not supported in this browser.')}>
-            <Switch checked={wakeOK && S.keepAwake !== false} disabled={!wakeOK}
+            <Switch aria-label={t('Keep screen awake')} checked={wakeOK && S.keepAwake !== false} disabled={!wakeOK}
               onChange={v => update(s => { s.keepAwake = v })} />
           </Row>
         )}
@@ -622,10 +622,10 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             brings one of the old always-visible button groups back for people who liked them. */}
         <Section title={t('Buttons on the workout screen')} footer={t('Everything hidden here stays one tap away: the ⋯ button of an exercise and the number of a set.')}>
           <Row icon="plusCircle" iconTint="var(--green)" title={t('Weight and reps buttons')} subtitle={t('Off: tap the number and type it')}>
-            <Switch checked={wc.steppers} onChange={v => setWc('steppers', v)} />
+            <Switch aria-label={t('Weight and reps buttons')} checked={wc.steppers} onChange={v => setWc('steppers', v)} />
           </Row>
           <Row icon="bolt" iconTint="var(--orange)" title={t('Drop and burst shortcuts on every set')}>
-            <Switch checked={wc.setShortcuts} onChange={v => setWc('setShortcuts', v)} />
+            <Switch aria-label={t('Drop and burst shortcuts on every set')} checked={wc.setShortcuts} onChange={v => setWc('setShortcuts', v)} />
           </Row>
           {/* Swipe actions (v1.3.11): not a button, but the same question of what a set row does. The
               one switch covers Plan's lists too; the stored key keeps its old name, swipeSets. */}
@@ -642,10 +642,10 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             <Switch aria-label={t('Muscle map at the top')} checked={wc.muscleMap} onChange={v => setWc('muscleMap', v)} />
           </Row>
           <Row icon="link" iconTint="var(--blue)" title={t('Superset buttons in the exercise header')}>
-            <Switch checked={wc.pairButtons} onChange={v => setWc('pairButtons', v)} />
+            <Switch aria-label={t('Superset buttons in the exercise header')} checked={wc.pairButtons} onChange={v => setWc('pairButtons', v)} />
           </Row>
           <Row icon="swap" iconTint="var(--teal)" title={t('Move, swap and remove buttons below the exercise')}>
-            <Switch checked={wc.exerciseButtons} onChange={v => setWc('exerciseButtons', v)} />
+            <Switch aria-label={t('Move, swap and remove buttons below the exercise')} checked={wc.exerciseButtons} onChange={v => setWc('exerciseButtons', v)} />
           </Row>
         </Section>
       </>
@@ -658,7 +658,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
           <Row icon="speaker" iconTint="var(--pink)" title={t('Play a sound')}>
             {/* Turning the sound on is a tap: unlock the audio context now so a timer that ends
                 before the next set check can already sound (iOS, #152). */}
-            <Switch checked={!!S.sound} onChange={v => { if (v) unlock(true); update(s => { s.sound = v }) }} />
+            <Switch aria-label={t('Play a sound')} checked={!!S.sound} onChange={v => { if (v) unlock(true); update(s => { s.sound = v }) }} />
           </Row>
           {/* The chime that replaced the original three beeps (Discord: "too quiet under music")
               is not an improvement for everyone: louder is a cost with headphones or in a quiet
@@ -674,7 +674,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
           {S.sound && playOnSilentSupported() && (
             <Row icon="speaker" iconTint="var(--orange)" title={t('Play even on silent')}
               subtitle={<>{MOBILE ? t('The end of a rest rings through silent. Music turns down for it and keeps playing.') : t('Music playing on this phone stops during a workout and does not resume by itself.')}<br />{t('iPhone only')}</>}>
-              <Switch checked={!!S.soundOnSilent} onChange={v => update(s => { s.soundOnSilent = v })} />
+              <Switch aria-label={t('Play even on silent')} checked={!!S.soundOnSilent} onChange={v => update(s => { s.soundOnSilent = v })} />
             </Row>
           )}
         </Section>
@@ -684,10 +684,10 @@ export default function Settings({ page = null, find = null, via = null, entryKe
         <Section footer={!canVibrate && iPhone ? t('iPhone doesn’t let Email’s Gym vibrate. A sound or a flash does the job.') : null}>
           <Row icon="vibrate" iconTint="var(--indigo)" title={t('Vibrate')} className={canVibrate ? '' : 'dis'}
             subtitle={canVibrate ? null : iPhone ? t('Not on iPhone') : t('Not supported in this browser.')}>
-            <Switch checked={canVibrate && S.vibrate !== false} disabled={!canVibrate} onChange={v => update(s => { s.vibrate = v })} />
+            <Switch aria-label={t('Vibrate')} checked={canVibrate && S.vibrate !== false} disabled={!canVibrate} onChange={v => update(s => { s.vibrate = v })} />
           </Row>
           <Row icon="sun" iconTint="var(--yellow)" title={t('Flash the screen')}>
-            <Switch checked={!!S.timerFlash} onChange={v => update(s => { s.timerFlash = v })} />
+            <Switch aria-label={t('Flash the screen')} checked={!!S.timerFlash} onChange={v => update(s => { s.timerFlash = v })} />
           </Row>
         </Section>
         {/* Spoken cues (lib/spoken-cues.js): the next set as a rest starts, "10 seconds", "Rest is
@@ -770,13 +770,13 @@ export default function Settings({ page = null, find = null, via = null, entryKe
         {ctx.nameLang && <>
           <Row icon="globe" iconTint="var(--purple)" title={t('English exercise names')}
             subtitle={t('Show the English name in parentheses next to the translated one.')}>
-            <Switch checked={S.enParens?.[baseLang(lang)] ?? true}
+            <Switch aria-label={t('English exercise names')} checked={S.enParens?.[baseLang(lang)] ?? true}
               disabled={S.enOnly?.[baseLang(lang)] === true}
               onChange={v => update(s => { s.enParens = { ...(s.enParens || {}), [baseLang(lang)]: v } })} />
           </Row>
           <Row icon="globe" iconTint="var(--purple)" title={t('English names only')}
             subtitle={t('Replace the translated names with the original English ones.')}>
-            <Switch checked={S.enOnly?.[baseLang(lang)] === true}
+            <Switch aria-label={t('English names only')} checked={S.enOnly?.[baseLang(lang)] === true}
               onChange={v => update(s => { s.enOnly = { ...(s.enOnly || {}), [baseLang(lang)]: v } })} />
           </Row>
         </>}
@@ -909,7 +909,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
         {/* The Home summary is optional; hiding it leaves weight logging, history and Stats intact. */}
         {on('body') && <Row icon="scale" iconTint="var(--green)" title={t('Body weight')}
           subtitle={t('Show the body weight card on Home.')}>
-          <Switch checked={S.showWeightCard !== false} onChange={v => update(s => { s.showWeightCard = v })} />
+          <Switch aria-label={t('Body weight')} checked={S.showWeightCard !== false} onChange={v => update(s => { s.showWeightCard = v })} />
         </Row>}
         {/* A small card when a muscle is still recovering or has been left out a while
             (lib/recovery-hint.js). One at a time, and it can be put away for the day. */}
@@ -938,7 +938,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             also brings back the no-server line its × hid (#454). */}
         {!DEMO && <Row icon="cloud" iconTint="var(--blue)" title={t('Show connection status')}
           subtitle={t('Off: the bar at the top is hidden. A dot on Home still warns when syncing is stuck.')}>
-          <Switch checked={S.connStatus !== false} onChange={v => update(s => { s.connStatus = v; if (v) s.connLocal = true })} />
+          <Switch aria-label={t('Show connection status')} checked={S.connStatus !== false} onChange={v => update(s => { s.connStatus = v; if (v) s.connLocal = true })} />
         </Row>}
       </Section>
     </>,
@@ -993,7 +993,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
             that module wholesale; mobile.autobackup.test.js pins the two together. */}
         {MOBILE && <Row icon="folder" iconTint="var(--blue)" title={t('Auto-backup on changes')} tour="data-auto"
           subtitle={autoBackupSubtitle(null, 14)}>
-          <Switch checked={!!S.autoBackup} onChange={v => update(s => { s.autoBackup = v })} />
+          <Switch aria-label={t('Auto-backup on changes')} checked={!!S.autoBackup} onChange={v => update(s => { s.autoBackup = v })} />
         </Row>}
       </Section>
       {/* Apple Health moved to Integrations (1.4.4); the way there stays here. */}
@@ -1396,11 +1396,11 @@ function PushCard({ S, update, toast }) {
         : null}
     >
       <Row icon="bell" iconTint="var(--red)" title={t('Push notifications')} subtitle={t('Rest-timer alerts, even if Email’s Gym is closed.')}>
-        <Switch checked={on} disabled={busy} onChange={toggle} />
+        <Switch aria-label={t('Push notifications')} checked={on} disabled={busy} onChange={toggle} />
       </Row>
       {on && (
         <Row icon="calendar" iconTint="var(--orange)" title={t('Workout day reminder')}>
-          <Switch checked={!!S.reminder?.on} onChange={() => update(s => { s.reminder = { ...(s.reminder || DEF.reminder), on: !s.reminder?.on, tz: localTZ() } })} />
+          <Switch aria-label={t('Workout day reminder')} checked={!!S.reminder?.on} onChange={() => update(s => { s.reminder = { ...(s.reminder || DEF.reminder), on: !s.reminder?.on, tz: localTZ() } })} />
         </Row>
       )}
       {on && S.reminder?.on && (
@@ -1574,7 +1574,7 @@ function EquipmentCard({ S, update }) {
     <Row icon="dumbbell" iconTint="var(--teal)" title={t('Dumbbells')} subtitle={dumbbellSummary} accessory="chevron" onClick={() => dumbbellInventorySheet()} />
     <Row icon="barbell" iconTint="var(--blue)" title={t('Your bars')} subtitle={barSummary} accessory="chevron" onClick={() => barDefaultsSheet()} />
     {profiles.length > 0 && <Row icon="kettlebell" iconTint="var(--acc)" title={t('Filter by equipment')}>
-      <Switch checked={!!S.equipFilterOn} onChange={v => update(s => { s.equipFilterOn = v })} />
+      <Switch aria-label={t('Filter by equipment')} checked={!!S.equipFilterOn} onChange={v => update(s => { s.equipFilterOn = v })} />
     </Row>}
     {profiles.map(p => (
       <Row key={p.id} icon="house" iconTint="var(--teal)" title={p.name}
@@ -1780,17 +1780,17 @@ function AppleHealthCard({ S, toast, page = false }) {
       footer={[h.on && c.footer, h.on && ios && airpods && t('AirPods Pro 3 or Powerbeats Pro 2 in? Your iPhone measures the heart rate for every set, unless your Apple Watch is already on it.'), reading && (t('Email’s Gym reads only while it is open: heart rate for workouts of the last day, weigh-ins of the last 30 days. Older workouts stay as they are.'))].filter(Boolean).join(' ') || null}>
       <Row icon="heart" iconTint="var(--red)" title={c.write}
         subtitle={t('Finished workouts and weigh-ins, from this phone only.')}>
-        <Switch checked={!!h.on} disabled={busy} onChange={v => (v ? turnOn() : askOff())} />
+        <Switch aria-label={c.write} checked={!!h.on} disabled={busy} onChange={v => (v ? turnOn() : askOff())} />
       </Row>
       {h.on && h.error === 'permission' && <Row icon="warning" iconTint="var(--orange)"
         title={t('Permission withdrawn. Tap to allow again')} accessory="chevron" onClick={turnOn} />}
       <Row icon="heart" iconTint="var(--red)" title={t('Heart rate from your watch')}
         subtitle={t('After a workout, each set gets the heart rate your watch saved. Garmin, Fitbit, Galaxy Watch and friends welcome.')}>
-        <Switch checked={!!h.readHr} disabled={busy} onChange={toggleRead('hr')} />
+        <Switch aria-label={t('Heart rate from your watch')} checked={!!h.readHr} disabled={busy} onChange={toggleRead('hr')} />
       </Row>
       <Row icon="scale" iconTint="var(--teal)" title={t('Weigh-ins from other apps')}
         subtitle={t('Your smart scale’s weigh-ins land here. One you type in yourself always wins.')}>
-        <Switch checked={!!h.readWeight} disabled={busy} onChange={toggleRead('weight')} />
+        <Switch aria-label={t('Weigh-ins from other apps')} checked={!!h.readWeight} disabled={busy} onChange={toggleRead('weight')} />
       </Row>
       {reading && h.readError === 'permission' && <Row icon="warning" iconTint="var(--orange)"
         title={t('Permission withdrawn. Tap to allow again')} accessory="chevron"
