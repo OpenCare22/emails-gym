@@ -401,7 +401,11 @@ button.conn:active{filter:brightness(1.12)}
 .iconbtn::before,.chip::before,.seg button::before,.helpbtn::before{content:'';position:absolute;inset:-6px}
 /* Grow each axis only as far as 44px: 36px buttons with an 8px gap must not overlap. */
 .iconbtn::before{inset:0;inset-block:min(0px, calc((100% - 44px)/2));inset-inline:min(0px, calc((100% - 44px)/2))}
-.seg button::before{inset:-6px 0}
+/* Wide controls only need extra height. Stop at 44px, keeping neighbouring
+   controls' horizontal hit areas separate and taller buttons unchanged. */
+.btn.sm,.sp-back{position:relative}
+.btn.sm::before,.sp-back::before{content:'';position:absolute}
+.btn.sm::before,.seg button::before,.sp-back::before{inset:0;inset-block:min(0px, calc((100% - 44px)/2))}
 .iconbtn.on-ss{background:var(--acc-soft);color:var(--acc-ink)}
 .iconbtn:disabled{opacity:.32}
 
