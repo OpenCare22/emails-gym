@@ -5,13 +5,14 @@ import { beforeEach, afterEach, it, expect, vi } from 'vitest'
 import ActivityCards from './ActivityCards.jsx'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
-const mock = vi.hoisted(() => ({ info: null, load: vi.fn(), user: { id: 'u' } }))
+const mock = vi.hoisted(() => ({ info: null, load: vi.fn(), user: { id: 'u' }, offered: true }))
 vi.mock('../lib/google-health.js', () => ({ useGoogleHealth: () => mock }))
-vi.mock('../store/useStore.js', () => ({ useStore: selector => selector({ user: mock.user, config: { health: { google: true } } }) }))
+vi.mock('../store/useStore.js', () => ({ useStore: selector => selector({ user: mock.user, config: { health: { google: mock.offered } } }) }))
 vi.mock('../lib/mobile.js', () => ({ MOBILE: false }))
 let root, el
 beforeEach(() => {
   mock.info = null
+  mock.offered = true
   mock.load.mockClear()
   el = document.createElement('div')
   document.body.append(el)
@@ -57,4 +58,19 @@ it('changes ranges, uses weekly averages, and retains empty-range feedback', () 
   pick('Year')
   expect(el.textContent).toContain('Average: 5,000 steps')
   expect(el.querySelectorAll('rect').length).toBeGreaterThan(50)
+})
+
+it('loads and displays merged Apple-only activity without a Google client', () => {
+  mock.offered = false
+  mock.info = { connected: false, anyConnected: true, data: {
+    steps: { '2026-11-10': 8500 }, restingHr: { '2026-11-10': 55 },
+    activeMinutes: { '2026-11-10': 40 }, sleep: { '2026-11-10': 480 },
+  } }
+  render()
+  expect(mock.load).toHaveBeenCalledWith({ sync: 'auto' })
+  expect(el.textContent).toContain('Average: 8,500 steps')
+  expect(el.textContent).toContain('Latest: 55 bpm')
+  expect(el.textContent).toContain('Average: 40 min')
+  expect(el.textContent).toContain('Average: 8 hours')
+  expect(el.textContent).not.toContain('Fitbit')
 })

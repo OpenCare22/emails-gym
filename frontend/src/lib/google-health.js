@@ -14,6 +14,7 @@ import { t } from './i18n.js'
 export const SRC = 'google'
 export const STALE_MS = 30 * 60 * 1000
 const CACHE = 'gym_ghealth_v1'
+let generation = 0
 
 const EXERCISE_IDS = { RUNNING: '0685', WALKING: '2258', HIKING: '2258', BIKING: '5214', ELLIPTICAL: '2192', ROWING: '1161', SWIMMING: '6944' }
 const STRENGTH_TYPES = new Set(['FREE_WEIGHTS', 'FUNCTIONAL_STRENGTH_TRAINING', 'CIRCUIT_TRAINING'])
@@ -52,6 +53,28 @@ export function workoutFromExercise(e, S) {
   return { ...workout, src: { gh: e.id }, ...(e.avgHr ? { hr: { avg: e.avgHr, src: 'gh', n: 0 } } : {}) }
 }
 
+/** Daily Google values take precedence; readings keep provider-specific identities. */
+export function mergeHealthData(google = {}, apple = {}) {
+  const data = { sources: {} }
+  for (const key of ['steps', 'activeMinutes', 'restingHr', 'sleep', 'activeEnergy']) {
+    data[key] = { ...apple[key], ...google[key] }
+    data.sources[key] = Object.fromEntries(Object.keys(data[key]).map(d => [d, Object.hasOwn(google[key] || {}, d) ? 'google' : 'apple']))
+  }
+  data.weight = [...(apple.weight || []).map(w => ({ ...w, src: 'apple' })), ...(google.weight || [])].sort((a, b) => a.at.localeCompare(b.at))
+  data.exercise = [...(apple.exercise || []), ...(google.exercise || [])].sort((a, b) => a.start.localeCompare(b.start))
+  return data
+}
+
+/** Retry Apple samples on each new load because exports can arrive after the session ends. */
+export function fillAppleHeartRate(S, data, now = Date.now()) {
+  const samples = (data?.exercise || []).flatMap(e => e.hrSamples || [])
+  for (const w of S.workouts || []) {
+    if (w.start >= now - 14 * 864e5 && w.end > w.start && w.end <= now && (!w.hr || w.hr.src === 'apple')) {
+      mergeHeartRate(S, w.id, samples.filter(p => p.t >= w.start - 120000 && p.t <= w.end + 120000), 'apple', now)
+    }
+  }
+}
+
 /** Steps on a day ('YYYY-MM-DD'), or null. */
 export const stepsOn = (data, d) => (data?.steps && Number.isFinite(data.steps[d]) ? data.steps[d] : null)
 
@@ -87,7 +110,7 @@ export function applyWeighIns(S, weights, kgToUnit = kg => (S.unit === 'lb' ? kg
   let added = 0
   for (const w of weights) {
     if (!w?.id || seen.has(w.id) || manual.has(w.d)) continue
-    if (addWeighIn(S, { d: w.d, at: localTime(w.at), w: kgToUnit(w.kg), t: Date.parse(w.at) || Date.now(), src: SRC, sid: w.id })) { added++; seen.add(w.id) }
+    if (addWeighIn(S, { d: w.d, at: localTime(w.at), w: kgToUnit(w.kg), t: Date.parse(w.at) || Date.now(), src: w.src || SRC, sid: w.id })) { added++; seen.add(w.id) }
   }
   return added
 }
@@ -141,30 +164,47 @@ export const useGoogleHealth = create((set, get) => ({
   error: null,
   async load({ sync = 'auto' } = {}, onWeights) {
     if (get().busy) return get().info
+    const current = generation
     set({ busy: true, error: null })
     try {
-      let info = await api('/api/google-health')
+      const [g, a] = await Promise.allSettled([api('/api/google-health'), api('/api/apple-health')])
+      if (current !== generation) return null
+      if (g.status === 'rejected' && a.status === 'rejected') throw g.reason
+      let info = g.status === 'fulfilled' ? g.value || {} : { connected: false }
+      const apple = a.status === 'fulfilled' ? a.value : null
+      const failed = [g, a].find(r => r.status === 'rejected')
+      if (failed) set({ error: failed.reason?.message || String(failed.reason) })
       const stale = info.connected && info.status !== 'reconnect' && (!info.lastSync || Date.now() - Date.parse(info.lastSync) > STALE_MS)
       if (info.connected && (sync === 'now' || (sync === 'auto' && stale))) {
         try { info = await api('/api/google-health/sync', { method: 'POST', timeout: 60000 }) }
         catch (e) { info = await api('/api/google-health').catch(() => info); set({ error: e?.message || String(e) }) }
       }
+      if (current !== generation) return null
+      info = { ...info, googleData: info.data, apple, anyConnected: !!(info.connected || apple?.connected), data: mergeHealthData(info.data, apple?.data) }
       try { localStorage.setItem(CACHE, JSON.stringify(info)) } catch { /* private mode */ }
       set({ info })
       if (info?.data?.weight?.length && onWeights) onWeights(info.data.weight)
+      if (apple?.connected && apple.data?.exercise?.length) {
+        const { useStore } = await import('../store/useStore.js')
+        if (current !== generation) return null
+        useStore.getState().update(s => { fillAppleHeartRate(s, apple.data) })
+      }
       if (info.connected && info.status === 'ok') {
         try { await fillStoredHeartRate() } catch (e) { set({ error: e?.message || String(e) }) }
       }
       return info
     } catch (e) {
-      set({ error: e?.message || String(e) })
+      if (current === generation) set({ error: e?.message || String(e) })
       return get().info
-    } finally { set({ busy: false }) }
+    } finally { if (current === generation) set({ busy: false }) }
   },
   async disconnect() {
     await api('/api/google-health/disconnect', { method: 'POST' })
+    generation++
+    set({ busy: false })
     try { localStorage.removeItem(CACHE) } catch { /* fine */ }
-    set({ info: { available: true, connected: false } })
+    const apple = get().info?.apple
+    set({ info: { available: true, connected: false, apple, anyConnected: !!apple?.connected, data: mergeHealthData({}, apple?.data) } })
   },
-  clear() { try { localStorage.removeItem(CACHE) } catch { /* fine */ } set({ info: null }) },
+  clear() { generation++; try { localStorage.removeItem(CACHE) } catch { /* fine */ } set({ info: null, busy: false, error: null }) },
 }))

@@ -2740,6 +2740,97 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/IntegrationsOff' }
 
+  /api/apple-health:
+    get:
+      tags: [health]
+      operationId: appleHealthStatus
+      summary: Apple Watch connection and normalised data for this profile
+      description: Returns connected, lastReceived, createdAt, unknownMetrics (up to 30 names), source (apple), and data. Data retains 400 days of steps, activeMinutes, restingHr, sleep (minutes) and activeEnergy (kcal) by local day, weight in kg, and exercise with hrSamples (epoch milliseconds and bpm). No token or hash is returned.
+      responses:
+        '200':
+          description: Connection and normalised data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connected: { type: boolean }
+                  lastReceived: { type: [string, 'null'], format: date-time }
+                  createdAt: { type: [string, 'null'], format: date-time }
+                  unknownMetrics: { type: array, maxItems: 30, items: { type: string } }
+                  source: { type: string, const: apple }
+                  data: { type: object }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/apple-health/token:
+    post:
+      tags: [health]
+      operationId: appleHealthToken
+      summary: Create or rotate this profile's ingest key
+      description: Returns a random token once with Cache-Control no-store. Only its SHA-256 hash is stored. Any previous key stops working immediately; existing data stays.
+      responses:
+        '200':
+          description: The new secret. Store it in Health Auto Export.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token]
+                properties:
+                  token: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/apple-health/disconnect:
+    post:
+      tags: [health]
+      operationId: appleHealthDisconnect
+      summary: Remove this profile's Apple ingest key and server data
+      responses:
+        '200': { description: 'Removed, returns {ok: true}.' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/apple-health/ingest:
+    post:
+      tags: [health]
+      operationId: appleHealthIngest
+      summary: Receive a Health Auto Export JSON batch
+      security: [{ appleIngest: [] }]
+      description: >-
+        No session authentication. Requires the per-profile ingest token in Authorization Bearer.
+        At most 5 MiB and 60 requests per hour per token. Accepts metrics and workouts inside data
+        or at the top level. Daily metric totals replace the submitted local days; weights and
+        workouts are upserted by stable id. Supports workout versions 1 and 2. Sleep hours become
+        minutes; awake and in-bed segments do not count. Heart-rate samples retain at most one per
+        five seconds. Unknown metric names are retained up to 30. Never send a session token here.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data: { type: object }
+                metrics: { type: array, items: { type: object } }
+                workouts: { type: array, items: { type: object } }
+      responses:
+        '200':
+          description: Accepted batch.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  received:
+                    type: object
+                    properties:
+                      metrics: { type: integer }
+                      workouts: { type: integer }
+        '400': { description: Invalid JSON or export shape. }
+        '401': { description: Missing, invalid or revoked ingest token. }
+        '413': { description: Body exceeds 5 MiB. }
+        '415': { description: Content-Type must be application/json. }
+        '429':
+          description: Token exceeded 60 requests per hour.
+          headers:
+            Retry-After: { schema: { type: integer }, description: Seconds until another export is allowed. }
   /api/google-health:
     get:
       tags: [health]
@@ -3928,6 +4019,10 @@ paths:
 
 components:
   securitySchemes:
+    appleIngest:
+      type: http
+      scheme: bearer
+      description: Per-profile Health Auto Export token, separate from browser and mobile sessions.
     cookieAuth:
       type: apiKey
       in: cookie

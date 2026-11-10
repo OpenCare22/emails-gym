@@ -6,6 +6,7 @@ import { t } from '../lib/i18n.js'
 import { api } from '../lib/api.js'
 import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
+import AppleHealthExportCard from '../components/AppleHealthExportCard.jsx'
 import GoogleHealthCard from '../components/GoogleHealthCard.jsx'
 import { fmtAgo } from '../lib/format.js'
 import { copyText } from '../lib/clipboard.js'
@@ -159,9 +160,7 @@ export default function IntegrationsPage({ android = false, ios = false }) {
     <p className="sect-f intg-intro">{t('Only what you switch on talks to anything. The rest stays out of your way.')}</p>
     {server.error && <Section><Row icon="warning" iconTint="var(--orange)" title={t('Could not reach your server')} subtitle={t('Tap to try again')} onClick={() => server.load()} /></Section>}
     <GoogleHealthCard />
-    {/* In the web app the phone's health stores can't be read at all, so their cards and the
-        "works with" list would only promise what isn't there: one plain line instead. */}
-    {!MOBILE && <p className="sect-f intg-intro">{t('Apple Watch and Apple Health come with the Email’s Gym iPhone app, which is in development.')}</p>}
+    {!MOBILE && <AppleHealthExportCard />}
     {dir.map(cat => {
       const cards = MOBILE ? cat.cards : cat.cards.filter(card => card.state.status !== 'device')
       if (!cards.length) return null

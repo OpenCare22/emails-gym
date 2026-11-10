@@ -42,6 +42,7 @@ import { ipv6Groups, guardedLookup, pushEndpointError, MAX_PUSH_ENDPOINT } from 
 import { createIntegrations } from './integrations/index.js';
 import { integrationRoutes } from './integrations/routes.js';
 import { createHealth } from './health/index.js';
+import { createAppleHealth } from './health/apple.js';
 import { healthRoutes } from './health/routes.js';
 import { excusedOn, nudgeFor, nudgeWindowOpen, toneOf } from './nudge.js';
 import { wrappedPushYear, wrappedSummary, wrappedPushOwed, wrappedPush } from './wrapped.js';
@@ -129,6 +130,7 @@ const SECRET = fs.readFileSync(secretFile, 'utf8').trim();
 const integrations = createIntegrations({ dataDir: DATA, secret: SECRET, version: '1' });
 // Google Health (health/, PLAN.md Phase 4): off unless GOOGLE_HEALTH_CLIENT_ID and _SECRET are set.
 // Each profile's tokens and data live in DATA_DIR/health/<uid>.json, sealed like the integrations.
+const apple = createAppleHealth({ dataDir: DATA });
 const health = createHealth({ dataDir: DATA, secret: SECRET, origin: ORIGIN });
 
 const dbFile = path.join(DATA, 'db.json');
@@ -1358,6 +1360,7 @@ function removeAccount(u) {
   // Their integrations: connections, sealed secrets and anything still waiting to be sent.
   try { integrations.removeUser(u.id); } catch (e) { console.error('integrations: could not remove', u.id, e.message); }
   // Their Google Health connection and the data pulled with it.
+  try { apple.removeUser(u.id); } catch (e) { console.error('apple-health: could not remove', u.id, e.message); }
   try { health.removeUser(u.id); } catch (e) { console.error('health: could not remove', u.id, e.message); }
   saveDb();
 }
@@ -2992,7 +2995,7 @@ const routes = {
 
   /* ---------- health ---------- */
   // health/routes.js: Google Health connect, sync and data (PLAN.md Phase 4).
-  ...healthRoutes({ json, readSession, health, audit }),
+  ...healthRoutes({ json, readSession, health, apple, audit }),
 
   /* ---------- photos & videos ---------- */
   // Absent, not refusing, when MEDIA_UPLOADS=0: a 404 is what a server from before the feature
