@@ -64,7 +64,7 @@ describe('History grows as it is scrolled', () => {
     expect(rows(host)).toBe(150)
     // all there: nothing left to observe
     expect(observers).toHaveLength(0)
-    expect(host.querySelector('.list .item:last-child .tt').textContent).toBe('Push 0')
+    expect([...host.querySelectorAll('.list .item .tt')].at(-1).textContent).toBe('Push 0')
   })
 
   it('coming back renders as many rows as before (so the scroll position can be restored)', async () => {
