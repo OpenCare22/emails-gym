@@ -48,3 +48,6 @@
   answer of yes suggests seeing a professional instead of a program. Exercise mapping chosen by
   Claude in library/exercise-map.json, for the coach to confirm. Progression keeps the app's
   derived, editable targets (the audit's recommendation; Emil hasn't objected).
+- **2026-11-10: All programs visible before review.** Emil: friends can use every program now; the
+  coach's review adds the approved label instead of gating them. Unreviewed ones say "Not reviewed
+  by a coach yet"; known problems (hybrid-4 and conditioning-3 intervals) are listed on the program.
