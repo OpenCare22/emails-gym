@@ -3347,3 +3347,38 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .week-bar.future .week-bar-track{background:transparent;border:1px dashed var(--sep)}
 .week-bar.today .week-bar-day{color:var(--label);font-weight:600}
 .week-bar-day{font-size:var(--fs-caption);color:var(--label-3)}
+
+/* Focus logging: quiet heading, separate number cards and an inline rest. */
+.focus-view .focus-card{padding:0;background:none;box-shadow:none;border-radius:0;display:flex;flex-direction:column}
+.focus-view .focus-card-header{position:relative;flex-wrap:wrap;justify-content:center;border:0;padding:16px 44px 0}
+.focus-view .focus-card-header h2{flex:0 0 100%;text-align:center;font-size:var(--fs-title3);font-weight:700}
+.focus-view .focus-card-header .iconbtn{position:absolute;top:8px;right:0;width:44px;height:44px}
+.focus-view .focus-card-header .iconbtn:first-of-type{left:0;right:auto}
+.focus-view .focus-heading-detail{text-align:center;color:var(--label-2);margin:4px 0 20px;order:0}
+.focus-view .focus-last{color:var(--label-3);font-size:var(--fs-footnote);margin-top:8px}
+.focus-view .focus-context,.focus-view .focus-prescription{order:2}
+.focus-view .focus-progress{display:none}
+.focus-view .focus-set>.stp-w,.focus-view .focus-side>.stp-w{margin:0 0 12px}
+.focus-view .stp-w{position:relative;background:var(--surface);border-radius:var(--r-card);padding:16px}
+.focus-view .stp-l{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.focus-view .stp{background:none;border-radius:0;min-height:56px}
+.focus-view .stp button{width:44px;height:56px}
+.focus-view .stp .val{align-self:center;align-items:baseline;gap:4px}
+.focus-view .stp .num{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;width:3.5ch;flex:0 1 auto;min-height:56px}
+.focus-view .stp .val i{font-size:var(--fs-body);color:var(--label-2)}
+.focus-view .focus-sides,.focus-view .focus-extra{grid-template-columns:minmax(0,1fr)}
+.focus-view .focus-side,.focus-view .focus-extra{padding:0;background:none}
+.focus-view .focus-timed{background:var(--surface);border-radius:var(--r-card);padding:16px;flex-wrap:wrap}
+.focus-view .focus-timed strong{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.focus-view .focus-card>.btn.primary{min-height:56px;margin-top:12px}
+.focus-rest{display:grid;grid-template-columns:minmax(80px,120px) minmax(0,1fr);align-items:center;justify-content:center;gap:16px;margin-top:20px;padding:20px;background:var(--surface);border-radius:var(--r-card)}
+.focus-rest svg{width:100%;fill:none;stroke-width:8}
+.focus-rest-track{stroke:var(--surface-2)}
+.focus-rest-progress{stroke:var(--acc);stroke-linecap:round}
+.focus-rest-clock{display:grid;gap:4px;text-align:center;color:var(--label-2)}
+.focus-rest-clock strong{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--label)}
+.focus-rest-actions{grid-column:1/-1;display:flex;gap:12px}
+.focus-rest-actions .btn{min-width:44px;min-height:44px}
+/* Never interpolate the ring, including when reduced motion is requested. */
+.focus-rest circle{transition:none;animation:none}
+body:has(.focus-rest) #timer.rest:not(.auto){display:none}
