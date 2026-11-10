@@ -7,8 +7,13 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 Live at https://emailsgym.com (Phase 3, 2026-11-10): Hetzner CX23 + Cloudflare Tunnel, invite-only,
 nightly data backups. Runbook: docs/fork/DEPLOY.md. Emil's profile "Email" is the admin.
-Open: T-012 (swipe to delete in History) waits for Codex; the "Add to Home Screen" step in
-sign-up is still to do; a friend's first sign-up + test push is the Phase 3 done-check.
+Open: T-012 (swipe to delete in History, retry), T-013 (require Add to Home Screen on iPhone)
+and T-014 (programme weeks with sets and RIR) wait for Codex; a friend's first sign-up + test
+push is the Phase 3 done-check.
+Workout library (Phase 3b): Emil's package is in docs/emails-gym-planning/ (master plan,
+research, the UNREVIEWED library). Phase 0 audit done: docs/emails-gym-planning/REPO_AUDIT.md.
+Waiting on Emil: the four conflicts in that audit (progression confirm step, one programme,
+calendar weeks, who reviews the programs).
 
 ## Phase 0: Fork, run, baseline
 

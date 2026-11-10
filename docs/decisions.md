@@ -34,3 +34,9 @@
 - **2026-11-10: Live.** emailsgym.com runs on a Hetzner CX23 behind a Cloudflare Tunnel, port
   8080 bound to localhost (Docker would otherwise open it past ufw). Emil's profile is the admin;
   then INVITE_ONLY=1. Tailscale serve turned off, the Mac's .env back to localhost.
+- **2026-11-10: Workout library builds on routines and programmes.** Emil's master plan
+  (docs/emails-gym-planning/) asks for workouts and multi-week programs by three routes. The
+  audit found the app already has most of the model (routines, programmes, timed holds, per-side,
+  rep ranges, RIR/RPE, starter plans, plan import), so the library extends those instead of a
+  second tracker. The research programs stay draft until someone qualified reviews them. First
+  step: T-014, programme weeks that change sets and RIR.
