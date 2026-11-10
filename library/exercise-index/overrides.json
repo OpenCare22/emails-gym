@@ -1,0 +1,58 @@
+{
+ "_note": "Per-exercise corrections to the index rules: { id: { pattern?, compound?, skill?, tier?, stress? } }.",
+ "overrides": {
+  "1182": {
+   "skill": 1
+  },
+  "0493": {
+   "skill": 1
+  },
+  "4442": {
+   "skill": 1
+  },
+  "0017": {
+   "skill": 1
+  },
+  "0572": {
+   "skill": 1
+  },
+  "0970": {
+   "skill": 2
+  },
+  "0251": {
+   "stress": [
+    "shoulder"
+   ]
+  },
+  "0814": {
+   "stress": [
+    "shoulder"
+   ]
+  },
+  "1399": {
+   "stress": [
+    "shoulder",
+    "wrist"
+   ]
+  },
+  "1451": {
+   "stress": [
+    "shoulder"
+   ]
+  },
+  "0044": {
+   "stress": [
+    "lowerback"
+   ]
+  },
+  "9698": {
+   "stress": []
+  },
+  "10646": {
+   "stress": []
+  },
+  "1350": {
+   "stress": []
+  }
+ }
+}

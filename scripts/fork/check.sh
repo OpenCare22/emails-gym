@@ -31,6 +31,7 @@ if [ "${1:-}" != "quick" ]; then
   run frontend-tests sh -c "cd frontend && npx vitest run --retry 1 $ICONS"
 fi
 run library node scripts/library/build.mjs --check
+run plan-index node scripts/plan-model/index.mjs --check
 run catalogue node scripts/catalogue/build.mjs --check
 run coach-assets node scripts/build-coach-assets.mjs --check
 run build sh -c 'cd frontend && npm run build --silent'
