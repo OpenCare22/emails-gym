@@ -1,11 +1,11 @@
 // Programmes (#159, #679): your routines run as a block of 1 to 16 weeks, each week with its own
-// intensity (a %1RM or an RPE per exercise, a week-wide RPE, a deload week).
+// targets (load, sets, effort, duration and notes), a week-wide RPE or a deload week.
 //
 //   S.programmes = { [id]: Programme }            one entry per programme, stamped per key
 //   S.programme  = null | Run                       the one that is running, a plain setting
 //
 //   Programme = { id, name, at, weeks: Week[], days?: { [getDay()]: rid[] }, sequence?: (rid|'rest')[], src? }
-//   Week      = { deload?: true, rpe?: number, t?: { [exId | 'rid:exId']: { pct?: number, rpe?: number } } }
+//   Week      = { deload?: true, rpe?: number, t?: { [exId | 'rid:exId']: { pct?: number, rpe?: number, sets?: number, rir?: number, min?: number, note?: string } } }
 //   Run       = { id, startedOn: iso, pausedOn?: iso, cycle: 1, bump: 0, saved: { week, scheduleMode, rotation, pass } }
 //
 // THE SCHEDULE IS APPLIED, NOT RESOLVED. A programme holds a schedule of its own: weekdays
@@ -63,11 +63,20 @@ export const cleanRpe = v => {
   return n >= RPE_MIN && n <= RPE_MAX ? half(n) : null
 }
 
+export const cleanSets = v => Number.isInteger(v) && v >= 1 && v <= 10 ? v : null
+export const cleanRir = v => num(v) >= 0 && v <= 5 ? half(v) : null
+export const cleanMin = v => Number.isInteger(v) && v >= 1 && v <= 300 ? v : null
+
 function cleanTarget(x) {
   if (!isMap(x)) return null
   const pct = cleanPct(x.pct), rpe = cleanRpe(x.rpe)
-  if (pct == null && rpe == null) return null
-  return { ...(pct != null ? { pct } : {}), ...(rpe != null ? { rpe } : {}) }
+  const sets = cleanSets(x.sets), rir = rpe == null ? cleanRir(x.rir) : null
+  const min = cleanMin(x.min)
+  const note = typeof x.note === 'string' ? x.note.trim().slice(0, 200) : ''
+  const out = { ...(pct != null ? { pct } : {}), ...(rpe != null ? { rpe } : {}),
+    ...(sets != null ? { sets } : {}), ...(rir != null ? { rir } : {}),
+    ...(min != null ? { min } : {}), ...(note ? { note } : {}) }
+  return Object.keys(out).length ? out : null
 }
 
 /** One week as stored: only what it says, so an empty week is `{}`. */
@@ -323,13 +332,14 @@ export function programmeSlot(S, rid, exId, iso = todayISO()) {
   const w = st.current
   const own = w.t?.[`${rid}:${exId}`] || w.t?.[exId] || {}
   const pct = own.pct != null ? own.pct : null
-  const rpe = own.rpe != null ? own.rpe : w.rpe != null ? w.rpe : null
+  const rpe = own.rpe != null ? own.rpe : own.rir != null ? null : w.rpe != null ? w.rpe : null
   const deload = w.deload === true
-  if (pct == null && rpe == null && !deload) return null
+  if (!Object.keys(own).length && pct == null && rpe == null && !deload) return null
   const bump = Number(S.programme?.bump) || 0
   return {
     ...(pct != null ? { pct: Math.min(PCT_MAX, pct + bump) } : {}),
     ...(rpe != null ? { rpe } : {}),
+    ...Object.fromEntries(['sets', 'rir', 'min', 'note'].filter(k => own[k] != null).map(k => [k, own[k]])),
     deload, week: st.week, weeks: st.weeks, name: st.programme.name, bump,
   }
 }

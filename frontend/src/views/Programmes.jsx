@@ -152,13 +152,13 @@ export default function Programmes() {
   </div>
 }
 
-/** The exercises a programme can give a %1RM: loaded, rep-counted lifts of its routines, once each. */
-function liftsOf(S, p) {
+/** Each routine slot can carry its own weekly targets, including unloaded and timed work. */
+function slotsOf(S, p) {
   const ids = programmeRoutineIds(S, p)
   const out = new Map()
   for (const r of S.routines || []) {
     if (!ids.includes(r.id)) continue
-    for (const cfg of r.ex || []) if (!out.has(cfg.id) && modeOf(cfg) === 'reps' && !isBw(cfg)) out.set(cfg.id, cfg)
+    for (const cfg of r.ex || []) out.set(`${r.id}:${cfg.id}`, { ...cfg, key: `${r.id}:${cfg.id}`, routineName: r.name })
   }
   return [...out.values()]
 }
@@ -176,11 +176,23 @@ function WeekSheet({ id, index, close }) {
     weeks[index] = cleanWeek(fn(clone(weeks[index] || {})))
     saveProgramme(s, { ...cur, weeks })
   })
-  const setPct = (exId, v) => setWeek(x => {
-    const tgt = { ...(x.t || {}) }
-    const pct = cleanPct(v)
-    if (pct == null) { const { pct: _, ...rest } = tgt[exId] || {}; tgt[exId] = rest } else tgt[exId] = { ...(tgt[exId] || {}), pct }
-    return { ...x, t: tgt }
+  const setTarget = (key, field, value) => setWeek(x => {
+    const targets = { ...x.t }
+    const exId = key.slice(key.indexOf(':') + 1)
+    // Expand an exercise-wide target before editing one slot, so clearing its last field
+    // cannot fall back to the old target or change the other routines using that lift.
+    if (targets[exId]) {
+      for (const slot of slotsOf(S, p).filter(cfg => cfg.id === exId)) {
+        if (!targets[slot.key]) targets[slot.key] = { ...targets[exId] }
+      }
+      delete targets[exId]
+    }
+    const target = { ...targets[key] }
+    if (value == null) delete target[field]
+    else target[field] = value
+    if (field === 'rir') delete target.rpe
+    if (field === 'rpe') delete target.rir
+    return { ...x, t: { ...targets, [key]: target } }
   })
   return <>
     <h3>{t('Week {0} of {1}', index + 1, p.weeks.length)}</h3>
@@ -194,21 +206,32 @@ function WeekSheet({ id, index, close }) {
       <button className={'chip' + (w.rpe == null ? ' on' : '')} onClick={() => setWeek(x => ({ ...x, rpe: null }))}>{t('None')}</button>
       {RPES.map(v => <button key={v} className={'chip' + (w.rpe === v ? ' on' : '')} onClick={() => setWeek(x => ({ ...x, rpe: v }))}>{rpeText(v, S)}</button>)}
     </div>
-    <div className="small muted" style={{ margin: '0 2px 6px' }}>{t('%1RM per lift')}</div>
+    <div className="small muted" style={{ margin: '0 2px 6px' }}>{t('Targets per exercise')}</div>
     <div className="sect-b prog-lifts" style={{ marginBottom: 6 }}>
-      {liftsOf(S, p).map(cfg => {
-        const pct = w.t?.[cfg.id]?.pct ?? null
+      {slotsOf(S, p).map(cfg => {
+        const target = w.t?.[cfg.key] || w.t?.[cfg.id] || {}
+        const pct = target.pct ?? null
+        const scale = effortOf(S) === 'rir' ? 'rir' : 'rpe'
+        const effort = target.rpe != null ? (scale === 'rir' ? 10 - target.rpe : target.rpe) : target.rir != null ? (scale === 'rir' ? target.rir : 10 - target.rir) : null
         // Worked out and rounded in the lift's own weight unit (#657): 5 lb steps on a lb-pinned bar.
         const unit = exUnitOf(S, cfg.id)
         const est = pct != null ? pctWeight(exView(S, cfg.id), cfg.id, pct, { step: weightIncrement(viewTarget(S, cfg.id, cfg), unit) }) : null
-        return <div key={cfg.id} className="lrow prog-lift">
+        return <div key={cfg.key} className="lrow prog-lift">
           <span className="lrow-m"><span className="lrow-t">{exerciseNameText(exOr(cfg.id))}</span>
             {pct != null && <span className="lrow-s">{est != null ? t('about {0}', fmtNum(est) + ' ' + unit) : t('Log a set first to work this out')}</span>}</span>
-          <PctField pct={pct} onChange={v => setPct(cfg.id, v)} label={t('%1RM for {0}', exerciseNameText(exOr(cfg.id)))} />
+          <span className="lrow-s">{cfg.routineName}</span>
+          <div className="prog-targets">
+            {modeOf(cfg) === 'reps' && !isBw(cfg) && <PctField pct={pct} onChange={v => setTarget(cfg.key, 'pct', v)} label={t('%1RM for {0}', exerciseNameText(exOr(cfg.id)))} />}
+            <label>{t('Sets')}<Stepper value={target.sets ?? ''} min={0} max={10} decimal={false} ariaLabel={t('Sets')}
+              onChange={v => setTarget(cfg.key, 'sets', v || null)} /></label>
+            <label>{scale === 'rir' ? t('RIR') : t('RPE')}<NumberField nullable value={effort} step={0.5}
+              aria-label={scale === 'rir' ? t('RIR') : t('RPE')}
+              onChange={v => setTarget(cfg.key, scale, v)} /></label>
+          </div>
         </div>
       })}
     </div>
-    <div className="small dim" style={{ margin: '0 2px 14px' }}>{t('Empty leaves the weight to your progression. A %1RM is worked out from your best estimated 1RM.')}</div>
+    <div className="small dim" style={{ margin: '0 2px 14px' }}>{t('Empty uses the routine. A %1RM is worked out from your best estimated 1RM.')}</div>
     {index > 0 && <Button variant="tinted" icon="copy" onClick={() => setWeek(() => stepWeek(p.weeks[index - 1]))}>{t('Same as last week, a bit heavier')}</Button>}
     <Button variant="primary" onClick={close} style={{ marginTop: 8 }}>{t('Done')}</Button>
   </>
