@@ -5,9 +5,10 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 2 done and merged into main (not pushed); report in
-docs/fork/PHASE2_REPORT.md. Emil confirmed it on his iPhone over Tailscale (temporary, see
-docs/decisions.md). Next: merge Phase 2, then Phase 3 (hosting with a real address).
+Live at https://emailsgym.com (Phase 3, 2026-11-10): Hetzner CX23 + Cloudflare Tunnel, invite-only,
+nightly data backups. Runbook: docs/fork/DEPLOY.md. Emil's profile "Email" is the admin.
+Open: T-012 (swipe to delete in History) waits for Codex; the "Add to Home Screen" step in
+sign-up is still to do; a friend's first sign-up + test push is the Phase 3 done-check.
 
 ## Phase 0: Fork, run, baseline
 
@@ -42,9 +43,9 @@ docs/decisions.md). Next: merge Phase 2, then Phase 3 (hosting with a real addre
 ## Next
 
 - T-012 (Codex): swipe a History row to delete a workout, with Undo (Emil, 2026-11-10).
-- Phase 3 hosting: https://emailsgym.com (bought 2026-11-10, DNS on Cloudflare) via Cloudflare
-  Tunnel to a Hetzner CX22. Emil: create the server with ~/.ssh/emails_gym_ed25519.pub, send its IP.
-  Push main to GitHub before deploying (asked, not yet done).
+- Phase 3: [x] live at https://emailsgym.com, [x] invite-only, guests off, [x] nightly backups,
+  [x] main pushed to GitHub, [ ] "Add to Home Screen" step in sign-up (Codex ticket),
+  [ ] a friend signs up and gets a test push.
 - Phase 3b (new): workout and programme library (docs/fork/PLAN.md).
 - Phase 7 (extended): trophies, cabinet, unlockables from standings.
 - Phase 2: Integrations' "Works with" note still says "Apple Health or Health Connect" (`frontend/src/views/Integrations.jsx`).
