@@ -9,6 +9,29 @@ import Icon from '../components/Icon.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { dayNoteOf } from '../lib/day-notes.js'
 import { reportSheet } from '../components/ReportSheet.jsx'
+import SwipeRow from '../components/SwipeRow.jsx'
+import { useUI } from '../store/useUI.js'
+import { entryKey } from '../lib/sync-merge.js'
+import { workoutSnapshot, deleteWorkout, restoreWorkout } from '../lib/workout-delete.js'
+import { mediaStore } from '../lib/media-store.js'
+import { referencedHashes } from '../lib/media-refs.js'
+
+export function deleteWorkoutWithUndo(workout) {
+  const st = useStore.getState()
+  const snap = workoutSnapshot(st.S, workout)
+  if (!snap) return false
+  // Keep local photos and videos available while the toast can restore their references.
+  const release = mediaStore.hold([...referencedHashes({ workouts: [snap.workout] })])
+  st.update(s => deleteWorkout(s, snap.workout))
+  useUI.getState().toast(t('Workout deleted'), { action: t('Undo'), onAction: () => {
+    useStore.getState().update(s => { restoreWorkout(s, snap) })
+  } })
+  const action = useUI.getState().toastAction
+  const unsubscribe = useUI.subscribe(s => {
+    if (s.toastAction !== action) { release(); unsubscribe() }
+  })
+  return true
+}
 
 // Newest first: every workout, and in between them the days off you left a note on (#261). A
 // note on a day that has a workout too stays in the day sheet; the workout speaks for that day.
@@ -51,7 +74,9 @@ export default function History() {
     <WorkoutsSwitcher current="/history" />
     {rows.length > 0 && <Button icon="plus" data-tour="history-add" onClick={logPastWorkoutSheet} style={{ marginBottom: 12 }}>{t('Log a past workout')}</Button>}
     {rows.length ? <><div className="list">{(more ? rows.slice(0, shown) : rows).map((r, i) => r.w
-      ? <WorkoutRow key={r.w.id} w={r.w} tour={i === 0 ? 'history-row' : undefined} onClick={() => workoutDetailSheet(r.w)} />
+      ? <SwipeRow key={entryKey('workouts', r.w)} className="swrow-item" deleteLabel={t('Delete workout')} onDelete={() => deleteWorkoutWithUndo(r.w)}>
+        <WorkoutRow w={r.w} tour={i === 0 ? 'history-row' : undefined} onClick={() => workoutDetailSheet(r.w)} />
+      </SwipeRow>
       : <DayNoteRow key={'note-' + r.d} iso={r.d} note={r.note} />)}</div>
       {more && <div ref={end} aria-hidden="true" style={{ height: 1 }} />}</>
       : <EmptyState icon="history" text={t('No workouts yet. Your first one will land here.')}>
