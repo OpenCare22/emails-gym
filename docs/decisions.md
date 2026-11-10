@@ -70,3 +70,11 @@
 - **2026-11-10: Second flaky API test.** `api/test/server-origin-hint.test.js` ("a page on
   another site gets the same refusal") failed once under full-suite load in T-026's check and
   passed 3 times alone and in a full rerun. Same rule: rerun first, fix if it recurs.
+- **2026-11-10: Two more load-sensitive frontend tests.** `store/useStore.mobile-remote.test.jsx`
+  and `views/AdminCoach.test.jsx` failed once in a full Node 22 run during T-027 and passed 3
+  times alone and in a full rerun. Rerun first; fix if they recur.
+- **2026-11-10: Apple Watch through Health Auto Export (Phase 4b).** Friends POST from the iOS app
+  (Premium) to /api/apple-health/ingest with a per-profile key (stored hashed). Data is merged with
+  Google's (Google wins a day both have). Three metric names are not in its docs
+  (resting_heart_rate, body_mass, apple_exercise_time); anything else unknown is listed on the
+  setup card so the first real export shows what to add.
