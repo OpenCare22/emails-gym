@@ -26,6 +26,7 @@ vi.mock('../lib/social.js', async orig => ({
   setSharing: async (groupId, sharing) => { mocks.posts.push(['sharing', groupId, sharing]); return { sharing } },
   peekInvite: async () => ({ name: 'Gym lads', members: 3, owner: 'Dana' }),
   joinGroup: async code => { mocks.posts.push(['join', code]); return { group: { id: 'g1', name: 'Gym lads' } } },
+  nudge: async (groupId, uid) => { mocks.posts.push(['nudge', groupId, uid]); return { sent: true } },
 }))
 const { default: Friends, LeaderboardRow } = await import('./Friends.jsx')
 const { default: JoinGroup } = await import('./JoinGroup.jsx')
@@ -118,4 +119,15 @@ it('LeaderboardRow offers Nudge only on other people’s rows', async () => {
     <LeaderboardRow row={{ uid: 'b', name: 'Dana', value: 1, rank: 1 }} metricLabel="x" onNudge={() => {}} />
   </ol>)
   expect([...host.querySelectorAll('.lb-nudge')]).toHaveLength(1)
+})
+
+it('Nudge sends to that friend, says so, and turns into Nudged', async () => {
+  mocks.social = { groups: [group([me, { uid: 'b', name: 'Dana' }])], sharing: { g1: sharingOff }, nudges: true }
+  mocks.boards['workouts:week'] = { metric: 'workouts', range: 'week', rows: [{ uid: 'b', name: 'Dana', value: 3, rank: 1 }, { uid: 'a', name: 'Emil', value: 1, rank: 2, self: true, shared: true }] }
+  await mount()
+  await act(async () => host.querySelector('.lb-nudge').click())
+  await act(async () => {})
+  expect(mocks.posts).toContainEqual(['nudge', 'g1', 'b'])
+  expect(host.querySelector('.lb-nudge').textContent).toBe('Nudged')
+  expect(host.querySelector('.lb-nudge').disabled).toBe(true)
 })

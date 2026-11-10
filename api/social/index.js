@@ -14,12 +14,14 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { atomicWrite } from '../durable.js';
 import { createWindow } from '../rate-limit.js';
-import { summaryOf } from './summary.js';
+import { summaryOf, dayIn } from './summary.js';
+import { nudgeLine } from './nudge-lines.js';
 
 export const SHARE_KEYS = ['workouts', 'streak', 'volume', 'prs', 'steps', 'activeMinutes', 'strength', 'feed'];
 export const MAX_MEMBERS = 12;
 export const MAX_GROUPS = 5;
 export const INVITE_DAYS = 14;
+export const NUDGES_PER_DAY = 10;
 const TICK_MS = 60 * 60 * 1000;
 const STALE_MS = 24 * 60 * 60 * 1000;
 
@@ -50,13 +52,13 @@ export function rankRows(rows) {
   return sorted;
 }
 
-export function createSocial({ dataDir, now = Date.now, readState = () => null, healthOf = () => ({}), nameOf = uid => uid }) {
+export function createSocial({ dataDir, now = Date.now, readState = () => null, healthOf = () => ({}), nameOf = uid => uid, sendPush = async () => {}, hasPush = () => false }) {
   const dir = path.join(dataDir, 'social');
   const file = path.join(dir, 'social.json');
   const sumFile = uid => path.join(dir, 'summaries', safeId(uid) + '.json');
   const joins = createWindow({ max: 10, windowMs: 60 * 60 * 1000, now });
 
-  const blank = () => ({ groups: [], sharing: {}, nudges: {} });
+  const blank = () => ({ groups: [], sharing: {}, nudges: {}, nudgeLog: {} });
   function load() {
     try { const d = JSON.parse(fs.readFileSync(file, 'utf8')); return { ...blank(), ...d }; } catch { return blank(); }
   }
@@ -102,6 +104,9 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       nudges: d.nudges[uid] !== false,
     };
   }
+
+  // The sender's own calendar day: a nudge limit resets at their midnight.
+  const senderDay = uid => dayIn(now(), readState(uid)?.reminder?.tz || null);
 
   // ---- summaries ----
   function readSummary(uid) { try { return JSON.parse(fs.readFileSync(sumFile(uid), 'utf8')); } catch { return null; } }
@@ -195,7 +200,31 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
         if (value == null && !self) continue;
         rows.push({ uid: who, name: nameOf(who), value, ...(m.second && sum ? { second: sum[m.second] ?? null } : {}), self, ...(self ? { shared } : {}) });
       }
+      const today = senderDay(uid);
+      for (const row of rows) if (!row.self && d.nudgeLog?.[`${uid}|${row.uid}|${today}`]) row.nudged = true;
       return { metric, range: r, members: g.members.length, rows: rankRows(rows) };
+    },
+    /** A push to a friend in the same group: one a day per friend, NUDGES_PER_DAY a day in all. */
+    async nudge(uid, { groupId, to }) {
+      const d = load();
+      const g = member(d, groupId, uid);
+      if (to === uid || !g.members.some(m => m.uid === to)) throw fail(404, 'no-member', 'not in this group');
+      if (d.nudges[to] === false) throw fail(409, 'nudges-off', 'they have nudges turned off');
+      const today = senderDay(uid);
+      const key = `${uid}|${to}|${today}`;
+      const log = d.nudgeLog || {};
+      if (log[key]) throw fail(429, 'already-nudged', 'you already nudged them today');
+      if (Object.keys(log).filter(k => k.startsWith(uid + '|') && k.endsWith('|' + today)).length >= NUDGES_PER_DAY) throw fail(429, 'limit', 'that is enough nudges for today');
+      // Keep two days of log: enough for every time zone's "today".
+      const cut = now() - 2 * 864e5;
+      d.nudgeLog = Object.fromEntries(Object.entries(log).filter(([, at]) => at > cut));
+      d.nudgeLog[key] = now();
+      save(d);
+      const tone = readSummary(to)?.tone || 'friendly';
+      const body = nudgeLine(tone, nameOf(uid), Math.floor(now() / 864e5) + to.length);
+      if (!hasPush(to)) return { sent: false };
+      try { await sendPush(to, { title: "Email\u2019s Gym", body, tag: 'nudge-' + uid, url: '#/friends' }); } catch { return { sent: false }; }
+      return { sent: true };
     },
     sharingOf(uid, groupId) { return { ...noSharing(), ...(load().sharing[uid]?.[groupId] || {}) }; },
     nudgesOn: uid => load().nudges[uid] !== false,

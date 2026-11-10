@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createSocial, MAX_MEMBERS, MAX_GROUPS } from '../social/index.js';
 import { socialRoutes } from '../social/routes.js';
+import { NUDGE_LINES } from '../social/nudge-lines.js';
 
 const NOW = Date.parse('2026-11-11T12:00:00Z');
 function setup() {
@@ -139,4 +140,42 @@ test('leaderboards show only who shares the metric with this group, you always, 
   // someone sharing a metric with no value yet is left out
   social.setSharing('b', g.id, { steps: true });
   assert.deepEqual(social.leaderboard('a', { groupId: g.id, metric: 'steps' }).rows.map(r => r.uid), ['a']);
+});
+
+test('nudges: same group only, one a day per friend, opted-out friends refused, in their tone', async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'eg-social-'));
+  let now = NOW;
+  const pushes = [];
+  const states = { a: { workouts: [] }, b: { workouts: [], reminder: { tone: 'drill' } }, c: { workouts: [] }, z: { workouts: [] } };
+  const social = createSocial({ dataDir, now: () => now, readState: uid => states[uid], nameOf: uid => ({ a: 'Emil Mladenov', b: 'Dana' })[uid] || uid,
+    sendPush: async (uid, p) => { pushes.push([uid, p]); }, hasPush: uid => uid !== 'c' });
+  const g = social.createGroup('a', 'G');
+  social.join('b', g.invite.code);
+  social.join('c', g.invite.code);
+  social.onStateWrite('b', states.b);
+  assert.deepEqual(await social.nudge('a', { groupId: g.id, to: 'b' }), { sent: true });
+  assert.equal(pushes[0][0], 'b');
+  assert.match(pushes[0][1].body, /Emil/);
+  assert.ok(!/Mladenov/.test(pushes[0][1].body), 'first name only');
+  assert.ok(NUDGE_LINES.drill.some(l => l.replace('{name}', 'Emil') === pushes[0][1].body), 'a line in Dana\u2019s own tone (drill)');
+  await assert.rejects(social.nudge('a', { groupId: g.id, to: 'b' }), e => e.code === 'already-nudged');
+  assert.equal(social.leaderboard('a', { groupId: g.id }).rows.length >= 1, true);
+  assert.deepEqual(await social.nudge('a', { groupId: g.id, to: 'c' }), { sent: false }, 'no notifications: not sent, still counted');
+  await assert.rejects(social.nudge('a', { groupId: g.id, to: 'z' }), e => e.code === 'no-member');
+  await assert.rejects(social.nudge('a', { groupId: g.id, to: 'a' }), e => e.code === 'no-member');
+  social.setNudges('b', false);
+  now += 864e5;
+  await assert.rejects(social.nudge('a', { groupId: g.id, to: 'b' }), e => e.code === 'nudges-off');
+  social.setNudges('b', true);
+  assert.deepEqual(await social.nudge('a', { groupId: g.id, to: 'b' }), { sent: true }, 'a new day');
+});
+
+test('a nudged friend shows as nudged on the board until the sender’s next day', async () => {
+  const { social, states } = setup();
+  states.b = { workouts: [{ d: '2026-11-10' }] };
+  const g = social.createGroup('a', 'G');
+  social.join('b', g.invite.code);
+  social.setSharing('b', g.id, { workouts: true });
+  await social.nudge('a', { groupId: g.id, to: 'b' });
+  assert.equal(social.leaderboard('a', { groupId: g.id }).rows.find(r => r.uid === 'b').nudged, true);
 });

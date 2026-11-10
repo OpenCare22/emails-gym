@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatValue, codeFromText, boardMeaning, BOARDS, SHARE_KEYS, SHARE_COPY } from './social.js'
+import { formatValue, codeFromText, boardMeaning, BOARDS, SHARE_KEYS, SHARE_COPY, nudgeMessage } from './social.js'
 
 describe('Friends helpers', () => {
   it('shows each metric in plain terms, volume in the viewer’s unit', () => {
@@ -20,5 +20,11 @@ describe('Friends helpers', () => {
     for (const b of BOARDS()) for (const [range] of b.ranges) expect(boardMeaning(b.metric, range)).not.toBe('')
     const copy = SHARE_COPY()
     for (const k of SHARE_KEYS) expect(copy[k][1].length).toBeGreaterThan(10)
+  })
+  it('says what happened to a nudge', () => {
+    expect(nudgeMessage({ sent: true })).toBe('Nudge sent')
+    expect(nudgeMessage({ sent: false })).toBe('They’ll see it next time they open the app.')
+    expect(nudgeMessage(null, { code: 'already-nudged' })).toBe('You already nudged them today.')
+    expect(nudgeMessage(null, { code: 'nudges-off' })).toBe('They’ve turned nudges off.')
   })
 })

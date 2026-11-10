@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
 import { FRIENDS_API } from '../lib/fork-flags.js'
-import { BOARDS, boardMeaning, formatValue, getSocial, getBoard } from '../lib/social.js'
+import { BOARDS, boardMeaning, formatValue, getSocial, getBoard, nudge, nudgeMessage } from '../lib/social.js'
+import { useUI } from '../store/useUI.js'
 import { Segmented, Button } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 import { startGroupSheet, joinLinkSheet, groupSettingsSheet, shareInvite } from '../components/SocialSheets.jsx'
@@ -82,6 +83,12 @@ export default function Friends({ api = FRIENDS_API }) {
   const settings = () => group && groupSettingsSheet(group, social.sharing[group.id], social.nudges, () => load())
   const invite = () => group?.invite ? shareInvite(group.name, group.invite) : settings()
   const meaning = boardMeaning(metric, range)
+  const sendNudge = async row => {
+    let result, error
+    try { result = await nudge(groupId, row.uid) } catch (e) { error = e }
+    useUI.getState().toast(nudgeMessage(result, error))
+    if (!error || error.code === 'already-nudged') setBoard(b => ({ ...b, rows: b.rows.map(r => (r.uid === row.uid ? { ...r, nudged: true } : r)) }))
+  }
   const nobodyShares = board && !board.error && board.rows.every(r => r.self) && (group?.members.length || 0) > 1
 
   return (
@@ -127,7 +134,7 @@ export default function Friends({ api = FRIENDS_API }) {
         {board?.error && <div className="friends-state" role="alert">{t('Couldn’t load this leaderboard.')}</div>}
         {board && !board.error && group.members.length > 1 && <>
           <ol className="lb-list">{board.rows.map(row => <LeaderboardRow key={row.uid} row={row} metricLabel={meaning}
-            valueText={formatValue(metric, row.value, { unit })} />)}</ol>
+            valueText={formatValue(metric, row.value, { unit })} onNudge={sendNudge} />)}</ol>
           {nobodyShares && <p className="dim small friends-note">{t('Nobody in this group shares this yet.')}</p>}
           {board.rows.find(r => r.self)?.shared === false && <p className="dim small friends-note">
             <Button variant="plain" onClick={settings}>{t('Share this with the group')}</Button>

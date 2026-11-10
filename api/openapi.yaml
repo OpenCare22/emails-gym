@@ -3122,6 +3122,30 @@ paths:
         '200': { description: OK. }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { description: No such group or invite. }
+  /api/social/nudge:
+    post:
+      tags: [social]
+      operationId: socialNudge
+      summary: Nudge a friend in your group
+      description: >-
+        A push in the friend's own reminder tone, with your first name, never about what they did.
+        One a day per friend (your calendar day), 10 a day in all. sent is false when they have no
+        notifications set up.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                uid: { type: string }
+      responses:
+        '200': { description: '{ sent }' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not in this group. }
+        '409': { description: They have nudges turned off. }
+        '429': { description: Already nudged today, or the daily limit. }
   /api/social/nudges:
     post:
       tags: [social]

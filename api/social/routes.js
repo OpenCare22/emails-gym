@@ -66,6 +66,11 @@ export function socialRoutes({ json, readBody, readSession, social }) {
       json(res, 200, { sharing: social.setSharing(user.id, str(body.groupId), body.sharing) });
     }),
 
+    'POST /api/social/nudge': guard(async (req, res, user) => {
+      const body = await readBody(req);
+      json(res, 200, await social.nudge(user.id, { groupId: str(body.groupId), to: str(body.uid, 64) }));
+    }),
+
     'POST /api/social/nudges': guard(async (req, res, user) => {
       const body = await readBody(req);
       json(res, 200, { nudges: social.setNudges(user.id, body.on === true) });

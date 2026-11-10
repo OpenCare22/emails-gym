@@ -78,3 +78,10 @@ export const leaveGroup = groupId => post('/api/social/leave', { groupId })
 export const removeMember = (groupId, uid) => post('/api/social/remove', { groupId, uid })
 export const setSharing = (groupId, sharing) => post('/api/social/sharing', { groupId, sharing })
 export const setNudges = on => post('/api/social/nudges', { on })
+export const nudge = (groupId, uid) => post('/api/social/nudge', { groupId, uid })
+
+/** What to tell the sender, by the server's answer or refusal code. */
+export function nudgeMessage(result, error) {
+  if (error) return ({ 'already-nudged': t('You already nudged them today.'), limit: t('That’s enough nudges for today.'), 'nudges-off': t('They’ve turned nudges off.') })[error.code] || error.message || t('Couldn’t send the nudge.')
+  return result?.sent ? t('Nudge sent') : t('They’ll see it next time they open the app.')
+}

@@ -140,6 +140,9 @@ const social = createSocial({
   dataDir: DATA,
   readState: uid => readState(uid),
   nameOf: uid => db.users.find(u => u.id === uid)?.name || 'Someone',
+  // Nudges (social/index.js nudge) go out like every other push.
+  sendPush: (uid, payload) => sendPush(uid, payload),
+  hasPush: uid => db.subs.some(x => x.userId === uid),
   healthOf: uid => {
     const g = (() => { try { return health.describe(uid)?.data || {}; } catch { return {}; } })();
     const a = (() => { try { return apple.describe(uid)?.data || {}; } catch { return {}; } })();
