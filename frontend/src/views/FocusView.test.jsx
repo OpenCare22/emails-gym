@@ -197,3 +197,33 @@ describe('Focus view cardio speed', () => {
     expect(stored()).toBe(8.5)
   })
 })
+
+describe('Focus completion feedback', () => {
+  it('offers Undo and stops only its own rest, even after pause and resume', () => {
+    mount({ id: SQUAT, target: { sets: 3, reps: 5 }, sets: Array.from({ length: 3 }, () => ({ w: 95, r: 5, done: false })) })
+    act(() => container.querySelector('button[aria-label="Complete set"]').click())
+    expect(useStore.getState().S.active.entries[0].sets[0].done).toBe(true)
+    expect(container.querySelector('.focus-rest')).toBeTruthy()
+    expect(useUI.getState().toastAction.label).toBe('Undo')
+    act(() => { useUI.getState().pauseRest(); useUI.getState().resumeRest() })
+    act(() => useUI.getState().toastAction.run())
+    expect(useStore.getState().S.active.entries[0].sets[0].done).toBe(false)
+    expect(useUI.getState().timer).toBeNull()
+  })
+  it('leaves a replacement timer running on Undo', () => {
+    mount({ id: SQUAT, target: { sets: 3, reps: 5 }, sets: Array.from({ length: 3 }, () => ({ w: 95, r: 5, done: false })) })
+    act(() => container.querySelector('button[aria-label="Complete set"]').click())
+    const undo = useUI.getState().toastAction.run
+    act(() => useUI.getState().startRest(45, 0, { forSet: 0 }))
+    act(() => undo())
+    expect(useStore.getState().S.active.entries[0].sets[0].done).toBe(false)
+    expect(useUI.getState().timer.total).toBe(45)
+  })
+  it('shows the matching previous performance under the set count', () => {
+    mount({ id: SQUAT, target: { sets: 2, reps: 5 }, sets: [{ w: 95, r: 5, done: true }, { w: 95, r: 5, done: false }] }, {
+      workouts: [{ d: '2026-09-20', entries: [{ id: SQUAT, sets: [{ w: 90, r: 8, done: true }, { w: 95, r: 6, done: true }] }] }],
+    })
+    expect(container.querySelector('.focus-heading-detail').textContent).toContain('Set 2 of 2')
+    expect(container.querySelector('.focus-last').textContent).toBe('Last time: 95 lb × 6')
+  })
+})

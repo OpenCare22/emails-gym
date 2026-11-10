@@ -63,6 +63,7 @@ import { canMoveActiveWorkoutUnit, moveActiveWorkoutUnit, canMoveActiveWorkoutEn
 import { nextOpenSet, workoutKeyAction } from '../lib/workout-keys.js'
 import { MUSCLE_NAME } from '../lib/muscles.js'
 import FocusView from './FocusView.jsx'
+import { undoFocusCompletion } from '../lib/focus-completion.js'
 import { SeasonDeco } from '../components/Seasonal.jsx'
 import { entryDbLoad, bellsIn, ownedWeightsFor, stepOwned } from '../lib/dumbbells.js'
 import { sessionGymView, gymsOf, activeGym, gymLabel, switchGym, reRoundOpenSets } from '../lib/gym-inventory.js'
@@ -2018,101 +2019,121 @@ function ActiveWorkout() {
       }
     }, true)
     if (editing) return
-    if (workoutDone) workoutCompleteSheet()
-    else if (exJustDone && cardioEntry) useUI.getState().toast(t('Cardio logged'))
-    else if (exJustDone && m === 'time') useUI.getState().toast(t('Hold logged'))
+    const timerBeforeCompletion = useUI.getState().timer
+    try {
+      if (workoutDone) workoutCompleteSheet()
+      else if (exJustDone && cardioEntry) useUI.getState().toast(t('Cardio logged'))
+      else if (exJustDone && m === 'time') useUI.getState().toast(t('Hold logged'))
 
-    // One side of a per-side reps set ticked, the other still to go: the set's own rest when it
-    // has one ("Rest after this set", #853), else the exercise's break between sides
-    // (sideRestFor); none otherwise, as before.
-    if (side && !checked) {
-      const sets = useStore.getState().S.active?.entries[idx]?.sets
-      const row = sets?.[i]
-      const other = side === 'L' ? 'R' : 'L'
-      if (row?.sides?.[side]?.done && !row.sides[other]?.done) {
-        const ownSec = ownSetRest(sets[setSpanAt(sets, i)[0]])
-        const pause = sideRestFor(useStore.getState().S.active.entries[idx].target, { timed: false, ownSec })
-        if (pause > 0) startRest(pause, idx, { kind: 'switch', forSet: i })
+      // One side of a per-side reps set ticked, the other still to go: the set's own rest when it
+      // has one ("Rest after this set", #853), else the exercise's break between sides
+      // (sideRestFor); none otherwise, as before.
+      if (side && !checked) {
+        const sets = useStore.getState().S.active?.entries[idx]?.sets
+        const row = sets?.[i]
+        const other = side === 'L' ? 'R' : 'L'
+        if (row?.sides?.[side]?.done && !row.sides[other]?.done) {
+          const ownSec = ownSetRest(sets[setSpanAt(sets, i)[0]])
+          const pause = sideRestFor(useStore.getState().S.active.entries[idx].target, { timed: false, ownSec })
+          if (pause > 0) startRest(pause, idx, { kind: 'switch', forSet: i })
+        }
       }
-    }
-    // Only progress beyond this exercise's high-water mark may navigate or change rest. This
-    // prevents an uncheck/re-check of finished work from replaying the flow side effects.
-    const fresh = useStore.getState().S.active
-    if (fresh && checked && fresh.entries[idx]) {
-      const progress = setProgressHighWater(fresh.entries[idx], progressHighWater.current[idx] || 0)
-      progressHighWater.current[idx] = progress.highWater
+      // Only progress beyond this exercise's high-water mark may navigate or change rest. This
+      // prevents an uncheck/re-check of finished work from replaying the flow side effects.
+      const fresh = useStore.getState().S.active
+      if (fresh && checked && fresh.entries[idx]) {
+        const progress = setProgressHighWater(fresh.entries[idx], progressHighWater.current[idx] || 0)
+        progressHighWater.current[idx] = progress.highWater
 
-      const freshUnits = supersetUnits(fresh.entries)
-      const freshUnit = freshUnits.find(u => u.includes(idx))
-      const freshUnitDone = freshUnit?.every(ui => fresh.entries[ui].sets.every(x => x.done))
-      const nextUnit = freshUnitDone ? nextUnfinishedUnit(fresh.entries, freshUnits, idx) : null
-      const freshWorkoutDone = freshUnitDone && !nextUnit
-      // The rest this set has earned: the exercise's own restSec when it set one, the global
-      // timer when it did not, and the longest of the group's across a superset (issue #10).
-      // Resolved once here so every branch below times the same break.
-      // A pyramid set may carry its own rest, standing in for the exercise's (pyramidRestFor).
-      const setRest = { idx, sec: pyramidRestFor(fresh.entries[idx].target, fresh.entries[idx].sets, i) }
-      const restSec = restSecFor(fresh.entries, freshUnit || [idx], S.restSec, setRest)
-      // A warm-up ramp set may rest shorter than a work set (the exercise's warmupRestSec, else the
-      // profile's); the last ramp set, into the first work set, still gets the working rest.
-      // A set given its own rest in its menu (#609) keeps it, whatever the exercise would rest.
-      const ownRest = ownSetRest(fresh.entries[idx].sets[setSpanAt(fresh.entries[idx].sets, i)[0]])
-      const restAfter = ownRest ?? warmupRestSecFor(fresh.entries[idx], i, restSec, useStore.getState().S.warmupRestSec)
+        const freshUnits = supersetUnits(fresh.entries)
+        const freshUnit = freshUnits.find(u => u.includes(idx))
+        const freshUnitDone = freshUnit?.every(ui => fresh.entries[ui].sets.every(x => x.done))
+        const nextUnit = freshUnitDone ? nextUnfinishedUnit(fresh.entries, freshUnits, idx) : null
+        const freshWorkoutDone = freshUnitDone && !nextUnit
+        // The rest this set has earned: the exercise's own restSec when it set one, the global
+        // timer when it did not, and the longest of the group's across a superset (issue #10).
+        // Resolved once here so every branch below times the same break.
+        // A pyramid set may carry its own rest, standing in for the exercise's (pyramidRestFor).
+        const setRest = { idx, sec: pyramidRestFor(fresh.entries[idx].target, fresh.entries[idx].sets, i) }
+        const restSec = restSecFor(fresh.entries, freshUnit || [idx], S.restSec, setRest)
+        // A warm-up ramp set may rest shorter than a work set (the exercise's warmupRestSec, else the
+        // profile's); the last ramp set, into the first work set, still gets the working rest.
+        // A set given its own rest in its menu (#609) keeps it, whatever the exercise would rest.
+        const ownRest = ownSetRest(fresh.entries[idx].sets[setSpanAt(fresh.entries[idx].sets, i)[0]])
+        const restAfter = ownRest ?? warmupRestSecFor(fresh.entries[idx], i, restSec, useStore.getState().S.warmupRestSec)
 
-      // A re-check of finished work must not navigate or reopen a sheet, but it may still owe
-      // you a rest — see restOnRecheck, and the other half of issue #3. A rest that already ran
-      // out and only shows Ready is not running: it has nothing left to time. A paused one is
-      // still the rest you are in, held on purpose, and a re-check leaves it as it is.
-      if (!progress.isNew) {
-        const rest = useUI.getState().timer
-        if (restOnRecheck({ timerRunning: !!(rest && !rest.ready), unitDone: freshUnitDone, lastUnit: freshWorkoutDone })) startRest(restAfter, idx, { forSet: i })
-        return
-      }
+        // A re-check of finished work must not navigate or reopen a sheet, but it may still owe
+        // you a rest — see restOnRecheck, and the other half of issue #3. A rest that already ran
+        // out and only shows Ready is not running: it has nothing left to time. A paused one is
+        // still the rest you are in, held on purpose, and a re-check leaves it as it is.
+        if (!progress.isNew) {
+          const rest = useUI.getState().timer
+          if (restOnRecheck({ timerRunning: !!(rest && !rest.ready), unitDone: freshUnitDone, lastUnit: freshWorkoutDone })) startRest(restAfter, idx, { forSet: i })
+          return
+        }
 
-      // With finished exercises folding away in the list, the one you just finished does too: the
-      // marker moves on to what is left, so the open unit is the next thing to do (Discord: "view
-      // only what I have yet to do"). The scroll anchor holds what is on screen while it folds,
-      // and revealCur brings the next exercise up if it was left low on the screen. Only on new
-      // progress, never on a re-tick, and never in the other layouts, where the marker stays put.
-      if (collapseOn && freshUnitDone && nextUnit && freshUnit?.includes(fresh.cur)) {
-        revealCur.current = true
-        update(s => { if (s.active) s.active.cur = nextUnit[0] })
-      }
+        // With finished exercises folding away in the list, the one you just finished does too: the
+        // marker moves on to what is left, so the open unit is the next thing to do (Discord: "view
+        // only what I have yet to do"). The scroll anchor holds what is on screen while it folds,
+        // and revealCur brings the next exercise up if it was left low on the screen. Only on new
+        // progress, never on a re-tick, and never in the other layouts, where the marker stays put.
+        if (collapseOn && freshUnitDone && nextUnit && freshUnit?.includes(fresh.cur)) {
+          revealCur.current = true
+          update(s => { if (s.active) s.active.cur = nextUnit[0] })
+        }
 
-      // Between the two sides of one timed per-side set (a side plank's left, then its right):
-      // a short "Switch sides" pause instead of the set's whole rest, which comes once both
-      // sides are held (owner's call). A rest switched Off stays off.
-      const rows = fresh.entries[idx].sets
-      const sideOf = r => r && !isWarmupRow(r) ? r.side : null
-      const partner = sideOf(rows[i]) === 'L' && sideOf(rows[i + 1]) === 'R' ? rows[i + 1]
-        : sideOf(rows[i]) === 'R' && sideOf(rows[i - 1]) === 'L' ? rows[i - 1] : null
-      if (m === 'time' && partner && !partner.done) {
-        const pause = sideRestFor(fresh.entries[idx].target, { timed: true, restAfter, switchSec: SWITCH_SIDES_SEC })
-        if (pause > 0) { startRest(pause, idx, { kind: 'switch', forSet: i }); return }
-        // "No timer" between sides: straight on to the other side, the set's rest still to come.
-        if (fresh.entries[idx].target?.sideRestOff === true) { stopRest(); return }
-      }
+        // Between the two sides of one timed per-side set (a side plank's left, then its right):
+        // a short "Switch sides" pause instead of the set's whole rest, which comes once both
+        // sides are held (owner's call). A rest switched Off stays off.
+        const rows = fresh.entries[idx].sets
+        const sideOf = r => r && !isWarmupRow(r) ? r.side : null
+        const partner = sideOf(rows[i]) === 'L' && sideOf(rows[i + 1]) === 'R' ? rows[i + 1]
+          : sideOf(rows[i]) === 'R' && sideOf(rows[i - 1]) === 'L' ? rows[i - 1] : null
+        if (m === 'time' && partner && !partner.done) {
+          const pause = sideRestFor(fresh.entries[idx].target, { timed: true, restAfter, switchSec: SWITCH_SIDES_SEC })
+          if (pause > 0) { startRest(pause, idx, { kind: 'switch', forSet: i }); return }
+          // "No timer" between sides: straight on to the other side, the set's rest still to come.
+          if (fresh.entries[idx].target?.sideRestOff === true) { stopRest(); return }
+        }
 
-      // Singleton units are ordinary exercises: they rest between sets and after the closing
-      // one (also when the next exercise starts with warm-ups, #853), and never enter superset
-      // navigation.
-      // stopRest() first so a rest that belongs after this set replaces the one that was running.
-      if (freshUnitDone) stopRest()
-      if (!freshUnit || freshUnit.length <= 1) {
-        if (restAfterSet({ unitDone: freshUnitDone, lastUnit: freshWorkoutDone })) startRest(restAfter, idx, { forSet: i })
+        // Singleton units are ordinary exercises: they rest between sets and after the closing
+        // one (also when the next exercise starts with warm-ups, #853), and never enter superset
+        // navigation.
+        // stopRest() first so a rest that belongs after this set replaces the one that was running.
+        if (freshUnitDone) stopRest()
+        if (!freshUnit || freshUnit.length <= 1) {
+          if (restAfterSet({ unitDone: freshUnitDone, lastUnit: freshWorkoutDone })) startRest(restAfter, idx, { forSet: i })
+          onFocusProgress?.({ unitDone: freshUnitDone })
+          return
+        }
+
+        const step = supersetFlowStep(fresh.entries, freshUnit, idx)
+        if (!step) { onFocusProgress?.({ unitDone: freshUnitDone }); return }
+        if (step.unitDone) {
+          if (nextUnit?.length) startRest(restAfter, idx, { forSet: i })
+        } else {
+          if (step.nextIdx != null) update(s => { if (s.active) s.active.cur = step.nextIdx })
+          if (step.roundDone) startRest(restAfter, idx, { forSet: i })
+        }
         onFocusProgress?.({ unitDone: freshUnitDone })
-        return
       }
-
-      const step = supersetFlowStep(fresh.entries, freshUnit, idx)
-      if (!step) { onFocusProgress?.({ unitDone: freshUnitDone }); return }
-      if (step.unitDone) {
-        if (nextUnit?.length) startRest(restAfter, idx, { forSet: i })
-      } else {
-        if (step.nextIdx != null) update(s => { if (s.active) s.active.cur = step.nextIdx })
-        if (step.roundDone) startRest(restAfter, idx, { forSet: i })
+    } finally {
+      if (focusMode && checked) {
+        const active = useStore.getState().S.active
+        const row = active?.entries[idx]?.sets[i]
+        const receipt = { session: active?.id, exercise: active?.entries[idx]?.id, idx, i,
+          at: row?.at, count: active?.entries[idx]?.sets.length, epoch: focusPointerEpoch.current }
+        const ui = useUI.getState()
+        // Metadata survives ticks, pause and resume. A newly started rest replaces it.
+        const rest = ui.timer
+        if (rest && rest !== timerBeforeCompletion && rest.forIdx === idx && rest.forSet === i)
+          setUI({ timer: { ...rest, focusCompletion: receipt } })
+        ui.toast(t('Set completed'), { action: t('Undo'), onAction: () => {
+          let undone = false
+          update(s => { undone = undoFocusCompletion(s.active, receipt, focusPointerEpoch.current) }, true)
+          if (undone && useUI.getState().timer?.focusCompletion === receipt) stopRest()
+        } })
       }
-      onFocusProgress?.({ unitDone: freshUnitDone })
     }
   }
   // A tap that ticks a set whose weight or reps look mistyped (300 for 30, 8 for 80; see
