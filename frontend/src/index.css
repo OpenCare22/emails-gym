@@ -3402,3 +3402,9 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 /* Never interpolate the ring, including when reduced motion is requested. */
 .focus-rest circle{transition:none;animation:none}
 body:has(.focus-rest) #timer.rest:not(.auto){display:none}
+
+.install-required { max-width: 420px; margin: 0 auto; padding: max(32px, var(--sat)) 24px max(32px, var(--sab)); }
+.install-required h1 { margin: 24px 0 16px; font-size: 28px; line-height: 1.2; }
+.install-required p { line-height: 1.5; }
+.install-required ol { padding-left: 24px; margin: 28px 0; }
+.install-required li { padding-left: 4px; margin: 16px 0; line-height: 1.5; }
