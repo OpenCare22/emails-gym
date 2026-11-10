@@ -17,6 +17,8 @@ import { createWindow } from '../rate-limit.js';
 import { summaryOf, dayIn } from './summary.js';
 import { nudgeLine } from './nudge-lines.js';
 import { detectEvents } from '../integrations/events.js';
+import { WEEK_METRICS, metricOf, newMilestones, weekWinners } from './trophies.js';
+import { weekKey } from './streak.js';
 
 export const SHARE_KEYS = ['workouts', 'streak', 'volume', 'prs', 'steps', 'activeMinutes', 'strength', 'feed'];
 export const MAX_MEMBERS = 12;
@@ -126,6 +128,42 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       sets: work, prs: Array.isArray(w.prs) ? w.prs.length : 0, minutes, kudos: [] };
   };
 
+  // ---- trophies: DATA_DIR/social/trophies.json { held: { uid: [Trophy] }, weeks: { gid: { week: { uid: values } } } } ----
+  const trophyFile = path.join(dir, 'trophies.json');
+  const loadTrophies = () => { try { return { held: {}, weeks: {}, ...JSON.parse(fs.readFileSync(trophyFile, 'utf8')) }; } catch { return { held: {}, weeks: {} }; } };
+  const saveTrophies = tr => { fs.mkdirSync(dir, { recursive: true, mode: 0o700 }); atomicWrite(trophyFile, JSON.stringify(tr), 0o600); };
+  // Group weeks run Monday to Sunday in UTC, so everyone in a group is judged on the same week.
+  const groupWeek = () => weekKey(new Date(now()).toISOString().slice(0, 10), 1);
+  function noteTrophies(uid, s) {
+    const d = load(), tr = loadTrophies(), at = new Date(now()).toISOString(), week = groupWeek();
+    for (const g of groupsOf(d, uid)) {
+      const snap = ((tr.weeks[g.id] ||= {})[week] ||= {});
+      snap[uid] = Object.fromEntries(Object.values(WEEK_METRICS).map(f => [f, s[f] ?? null]));
+    }
+    const held = tr.held[uid] || [];
+    tr.held[uid] = [...held, ...newMilestones(s, held, at)];
+    saveTrophies(tr);
+  }
+  /** Weeks that have ended: their winners get trophies, then the snapshot goes. */
+  function awardWeeks() {
+    const d = load(), tr = loadTrophies(), current = groupWeek(), at = new Date(now()).toISOString();
+    let changed = false;
+    for (const [gid, weeks] of Object.entries(tr.weeks)) {
+      if (!d.groups.some(g => g.id === gid)) { delete tr.weeks[gid]; changed = true; continue; }
+      for (const week of Object.keys(weeks)) {
+        if (week >= current) continue;
+        const shares = (uid, metric) => !!d.sharing[uid]?.[gid]?.[metric];
+        for (const { uid, trophy } of weekWinners(weeks[week], shares, { groupId: gid, week, at })) {
+          const held = tr.held[uid] ||= [];
+          if (!held.some(t => t.id === trophy.id)) held.push(trophy);
+        }
+        delete weeks[week];
+        changed = true;
+      }
+    }
+    if (changed) saveTrophies(tr);
+  }
+
   // The sender's own calendar day: a nudge limit resets at their midnight.
   const senderDay = uid => dayIn(now(), readState(uid)?.reminder?.tz || null);
 
@@ -136,6 +174,7 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
     const s = { ...summaryOf(state, { now: now(), health: healthOf(uid) || {} }), updatedAt: new Date(now()).toISOString() };
     fs.mkdirSync(path.dirname(sumFile(uid)), { recursive: true, mode: 0o700 });
     atomicWrite(sumFile(uid), JSON.stringify(s), 0o600);
+    try { noteTrophies(uid, s); } catch { /* the next refresh catches up */ }
     return s;
   }
   const inAnyGroup = uid => groupsOf(load(), uid).length > 0;
@@ -220,7 +259,7 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
         const sum = readSummary(who) || (self ? refreshSummary(who) : null);
         const value = metric === 'strength' ? sum?.strength?.[field] ?? null : sum?.[field] ?? null;
         if (value == null && !self) continue;
-        rows.push({ uid: who, name: nameOf(who), value, ...(m.second && sum ? { second: sum[m.second] ?? null } : {}), self, ...(self ? { shared } : {}) });
+        rows.push({ uid: who, name: nameOf(who), value, ...(m.second && sum ? { second: sum[m.second] ?? null } : {}), self, ...(self ? { shared } : {}), ...(sum?.card ? { card: sum.card } : {}) });
       }
       const today = senderDay(uid);
       for (const row of rows) if (!row.self && d.nudgeLog?.[`${uid}|${row.uid}|${today}`]) row.nudged = true;
@@ -248,6 +287,16 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       try { await sendPush(to, { title: "Email\u2019s Gym", body, tag: 'nudge-' + uid, url: '#/friends' }); } catch { return { sent: false }; }
       return { sent: true };
     },
+    /** Someone's trophies as this group may see them: its own week wins, and milestones of metrics they share here. */
+    trophies(viewer, { groupId, uid = viewer }) {
+      const d = load();
+      const g = member(d, groupId, viewer);
+      if (!g.members.some(m => m.uid === uid)) throw fail(404, 'no-member', 'not in this group');
+      const shares = d.sharing[uid]?.[groupId] || {};
+      const list = (loadTrophies().held[uid] || []).filter(t => (t.kind.startsWith('week-') ? t.groupId === groupId : uid === viewer || !!shares[metricOf(t.kind)]));
+      return { uid, name: nameOf(uid), self: uid === viewer, card: readSummary(uid)?.card || null, trophies: list.sort((a, b) => (a.at < b.at ? 1 : -1)) };
+    },
+    awardWeeks,
     sharingOf(uid, groupId) { return { ...noSharing(), ...(load().sharing[uid]?.[groupId] || {}) }; },
     nudgesOn: uid => load().nudges[uid] !== false,
     group(groupId) { return load().groups.find(g => g.id === groupId) || null; },
@@ -305,12 +354,17 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       }
       delete d.sharing[uid]; delete d.nudges[uid];
       save(d);
+      const tr = loadTrophies();
+      delete tr.held[uid];
+      for (const weeks of Object.values(tr.weeks)) for (const snap of Object.values(weeks)) delete snap[uid];
+      saveTrophies(tr);
       try { fs.unlinkSync(sumFile(uid)); } catch { /* none */ }
     },
     /** Hourly: a summary from another week, or a day old, is worked out again (a new week resets "this week"). */
     start() {
       if (timer) return;
       timer = setInterval(() => {
+        try { awardWeeks(); } catch { /* next hour */ }
         const d = load();
         const uids = new Set(d.groups.flatMap(g => g.members.map(m => m.uid)));
         for (const uid of uids) {

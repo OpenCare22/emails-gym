@@ -9,6 +9,8 @@ import { Segmented, Button } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 import { startGroupSheet, joinLinkSheet, groupSettingsSheet, shareInvite } from '../components/SocialSheets.jsx'
 import SocialFeed from '../components/SocialFeed.jsx'
+import { FriendCard, friendCardSheet } from '../components/TrophyCabinet.jsx'
+import { cardClass } from '../lib/trophies.js'
 
 // Friends (design/EMAILS_GYM_CLAUDE_CODE_HANDOFF.md §4C, PLAN.md Phase 7): a group's leaderboard
 // for one metric, from what each friend chose to share (api/social/). Honest empty states, never
@@ -16,12 +18,12 @@ import SocialFeed from '../components/SocialFeed.jsx'
 
 const initials = name => String(name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?'
 
-export function LeaderboardRow({ row, metricLabel, valueText = String(row.value), onNudge }) {
+export function LeaderboardRow({ row, metricLabel, valueText = String(row.value), onNudge, onOpen }) {
   return (
-    <li className={'lb-row' + (row.self ? ' lb-self' : '')}>
+    <li className={'lb-row' + (row.self ? ' lb-self' : '') + (row.card && row.card !== 'plain' ? ' ' + cardClass(row.card) : '')}>
       <span className="lb-rank">{row.rank === 1 ? <Icon name="crown" aria-label={t('First')} /> : row.rank ?? '–'}</span>
       <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
-      <span className="lb-who">
+      <span className="lb-who" {...(onOpen ? { role: 'button', tabIndex: 0, onClick: () => onOpen(row), onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(row) } } } : {})}>
         <span className="lb-name">{row.self ? t('You') : row.name}</span>
         {row.self && <span className="lb-sub">{row.shared === false ? t('Only you see this') : row.name}</span>}
         {row.second != null && <span className="lb-sub">{t('Best {0}', row.second)}</span>}
@@ -123,8 +125,8 @@ export default function Friends({ api = FRIENDS_API }) {
         </div>}
         {social.groups.length === 1 && <p className="dim small friends-group">{group.name}</p>}
 
-        {group.members.length > 1 && <Segmented className="friends-tabs" value={tab} onChange={setTab} options={[{ value: 'board', label: t('Leaderboard') }, { value: 'feed', label: t('Feed') }]} />}
-        {tab === 'feed' && group.members.length > 1 ? <SocialFeed groupId={group.id} /> : <>
+        {group.members.length > 1 && <Segmented className="friends-tabs" value={tab} onChange={setTab} options={[{ value: 'board', label: t('Leaderboard') }, { value: 'feed', label: t('Feed') }, { value: 'trophies', label: t('Trophies') }]} />}
+        {tab === 'trophies' && group.members.length > 1 ? <FriendCard groupId={group.id} /> : tab === 'feed' && group.members.length > 1 ? <SocialFeed groupId={group.id} /> : <>
         <div className="chips friends-metrics" role="group" aria-label={t('Leaderboard')}>
           {boards.map(b => <button key={b.metric} className={'chip' + (b.metric === metric ? ' on' : '')} aria-pressed={b.metric === metric} onClick={() => pickMetric(b.metric)}>{b.label}</button>)}
         </div>
@@ -138,7 +140,7 @@ export default function Friends({ api = FRIENDS_API }) {
         {board?.error && <div className="friends-state" role="alert">{t('Couldn’t load this leaderboard.')}</div>}
         {board && !board.error && group.members.length > 1 && <>
           <ol className="lb-list">{board.rows.map(row => <LeaderboardRow key={row.uid} row={row} metricLabel={meaning}
-            valueText={formatValue(metric, row.value, { unit })} onNudge={sendNudge} />)}</ol>
+            valueText={formatValue(metric, row.value, { unit })} onNudge={sendNudge} onOpen={r => friendCardSheet(group.id, r.uid)} />)}</ol>
           {nobodyShares && <p className="dim small friends-note">{t('Nobody in this group shares this yet.')}</p>}
           {board.rows.find(r => r.self)?.shared === false && <p className="dim small friends-note">
             <Button variant="plain" onClick={settings}>{t('Share this with the group')}</Button>

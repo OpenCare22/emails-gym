@@ -116,6 +116,7 @@ export const DEF = {
   // schedule into `week` or `rotation` above, so everything that reads those follows it.
   programmes: {}, programme: null,
   ghDismissed: [], // Fitbit activity ids, synced as one setting, newest 200 retained.
+  socialCard: 'plain', // The Friends card background (lib/trophies.js), shown to friends.
   exWeights: {}, workouts: [], active: null, customEx: [], gifSize: 'full',
   // Stats activity heatmap metric. Profiles without this key continue to open on time.
   heatmapMetric: 'time',

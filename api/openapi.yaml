@@ -3180,6 +3180,22 @@ paths:
         '400': { description: Your own item. }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { description: Not in this group, or no such item. }
+  /api/social/trophies:
+    get:
+      tags: [social]
+      operationId: socialTrophies
+      summary: Someone's trophies, as this group may see them
+      description: >-
+        Weekly wins in this group (rank 1 in workouts, volume, steps or active minutes for a Monday to
+        Sunday UTC week, ties all win, only for metrics shared with the group), and milestones
+        (workouts, streak, records, strength) of metrics they share here; all of your own. Plus their card background.
+      parameters:
+        - { name: groupId, in: query, required: true, schema: { type: string } }
+        - { name: uid, in: query, schema: { type: string } }
+      responses:
+        '200': { description: '{ uid, name, self, card, trophies: [{ id, kind, at, groupId?, week?, value? }] }' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not in this group. }
   /api/social/nudges:
     post:
       tags: [social]

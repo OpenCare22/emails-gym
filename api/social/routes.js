@@ -81,6 +81,11 @@ export function socialRoutes({ json, readBody, readSession, social }) {
       json(res, 200, await social.kudos(user.id, { groupId: str(body.groupId), itemId: str(body.itemId, 160) }));
     }),
 
+    'GET /api/social/trophies': guard(async (req, res, user) => {
+      const q = new URL(req.url, 'http://x').searchParams;
+      json(res, 200, social.trophies(user.id, { groupId: str(q.get('groupId')), uid: str(q.get('uid'), 64) || user.id }));
+    }),
+
     'POST /api/social/nudges': guard(async (req, res, user) => {
       const body = await readBody(req);
       json(res, 200, { nudges: social.setNudges(user.id, body.on === true) });

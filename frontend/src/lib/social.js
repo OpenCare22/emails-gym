@@ -79,6 +79,7 @@ export const removeMember = (groupId, uid) => post('/api/social/remove', { group
 export const setSharing = (groupId, sharing) => post('/api/social/sharing', { groupId, sharing })
 export const setNudges = on => post('/api/social/nudges', { on })
 export const nudge = (groupId, uid) => post('/api/social/nudge', { groupId, uid })
+export const getTrophies = (groupId, uid) => api('/api/social/trophies?' + new URLSearchParams(uid ? { groupId, uid } : { groupId }))
 export const getFeed = groupId => api('/api/social/feed?' + new URLSearchParams({ groupId }))
 export const giveKudos = (groupId, itemId) => post('/api/social/kudos', { groupId, itemId })
 

@@ -33,13 +33,15 @@ export function summaryOf(S, { now = Date.now(), health = {} } = {}) {
   const month = today.slice(0, 7);
   const toKg = S?.unit === 'lb' ? v => v * LB_KG : v => v;
   const workouts = (Array.isArray(S?.workouts) ? S.workouts : []).filter(w => w && isISO(w.d) && w.d <= today);
-  let workoutsWeek = 0, workoutsMonth = 0, volumeWeekKg = 0, volumeMonthKg = 0, prsMonth = 0;
+  let workoutsWeek = 0, workoutsMonth = 0, volumeWeekKg = 0, volumeMonthKg = 0, prsMonth = 0, prsAll = 0;
   const since90 = daysBefore(today, 90);
   const best = { squat: 0, bench: 0, deadlift: 0 };
   for (const w of workouts) {
     const inWeek = weekKey(w.d, ws) === week, inMonth = w.d.slice(0, 7) === month;
     if (inWeek) workoutsWeek++;
-    if (inMonth) { workoutsMonth++; prsMonth += Array.isArray(w.prs) ? w.prs.length : 0; }
+    const prs = Array.isArray(w.prs) ? w.prs.length : 0;
+    prsAll += prs;
+    if (inMonth) { workoutsMonth++; prsMonth += prs; }
     for (const e of Array.isArray(w.entries) ? w.entries : []) {
       for (const s of Array.isArray(e?.sets) ? e.sets : []) {
         if (!s || isWarm(s) || s.done === false) continue;
@@ -67,9 +69,11 @@ export function summaryOf(S, { now = Date.now(), health = {} } = {}) {
     week, today,
     workoutsWeek, workoutsMonth, workoutsAll: workouts.length,
     streakWeeks: streak.current, bestStreakWeeks: streak.best,
-    volumeWeekKg: Math.round(volumeWeekKg), volumeMonthKg: Math.round(volumeMonthKg), prsMonth,
+    volumeWeekKg: Math.round(volumeWeekKg), volumeMonthKg: Math.round(volumeMonthKg), prsMonth, prsAll,
     stepsWeek: sumWeek(health.steps), activeMinutesWeek: sumWeek(health.activeMinutes),
     strength: { squat: ratio(best.squat), bench: ratio(best.bench), deadlift: ratio(best.deadlift) },
     tone: TONES.includes(S?.reminder?.tone) ? S.reminder.tone : 'friendly',
+    // The card background they picked (frontend/src/lib/trophies.js); the app checks they unlocked it.
+    card: typeof S?.socialCard === 'string' && /^[a-z-]{1,20}$/.test(S.socialCard) ? S.socialCard : null,
   };
 }
