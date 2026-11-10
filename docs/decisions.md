@@ -26,3 +26,8 @@
   Friends can't reach it; the real address comes in Phase 3, and changing it means everyone
   registers a new passkey. To stop: `tailscale serve --https=443 off`, and put `.env` back to
   localhost for local-only use.
+- **2026-11-10: The address is https://emailsgym.com (the apex).** Bought on Cloudflare Registrar
+  (auto-renew on, expires 2027-11-10), DNS on Cloudflare. `RP_ID=emailsgym.com`,
+  `ORIGIN=https://emailsgym.com`. Passkeys are bound to it: never change it. Hosting: Hetzner
+  CX22 VPS reached through a Cloudflare Tunnel, until the Mac mini; moving machines keeps the
+  address.
