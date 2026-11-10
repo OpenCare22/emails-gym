@@ -3372,13 +3372,13 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .focus-view .focus-timed strong{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
 .focus-view .focus-card>.btn.primary{min-height:56px;margin-top:12px}
 .focus-rest{display:grid;grid-template-columns:minmax(80px,120px) minmax(0,1fr);align-items:center;justify-content:center;gap:16px;margin-top:20px;padding:20px;background:var(--surface);border-radius:var(--r-card)}
-.focus-rest svg{width:100%;fill:none;stroke-width:8}
+.focus-rest>svg{width:100%;fill:none;stroke-width:8}
 .focus-rest-track{stroke:var(--surface-2)}
 .focus-rest-progress{stroke:var(--acc);stroke-linecap:round}
 .focus-rest-clock{display:grid;gap:4px;text-align:center;color:var(--label-2)}
 .focus-rest-clock strong{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--label)}
 .focus-rest-actions{grid-column:1/-1;display:flex;gap:12px}
-.focus-rest-actions .btn{min-width:44px;min-height:44px}
+.focus-rest-actions .btn{min-width:44px;min-height:44px;background:var(--surface-3);color:var(--label)}
 /* Never interpolate the ring, including when reduced motion is requested. */
 .focus-rest circle{transition:none;animation:none}
 body:has(.focus-rest) #timer.rest:not(.auto){display:none}
