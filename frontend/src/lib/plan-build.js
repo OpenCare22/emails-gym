@@ -93,7 +93,8 @@ function itemFor(pick, slot, person) {
   if (e.hold) return { ex: pick.id, mode: 'time', sets, sec: [...R.HOLD_SECONDS[person.level]], rest: restFor(slot, e, person) }
   const [lo, hi] = repsFor(slot, e, person)
   const side = isSided(e, pick.id)
-  return { ex: pick.id, mode: 'reps', sets, reps: side ? [lo * 2, hi * 2] : [lo, hi], rir: 2, rest: restFor(slot, e, person), ...(side ? { side: true } : {}) }
+  // Reps are per side for a one-side exercise, as in the library; lib/library-start.js doubles them.
+  return { ex: pick.id, mode: 'reps', sets, reps: [lo, hi], rir: 2, rest: restFor(slot, e, person), ...(side ? { side: true } : {}) }
 }
 
 const fits = (items, minutes) => minutes >= 90 || estimateMinutes({ items }) <= minutes + R.SESSION_GAP_MIN

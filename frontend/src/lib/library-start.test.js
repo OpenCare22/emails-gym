@@ -19,7 +19,7 @@ describe('library copies', () => {
           const slot = routine.ex[j]
           expect(slot.id).toBe(i.ex)
           if (i.mode === 'time') expect(slot.sec).toBe(i.sec[0])
-          if (i.mode === 'reps') expect([slot.repsMin, slot.reps]).toEqual(i.reps)
+          if (i.mode === 'reps') expect([slot.repsMin, slot.reps]).toEqual(i.side ? i.reps.map(r => r * 2) : i.reps)
           if (i.side) expect(slot.side).toBe(true)
         })
         p.plan.forEach((w, wn) => {

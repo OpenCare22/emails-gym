@@ -15,7 +15,9 @@ export function buildLibraryProgram(program, makeId = uid, now = Date.now()) {
     ex: template.items.map(i => ({ id: i.ex, mode: i.mode,
       ...(i.mode === 'cardio' ? { sets: 1, min: i.min } : {
         sets: i.sets, rest: i.rest, weight: 0,
-        ...(i.mode === 'time' ? { sec: i.sec[0] } : { reps: i.reps[1], repsMin: i.reps[0] }),
+        // A one-side exercise's reps are per side in the library (8 to 12 a leg); a routine logs the
+        // total of both sides (lib/history.js isPerSide), so they double here.
+        ...(i.mode === 'time' ? { sec: i.sec[0] } : { reps: i.reps[1] * (i.side ? 2 : 1), repsMin: i.reps[0] * (i.side ? 2 : 1) }),
         ...(i.side ? { side: true } : {}),
       }),
     })),
