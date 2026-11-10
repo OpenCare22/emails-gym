@@ -5,6 +5,7 @@
 // keeps yours). Pure helpers first, each with a test; the small store below them does the I/O.
 import { create } from 'zustand'
 import { api } from './api.js'
+import { mergeHeartRate } from './health-read.js'
 import { addWeighIn } from './weigh-ins.js'
 
 export const SRC = 'google'
@@ -51,6 +52,45 @@ export function applyWeighIns(S, weights, kgToUnit = kg => (S.unit === 'lb' ? kg
   return added
 }
 
+/** Fill recent finished sessions, mutating S; getSamples receives millisecond bounds. */
+export async function fillWorkoutHeartRate(S, getSamples, { now = Date.now(), tried = [] } = {}) {
+  const seen = new Set(tried), ids = []
+  const workouts = (S?.workouts || []).filter(w => w?.id && !seen.has(w.id) && !w.hr &&
+    Number(w.start) > 0 && Number(w.start) >= now - 14 * 864e5 && Number(w.end) > Number(w.start) && Number(w.end) <= now)
+    .sort((a, b) => Number(b.start) - Number(a.start)).slice(0, 5)
+  for (const w of workouts) {
+    ids.push(w.id)
+    const samples = await getSamples(Number(w.start) - 120000, Number(w.end) + 120000)
+    mergeHeartRate(S, w.id, samples, 'gh', now)
+  }
+  return ids
+}
+
+async function fillStoredHeartRate() {
+  const { useStore } = await import('../store/useStore.js')
+  const { S, user } = useStore.getState()
+  if (!user?.id || !S?.workouts?.length) return
+  const key = `${CACHE}_hr_${user.id}`
+  let tried = []
+  try { const saved = JSON.parse(localStorage.getItem(key)); if (Array.isArray(saved)) tried = saved } catch { /* private mode */ }
+  const copy = structuredClone(S), readings = []
+  const ids = await fillWorkoutHeartRate(copy, async (start, end) => {
+    const q = new URLSearchParams({ start: new Date(start).toISOString(), end: new Date(end).toISOString() })
+    const { samples } = await api(`/api/google-health/heart-rate?${q}`)
+    readings.push(samples)
+    return samples
+  }, { tried })
+  if (useStore.getState().user?.id !== user.id) return
+  if (ids.length) {
+    useStore.getState().update(state => {
+      ids.forEach((id, i) => {
+        if (!state.workouts?.find(w => w.id === id)?.hr) mergeHeartRate(state, id, readings[i], 'gh')
+      })
+    })
+    try { localStorage.setItem(key, JSON.stringify([...new Set([...tried, ...ids])])) } catch { /* private mode */ }
+  }
+}
+
 function cached() {
   try { return JSON.parse(localStorage.getItem(CACHE)) || null } catch { return null }
 }
@@ -72,6 +112,9 @@ export const useGoogleHealth = create((set, get) => ({
       try { localStorage.setItem(CACHE, JSON.stringify(info)) } catch { /* private mode */ }
       set({ info })
       if (info?.data?.weight?.length && onWeights) onWeights(info.data.weight)
+      if (info.connected && info.status === 'ok') {
+        try { await fillStoredHeartRate() } catch (e) { set({ error: e?.message || String(e) }) }
+      }
       return info
     } catch (e) {
       set({ error: e?.message || String(e) })

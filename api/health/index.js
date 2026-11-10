@@ -107,6 +107,32 @@ export function createHealth({ dataDir, secret, origin, env = process.env, now =
     try { return await job; } finally { running.delete(uid); }
   }
 
+  async function heartRate(uid, { start, end }) {
+    const iso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+    const from = Date.parse(start), to = Date.parse(end);
+    if (!iso.test(start) || !iso.test(end) || !Number.isFinite(from) || !Number.isFinite(to) ||
+        to <= from || to - from > 6 * 3600000 || from < now() - 120 * 864e5 || to > now()) {
+      throw new HealthError('Choose a window of at most 6 hours within the last 120 days', { code: 'window', status: 400 });
+    }
+    if (!on) throw new HealthError('Google Health is not set up on this server', { code: 'off', status: 404 });
+    const rec = load(uid);
+    if (!rec) throw new HealthError('Google Health is not connected', { code: 'not_connected', status: 404 });
+    try {
+      const access = await accessToken(uid, rec);
+      const points = await google.list(access, 'heart-rate', `heart_rate.sample_time.physical_time >= "${start}" AND heart_rate.sample_time.physical_time < "${end}"`, 10000);
+      const samples = points.map(p => ({ t: Date.parse(p.heartRate?.sampleTime?.physicalTime), bpm: Math.round(Number(p.heartRate?.beatsPerMinute)) }))
+        .filter(p => Number.isFinite(p.t) && p.t >= from && p.t < to && p.bpm >= 25 && p.bpm <= 250)
+        .sort((a, b) => a.t - b.t);
+      save(uid, rec); // persist refreshed tokens, never the samples
+      return { samples };
+    } catch (e) {
+      rec.status = e.code === 'reconnect' || e.code === 'not_linked' ? e.code : 'attention';
+      rec.lastError = { at: new Date(now()).toISOString(), code: e.code || 'error', msg: String(e.message || e).slice(0, 200) };
+      save(uid, rec);
+      throw e;
+    }
+  }
+
   async function connectCallback(sessionUid, { code, state, error }) {
     const uid = readState(state);
     if (!uid || uid !== sessionUid) throw new HealthError('That connection link expired or was for another profile. Try again.', { code: 'state', status: 400 });
@@ -150,7 +176,7 @@ export function createHealth({ dataDir, secret, origin, env = process.env, now =
   const stop = () => { clearInterval(timer); timer = null; };
 
   return {
-    on, describe, syncNow, disconnect, removeUser, start, stop, connectCallback,
+    on, describe, syncNow, heartRate, disconnect, removeUser, start, stop, connectCallback,
     authorizeUrl: uid => google.authorizeUrl(makeState(uid)),
     publicConfig: () => (on ? { google: true } : null),
     _test: { makeState, readState, load },

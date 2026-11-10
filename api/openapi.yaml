@@ -2763,6 +2763,42 @@ paths:
                   lastSync: { type: string, nullable: true }
                   data: { type: object }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/google-health/heart-rate:
+    get:
+      tags: [health]
+      operationId: healthHeartRate
+      summary: Heart-rate samples for the signed-in profile
+      description: Reads Google Health directly without caching samples. The window must be at most 6 hours and entirely within the last 120 days.
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema: { type: string, format: date-time }
+        - in: query
+          name: end
+          required: true
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Samples sorted by timestamp, with an inclusive start and exclusive end.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [samples]
+                properties:
+                  samples:
+                    type: array
+                    items:
+                      type: object
+                      required: [t, bpm]
+                      properties:
+                        t: { type: integer, format: int64, description: Unix timestamp in milliseconds }
+                        bpm: { type: integer }
+        '400': { description: Invalid window. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not set up on this server, or not connected. }
+        '409': { description: Google needs reconnecting, or the account has no Google Health profile. }
   /api/google-health/sync:
     post:
       tags: [health]
