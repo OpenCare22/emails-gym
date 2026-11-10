@@ -3146,6 +3146,40 @@ paths:
         '404': { description: Not in this group. }
         '409': { description: They have nudges turned off. }
         '429': { description: Already nudged today, or the daily limit. }
+  /api/social/feed:
+    get:
+      tags: [social]
+      operationId: socialFeed
+      summary: A group's activity feed
+      description: >-
+        Finished workouts of members who share their activity with this group, newest first, 50, kept
+        30 days: the workout's name, how many sets, records and minutes. Never weights or exercises.
+      parameters:
+        - { name: groupId, in: query, required: true, schema: { type: string } }
+      responses:
+        '200': { description: '{ items: [{ id, uid, name, at, title, sets, prs, minutes, self, kudos: { count, mine } }] }' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not in this group. }
+  /api/social/kudos:
+    post:
+      tags: [social]
+      operationId: socialKudos
+      summary: Give kudos to a feed item, or take it back
+      description: Not on your own items. The owner gets a push at most once an hour, when they have nudges on.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                itemId: { type: string }
+      responses:
+        '200': { description: '{ count, mine }' }
+        '400': { description: Your own item. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not in this group, or no such item. }
   /api/social/nudges:
     post:
       tags: [social]

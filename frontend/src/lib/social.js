@@ -79,6 +79,23 @@ export const removeMember = (groupId, uid) => post('/api/social/remove', { group
 export const setSharing = (groupId, sharing) => post('/api/social/sharing', { groupId, sharing })
 export const setNudges = on => post('/api/social/nudges', { on })
 export const nudge = (groupId, uid) => post('/api/social/nudge', { groupId, uid })
+export const getFeed = groupId => api('/api/social/feed?' + new URLSearchParams({ groupId }))
+export const giveKudos = (groupId, itemId) => post('/api/social/kudos', { groupId, itemId })
+
+/** "Dana finished Push Day, 2 records" (or "You finished a workout"). */
+export function feedLine(item) {
+  const who = item.self ? t('You') : item.name
+  const what = item.title ? t('{0} finished {1}', who, item.title) : t('{0} finished a workout', who)
+  const extra = [item.prs > 0 ? (item.prs === 1 ? t('1 record') : t('{0} records', item.prs)) : null,
+    item.minutes > 0 ? t('{0} min', item.minutes) : null].filter(Boolean)
+  return extra.length ? what + ', ' + extra.join(', ') : what
+}
+
+/** "just now", "12 min ago", "3 h ago", "2 days ago". */
+export function feedAgo(iso, now = Date.now()) {
+  const min = Math.max(0, Math.round((now - Date.parse(iso)) / 60000))
+  return min < 1 ? t('just now') : min < 60 ? t('{0} min ago', min) : min < 1440 ? t('{0} h ago', Math.round(min / 60)) : t('{0} days ago', Math.round(min / 1440))
+}
 
 /** What to tell the sender, by the server's answer or refusal code. */
 export function nudgeMessage(result, error) {

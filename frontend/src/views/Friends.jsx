@@ -8,6 +8,7 @@ import { useUI } from '../store/useUI.js'
 import { Segmented, Button } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 import { startGroupSheet, joinLinkSheet, groupSettingsSheet, shareInvite } from '../components/SocialSheets.jsx'
+import SocialFeed from '../components/SocialFeed.jsx'
 
 // Friends (design/EMAILS_GYM_CLAUDE_CODE_HANDOFF.md §4C, PLAN.md Phase 7): a group's leaderboard
 // for one metric, from what each friend chose to share (api/social/). Honest empty states, never
@@ -54,6 +55,7 @@ export default function Friends({ api = FRIENDS_API }) {
   const [metric, setMetric] = useState('workouts')
   const [range, setRange] = useState('week')
   const [board, setBoard] = useState(null)
+  const [tab, setTab] = useState('board')
 
   const load = useCallback(async (pick) => {
     if (!user || !api) return
@@ -121,6 +123,8 @@ export default function Friends({ api = FRIENDS_API }) {
         </div>}
         {social.groups.length === 1 && <p className="dim small friends-group">{group.name}</p>}
 
+        {group.members.length > 1 && <Segmented className="friends-tabs" value={tab} onChange={setTab} options={[{ value: 'board', label: t('Leaderboard') }, { value: 'feed', label: t('Feed') }]} />}
+        {tab === 'feed' && group.members.length > 1 ? <SocialFeed groupId={group.id} /> : <>
         <div className="chips friends-metrics" role="group" aria-label={t('Leaderboard')}>
           {boards.map(b => <button key={b.metric} className={'chip' + (b.metric === metric ? ' on' : '')} aria-pressed={b.metric === metric} onClick={() => pickMetric(b.metric)}>{b.label}</button>)}
         </div>
@@ -139,6 +143,7 @@ export default function Friends({ api = FRIENDS_API }) {
           {board.rows.find(r => r.self)?.shared === false && <p className="dim small friends-note">
             <Button variant="plain" onClick={settings}>{t('Share this with the group')}</Button>
           </p>}
+        </>}
         </>}
       </>}
     </div>

@@ -2657,7 +2657,7 @@ const routes = {
     // queued for delivery (integrations/outbox.js), never sent from inside this request.
     try { integrations.onStateWrite(user.id, cur, body.state); } catch (e) { console.error('integrations onStateWrite', e); }
     // The shared summary friends see (social/), only for someone in a group; never fails the save.
-    try { social.onStateWrite(user.id, body.state); } catch (e) { console.error('social onStateWrite', e.message); }
+    try { social.onStateWrite(user.id, body.state, cur); } catch (e) { console.error('social onStateWrite', e.message); }
     json(res, 200, { ok: true, ts: body.state._ts || null, rev: curRev + 1, wid: body.state._wid });
   },
 

@@ -3462,3 +3462,11 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .install-invite{margin:20px 0;padding:14px 16px;border-radius:var(--radius-card,16px);background:var(--surface)}
 .install-invite code{font-size:18px;letter-spacing:.04em;word-break:break-all}
 .install-invite .btn{min-height:44px;margin-top:8px}
+.friends-tabs{margin:0 0 14px}
+.feed-list{list-style:none;display:flex;flex-direction:column;gap:var(--card-gap)}
+.feed-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-card,16px);background:var(--surface);border:1px solid var(--sep)}
+.feed-self{background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.feed-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.feed-line{font-weight:500}
+.feed-kudos{display:inline-flex;align-items:center;gap:6px;min-width:44px;min-height:44px;justify-content:center;border-radius:999px;padding:0 12px;background:var(--surface-2);color:var(--label-2)}
+.feed-kudos.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--surface-2))}

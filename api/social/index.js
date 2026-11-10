@@ -16,12 +16,16 @@ import { atomicWrite } from '../durable.js';
 import { createWindow } from '../rate-limit.js';
 import { summaryOf, dayIn } from './summary.js';
 import { nudgeLine } from './nudge-lines.js';
+import { detectEvents } from '../integrations/events.js';
 
 export const SHARE_KEYS = ['workouts', 'streak', 'volume', 'prs', 'steps', 'activeMinutes', 'strength', 'feed'];
 export const MAX_MEMBERS = 12;
 export const MAX_GROUPS = 5;
 export const INVITE_DAYS = 14;
 export const NUDGES_PER_DAY = 10;
+export const FEED_DAYS = 30;
+export const FEED_MAX = 200;
+const KUDOS_PUSH_MS = 60 * 60 * 1000;
 const TICK_MS = 60 * 60 * 1000;
 const STALE_MS = 24 * 60 * 60 * 1000;
 
@@ -58,7 +62,7 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
   const sumFile = uid => path.join(dir, 'summaries', safeId(uid) + '.json');
   const joins = createWindow({ max: 10, windowMs: 60 * 60 * 1000, now });
 
-  const blank = () => ({ groups: [], sharing: {}, nudges: {}, nudgeLog: {} });
+  const blank = () => ({ groups: [], sharing: {}, nudges: {}, nudgeLog: {}, kudosPush: {} });
   function load() {
     try { const d = JSON.parse(fs.readFileSync(file, 'utf8')); return { ...blank(), ...d }; } catch { return blank(); }
   }
@@ -104,6 +108,23 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       nudges: d.nudges[uid] !== false,
     };
   }
+
+  // ---- the feed: one file per group, items keep no weights, exercises or anything else of the log ----
+  const feedFile = gid => path.join(dir, 'feed', safeId(gid) + '.json');
+  const readFeed = gid => { try { return JSON.parse(fs.readFileSync(feedFile(gid), 'utf8')); } catch { return []; } };
+  function writeFeed(gid, items) {
+    const cut = new Date(now() - FEED_DAYS * 864e5).toISOString();
+    const keep = items.filter(i => i.at >= cut).sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, FEED_MAX);
+    fs.mkdirSync(path.dirname(feedFile(gid)), { recursive: true, mode: 0o700 });
+    atomicWrite(feedFile(gid), JSON.stringify(keep), 0o600);
+  }
+  const itemOf = (uid, w, at) => {
+    const work = (Array.isArray(w.entries) ? w.entries : []).reduce((n, e) => n + (Array.isArray(e?.sets) ? e.sets.filter(x => x && x.done !== false && x.warmup !== true && x.phase !== 'warmup').length : 0), 0);
+    const minutes = Number(w.end) > Number(w.start) ? Math.round((Number(w.end) - Number(w.start)) / 60000) : null;
+    return { id: `${uid}:${String(w.id).slice(0, 80)}`, uid, at: new Date(at).toISOString(), kind: 'workout',
+      title: typeof w.name === 'string' && w.name.trim() ? w.name.trim().slice(0, 60) : null,
+      sets: work, prs: Array.isArray(w.prs) ? w.prs.length : 0, minutes, kudos: [] };
+  };
 
   // The sender's own calendar day: a nudge limit resets at their midnight.
   const senderDay = uid => dayIn(now(), readState(uid)?.reminder?.tz || null);
@@ -179,6 +200,7 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       for (const k of SHARE_KEYS) if (typeof sharing?.[k] === 'boolean') clean[k] = sharing[k];
       (d.sharing[uid] ||= {})[groupId] = clean;
       save(d);
+      if (!clean.feed) { const items = readFeed(groupId); if (items.some(i => i.uid === uid)) writeFeed(groupId, items.filter(i => i.uid !== uid)); }
       return clean;
     },
     setNudges(uid, on) { const d = load(); d.nudges[uid] = !!on; save(d); return !!on; },
@@ -232,10 +254,55 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
     summary: readSummary,
     refreshSummary,
     /** After a profile's state is saved: only worth the work for someone in a group. */
-    onStateWrite(uid, state) { if (inAnyGroup(uid)) refreshSummary(uid, state); },
+    onStateWrite(uid, state, prev = null) {
+      const d = load();
+      const groups = groupsOf(d, uid);
+      if (!groups.length) return;
+      refreshSummary(uid, state);
+      const finished = detectEvents(prev, state, { now: now() }).filter(e => e.type === 'workout.finished');
+      if (!finished.length) return;
+      for (const g of groups) {
+        if (!d.sharing[uid]?.[g.id]?.feed) continue;
+        const items = readFeed(g.id);
+        const have = new Set(items.map(i => i.id));
+        const add = finished.map(e => itemOf(uid, e.data, e.at)).filter(i => !have.has(i.id));
+        if (add.length) writeFeed(g.id, [...add, ...items]);
+      }
+    },
+    /** A group's feed, newest first, with names and kudos counts. */
+    feed(uid, groupId) {
+      const d = load();
+      const g = member(d, groupId, uid);
+      const members = new Set(g.members.map(m => m.uid));
+      return { items: readFeed(groupId).filter(i => members.has(i.uid) && d.sharing[i.uid]?.[groupId]?.feed).slice(0, 50).map(({ kudos = [], ...i }) => ({
+        ...i, name: nameOf(i.uid), self: i.uid === uid, kudos: { count: kudos.length, mine: kudos.includes(uid) },
+      })) };
+    },
+    /** Kudos on a friend's item, or taken back. The owner hears of it at most once an hour. */
+    async kudos(uid, { groupId, itemId }) {
+      const d = load();
+      member(d, groupId, uid);
+      const items = readFeed(groupId);
+      const item = items.find(i => i.id === itemId);
+      if (!item) throw fail(404, 'no-item', 'that is no longer in the feed');
+      if (item.uid === uid) throw fail(400, 'own', 'not on your own workout');
+      const had = (item.kudos || []).includes(uid);
+      item.kudos = had ? item.kudos.filter(x => x !== uid) : [...(item.kudos || []), uid];
+      writeFeed(groupId, items);
+      if (!had && d.nudges[item.uid] !== false && hasPush(item.uid) && !(now() - (d.kudosPush[item.uid] || 0) < KUDOS_PUSH_MS)) {
+        d.kudosPush[item.uid] = now();
+        save(d);
+        try { await sendPush(item.uid, { title: "Email\u2019s Gym", body: `${String(nameOf(uid)).split(/\s+/)[0]} gave you kudos`, tag: 'kudos', url: '#/friends' }); } catch { /* best effort */ }
+      }
+      return { count: item.kudos.length, mine: !had };
+    },
     removeUser(uid) {
       const d = load();
-      for (const g of groupsOf(d, uid)) drop(d, uid, g.id);
+      for (const g of groupsOf(d, uid)) {
+        drop(d, uid, g.id);
+        const items = readFeed(g.id);
+        if (items.length) writeFeed(g.id, items.filter(i => i.uid !== uid).map(i => ({ ...i, kudos: (i.kudos || []).filter(x => x !== uid) })));
+      }
       delete d.sharing[uid]; delete d.nudges[uid];
       save(d);
       try { fs.unlinkSync(sumFile(uid)); } catch { /* none */ }

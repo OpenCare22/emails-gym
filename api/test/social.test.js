@@ -179,3 +179,33 @@ test('a nudged friend shows as nudged on the board until the sender’s next day
   await social.nudge('a', { groupId: g.id, to: 'b' });
   assert.equal(social.leaderboard('a', { groupId: g.id }).rows.find(r => r.uid === 'b').nudged, true);
 });
+
+test('the feed: finished workouts of people who share it, no weights, kudos once an hour', async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'eg-social-'));
+  let now = NOW;
+  const pushes = [];
+  const social = createSocial({ dataDir, now: () => now, readState: () => ({ workouts: [] }), nameOf: uid => ({ a: 'Emil', b: 'Dana' })[uid] || uid,
+    sendPush: async (uid, p) => { pushes.push([uid, p]); }, hasPush: () => true });
+  const g = social.createGroup('a', 'G');
+  social.join('b', g.invite.code);
+  const w = { id: 'w1', d: '2026-11-11', start: NOW - 3600000, end: NOW - 600000, name: 'Push Day', prs: ['0025', '0047'],
+    entries: [{ id: '0025', sets: [{ w: 40, r: 5, warmup: true, done: true }, { w: 100, r: 5, done: true }, { w: 100, r: 5, done: true }] }] };
+  social.onStateWrite('a', { workouts: [w] }, { workouts: [] });
+  assert.equal(social.feed('b', g.id).items.length, 0, 'not shared: nothing in the feed');
+  social.setSharing('a', g.id, { feed: true });
+  social.onStateWrite('a', { workouts: [{ ...w, id: 'w2' }] }, { workouts: [w] });
+  social.onStateWrite('a', { workouts: [{ ...w, id: 'w2' }] }, { workouts: [w] });
+  const [item] = social.feed('b', g.id).items;
+  assert.deepEqual({ ...item, at: undefined }, { id: 'a:w2', uid: 'a', at: undefined, kind: 'workout', title: 'Push Day', sets: 2, prs: 2, minutes: 50, name: 'Emil', self: false, kudos: { count: 0, mine: false } });
+  assert.equal(JSON.stringify(social.feed('b', g.id)).includes('100'), false, 'no weights');
+  assert.equal(social.feed('b', g.id).items.length, 1, 'the same workout only once');
+  await assert.rejects(social.kudos('a', { groupId: g.id, itemId: 'a:w2' }), e => e.code === 'own');
+  assert.deepEqual(await social.kudos('b', { groupId: g.id, itemId: 'a:w2' }), { count: 1, mine: true });
+  assert.equal(pushes.length, 1);
+  assert.match(pushes[0][1].body, /Dana gave you kudos/);
+  assert.deepEqual(await social.kudos('b', { groupId: g.id, itemId: 'a:w2' }), { count: 0, mine: false });
+  await social.kudos('b', { groupId: g.id, itemId: 'a:w2' });
+  assert.equal(pushes.length, 1, 'no second push within the hour');
+  social.setSharing('a', g.id, { feed: false });
+  assert.equal(social.feed('b', g.id).items.length, 0, 'turning the feed off removes the items');
+});
