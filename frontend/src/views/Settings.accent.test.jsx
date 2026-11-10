@@ -55,7 +55,7 @@ vi.mock('../lib/rest-alert.js', () => ({ setRestAccent: vi.fn() }))
 
 let host, root
 beforeEach(() => {
-  mocks.S = { unit: 'kg', theme: 'dark', accent: 'lime', workouts: [], routines: [], exWeights: {} }
+  mocks.S = { unit: 'kg', theme: 'dark', accent: 'sage', workouts: [], routines: [], exWeights: {} }
   host = document.createElement('div')
   document.body.appendChild(host)
   root = createRoot(host)
@@ -80,6 +80,17 @@ const release = () => act(() => { picker().dispatchEvent(new Event('change', { b
 const pick = value => { drag(value); release() }
 
 describe('Settings: your own accent colour', () => {
+  it('names every visible switch in Look from its row title', () => {
+    mount()
+    const switches = [...host.querySelectorAll('[role="switch"]')]
+    expect(switches.length).toBeGreaterThan(0)
+    expect(switches.some(el => el.getAttribute('aria-label') === 'Body weight')).toBe(true)
+    for (const el of switches) {
+      expect(el.getAttribute('aria-label')).toBe(el.closest('.lrow').querySelector('.lrow-t').textContent)
+      expect(el.getAttribute('aria-label').trim()).not.toBe('')
+    }
+  })
+
   it('starts as a rainbow swatch that opens the colour picker', () => {
     mount()
     expect(own().classList.contains('unset')).toBe(true)
@@ -140,7 +151,7 @@ describe('Settings: your own accent colour', () => {
     mocks.S.accent = 'custom'; mocks.S.accentCustom = '#123456'
     mount()
     act(() => host.querySelector('.swatch[aria-label="Blue"]').click())
-    expect(mocks.S.accent).toBe('sky')
+    expect(mocks.S.accent).toBe('blue')
     expect(mocks.S.accentCustom).toBe('#123456')
     mount()
     expect(picker()).toBe(null)   // not the accent now: a tap selects it, no picker
@@ -171,7 +182,7 @@ describe('Settings: your own accent colour', () => {
   it('ignores a value that is not a colour', () => {
     mocks.S.accent = 'custom'; mocks.S.accentCustom = 'red;}'
     mount()
-    expect(host.querySelector('.lrow-v').textContent).toBe('Green')
+    expect(host.querySelector('.lrow-v').textContent).toBe('Sage')
     expect(own().classList.contains('unset')).toBe(true)
   })
 

@@ -5,8 +5,9 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 0 done (`phase-0/baseline`). Phase 1 done on `phase-1/strip` (not merged to main, not pushed): all seven tickets in, Node 22 green from HEAD (api 793 pass / 3 skipped, frontend 7396 pass), Docker stack rebuilt and healthy. Next: Emil tries it on the phone, then merge and start Phase 2. Baseline recorded in PLAN.md (all green apart from one
-known timeout flake). Stack runs with `docker compose up -d --build` on http://localhost:8080.
+Phase 2 done on `phase-2/make-it-mine` (not merged to main, not pushed); report in
+docs/fork/PHASE2_REPORT.md. Emil confirmed it on his iPhone over Tailscale (temporary, see
+docs/decisions.md). Next: merge Phase 2, then Phase 3 (hosting with a real address).
 
 ## Phase 0: Fork, run, baseline
 
@@ -25,6 +26,18 @@ known timeout flake). Stack runs with `docker compose up -d --build` on http://l
 - [x] T-005 Upstream overhead (GitLab, CLA, Renovate, roadmap, iOS CI; also docker-publish, release-check, FUNDING, dependabot)
 - [x] T-006 mcp/ (also log-workout.js and the MCP card in Integrations)
 - [x] T-007 Hide progress photos, structural balance, data imports (one switch: `frontend/src/lib/fork-hidden.js`), audit log off by default (`AUDIT_LOG=1` turns it on). Also hides the Health Connect card. Decide after a week or two of use: delete or restore.
+
+## Phase 2: Make it mine (branch `phase-2/make-it-mine`)
+
+- [x] Step 1 tokens: handoff colours on the existing theme, sage/blue/terracotta/lavender, contrast test
+- [x] Step 2 branding: Email’s Gym everywhere visible, slab E icons/boot/print/share, Inter bundled, CSP hash
+- [x] Step 3 navigation: Home · Workouts · Progress · Friends, Resume pill, Friends empty state (fork-flags.js)
+- [x] Step 4 shared components: off-white primary buttons, pill segments (selected off-white); Start button back in the tab bar's middle (Emil asked)
+- [x] Step 5 Home: brand header, greeting + training days, Today card with round Start, Steps/Resting HR Not connected, weekly chart
+- [x] Step 5 workout screen (Codex T-008, T-009): Focus view is the default, Finish/Discard in the ⋯ menu, Focus restyled to the render (big steppers, Complete set, Last time hint, Undo toast, rest ring card). Checked in the browser 2026-11-10.
+- [x] Step 6 checks in the browser: no overflow at 375/390/430, light + dark, reduced motion, focus rings; fixes in T-010 (44 px squares, switch names, light boot) and T-011 (44 px tall controls)
+- [x] Step 6 on Emil's iPhone over Tailscale (2026-11-10): icon, launch screen, status bar and push all fine. iOS's top-edge blur caught the titles: pages now start 20px under the status bar when installed (--top-clear); Home's doubled top gap fixed. Confirmed on the phone.
+- Later (Phase 9): rename "openGym" in frontend/ios Swift files and remove upstream app-icon assets
 
 ## Next
 

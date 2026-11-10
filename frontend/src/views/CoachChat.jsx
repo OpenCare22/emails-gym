@@ -383,7 +383,7 @@ function PlanCard({ p, S, update, toast, nav, refresh }) {
         {scheduleModeOf(S) === 'rotation'
           ? <span className="lrow-m"><span className="lrow-t">{t('Use this plan in your rotation')}</span><span className="lrow-s">{t('Replaces the sessions in your rotation and starts it over with the first one.')}</span></span>
           : <span className="lrow-m"><span className="lrow-t">{t('Use this weekly schedule')}</span><span className="lrow-s">{t('Replaces your current week. Days this plan leaves empty become rest days.')}</span></span>}
-        <Switch checked={schedule} onChange={setSchedule} />
+        <Switch aria-label={scheduleModeOf(S) === 'rotation' ? t('Use this plan in your rotation') : t('Use this weekly schedule')} checked={schedule} onChange={setSchedule} />
       </div>
       <div className="pcard-note">{t('The Coach is not a doctor or a physiotherapist. If something hurts, ask a professional.')}</div>
       <div className="pcard-ft">
@@ -747,7 +747,7 @@ function CohortSheet({ S, update, toast }) {
     <h3>{t('Compare with others here')}</h3>
     <Section footer={t('Only medians across everyone who shares, never a name, a body weight or a single session. Turning this off removes you from the numbers immediately.')}>
       <Row icon="person" iconTint="var(--teal)" title={t('Include me')} subtitle={sharing ? t('Your lifts count towards the medians') : t('Off. You see nothing and share nothing')}>
-        <Switch checked={sharing} disabled={busy || !d} onChange={share} />
+        <Switch aria-label={t('Include me')} checked={sharing} disabled={busy || !d} onChange={share} />
       </Row>
     </Section>
     {!d && <div className="chat-empty">{t('Loading…')}</div>}

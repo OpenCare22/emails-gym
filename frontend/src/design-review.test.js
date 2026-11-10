@@ -29,11 +29,11 @@ describe('design review 1.4.5: text inks', () => {
   it('.dim text uses --label-dim, which reads at 4.5:1', () => {
     expect(rule('.dim')).toMatch(/color:var\(--label-dim\)/)
     for (const g of grounds(dark)) expect(on(token(dark, '--label-dim'), g)).toBeGreaterThanOrEqual(4.5)
-    expect(token(light, '--label-dim')).toBe('var(--label-2)')
+    for (const g of grounds(light)) expect(on(token(light, '--label-dim'), g)).toBeGreaterThanOrEqual(4.5)
   })
   it('every preset accent as text reaches 4.5:1 in the light theme', () => {
-    const inks = [...css.matchAll(/:root\[data-theme="light"\]\[data-accent="(\w+)"\]\s*\{\s*--acc-ink:(#\w+)/g)]
-    expect(inks.map(m => m[1]).sort()).toEqual(['gold', 'lime', 'orange', 'pink', 'red', 'sky', 'teal', 'violet'])
+    const inks = [...css.matchAll(/:root\[data-theme="light"\]\[data-accent="(\w+)"\]\s*\{[^}]*--acc-ink:(#\w+)/g)]
+    expect(inks.map(m => m[1]).sort()).toEqual(['blue', 'lavender', 'terracotta'])
     for (const [, name, ink] of inks) for (const g of grounds(light)) expect(on(ink, g), name).toBeGreaterThanOrEqual(4.5)
   })
   it('the gold ink reaches 4.5:1 in the light theme', () => {
@@ -46,8 +46,11 @@ describe('design review 1.4.5: text inks', () => {
 describe('design review 1.4.5: shared rules', () => {
   it('raises the chosen segment in the dark theme (lighter than its track)', () => {
     const track = rule(':root:not([data-theme="light"]) .seg'), thumb = rule(':root:not([data-theme="light"]) .seg-sel')
-    expect(track).toMatch(/background:rgba\(118,118,128,\.24\)/)
-    expect(thumb).toMatch(/background:#636366/)
+    expect(track).toMatch(/background:var\(--surface-2\)/)
+    // Email's Gym: an off-white pill (the primary text colour) with near-black words on it
+    expect(thumb).toMatch(/background:var\(--label\)/)
+    expect(lum(hex(token(dark, '--label')))).toBeGreaterThan(lum(hex(token(dark, '--surface-2'))))
+    expect(rule(':root:not([data-theme="light"]) .seg button.on')).toMatch(/color:var\(--on-btn\)/)
   })
   it('styles a subtitle and the small line over a title wherever they sit', () => {
     expect(rule('.ss')).toMatch(/color:var\(--label-2\)/)

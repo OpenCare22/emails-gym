@@ -19,6 +19,10 @@ const P = {
   house: <path d="M3.5 10.7 12 3.8l8.5 6.9M5.9 9.4V19a1.4 1.4 0 0 0 1.4 1.4h9.4A1.4 1.4 0 0 0 18.1 19V9.4" />,
   calendar: <><rect x="3.4" y="5.2" width="17.2" height="15.4" rx="3.2" /><path d="M8.2 3.4v3.4M15.8 3.4v3.4M3.4 10.2h17.2" /></>,
   chart: <path d="M4.5 20.2V13M9.5 20.2V6.4M14.5 20.2v-5.1M19.5 20.2V9.6" />,
+  // Two footprints: Steps on Home (Email's Gym).
+  footprints: <><path d="M8.2 3.6c1.7 0 2.6 1.9 2.6 4.3 0 1.6-.6 3.1-1 4.4H5.7c-.4-1.3-.9-2.6-.9-4.1 0-2.6 1.6-4.6 3.4-4.6Z" /><path d="M5.9 14.6h3.8v1.6a1.9 1.9 0 0 1-3.8 0Z" /><path d="M15.8 7.2c1.8 0 3.4 2 3.4 4.6 0 1.5-.5 2.8-.9 4.1h-4.1c-.4-1.3-1-2.8-1-4.4 0-2.4.9-4.3 2.6-4.3Z" /><path d="M14.3 18.2h3.8v1.6a1.9 1.9 0 0 1-3.8 0Z" /></>,
+  // Two heads and shoulders: Friends (Email's Gym tab bar).
+  users: <><circle cx="9" cy="8.3" r="3.3" /><path d="M3.2 19.6c.5-3.2 2.9-5.2 5.8-5.2s5.3 2 5.8 5.2" /><path d="M15.6 5.3a3.2 3.2 0 0 1 0 6.1M17.4 14.6c1.9.7 3.1 2.4 3.4 5" /></>,
   magnifier: <><circle cx="11" cy="11" r="7" /><path d="m20.5 20.5-4.4-4.4" /></>,
   // A real cog outline (8 teeth, generated on a circle) — an earlier version drew
   // radial rays and was indistinguishable from `sun` at tab-bar size.

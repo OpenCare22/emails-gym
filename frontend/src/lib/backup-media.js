@@ -29,15 +29,15 @@ import { t } from './i18n-core.js'
 export const BACKUP_JSON = 'opengym-backup.json'
 const MEDIA_ENTRY = /^media\/([0-9a-f]{64})\.(jpg|png|webp|gif|mp4|mov|webm)$/
 
-const README = `openGym backup with photos and videos
-=====================================
+const README = `Email’s Gym backup with photos and videos
+=========================================
 
 opengym-backup.json  your data - the same file "Export backup (JSON)" writes.
 media/               the photos, GIFs and videos of your own exercises and of your
                      workouts, each named by its SHA-256, plus the small previews
                      shown in lists.
 
-To bring it back: openGym -> Settings -> Data & backup -> Import backup, and pick this .zip as it is.
+To bring it back: Email’s Gym -> Settings -> Data & backup -> Import backup, and pick this .zip as it is.
 Do not unpack and re-zip it: the app reads zips that are stored, not compressed.
 `
 
@@ -93,7 +93,7 @@ export async function exportBackupZip(S, { media = mediaStore, fetchOne = null, 
 
 const isBackup = d => !!d && typeof d === 'object' && !Array.isArray(d) && Array.isArray(d.workouts) && Array.isArray(d.routines)
 
-const notBackup = () => Object.assign(new Error('not an openGym backup'), { code: 'not-backup' })
+const notBackup = () => Object.assign(new Error('not an Email’s Gym backup'), { code: 'not-backup' })
 
 /**
  * What to tell someone whose pick did not import, in their language. The thrown messages are for
@@ -101,7 +101,7 @@ const notBackup = () => Object.assign(new Error('not an openGym backup'), { code
  */
 export function backupImportError(e) {
   if (e?.code === 'compressed') return t('That zip was repacked. Import the original backup file.')
-  if (e?.code === 'not-backup' || e?.code === 'not-zip' || e?.code === 'encrypted' || e instanceof SyntaxError) return t('That file isn’t an openGym backup.')
+  if (e?.code === 'not-backup' || e?.code === 'not-zip' || e?.code === 'encrypted' || e instanceof SyntaxError) return t('That file isn’t an Email’s Gym backup.')
   return t('Couldn’t read that file.')
 }
 

@@ -46,8 +46,7 @@ const COPY = {
   tick: () => [t('Tick it off'), t('Done with a set? Tick it. Go on, try it.')],
   rest: () => [t('Catch your breath'), t('The rest timer starts by itself. Add time, or skip it if you feel heroic.')],
   swipe: () => [t('Swipe a set'), t('Swipe a set sideways to copy or remove it. Its number opens even more.')],
-  more: () => [t('The ⋯ menu'), t('Workout settings, layouts, notes and extra exercises hide in here.')],
-  finish: () => [t('Finish line'), t('Finish saves the session and moves your weights along. This practice one just quietly disappears.')],
+  more: () => [t('The ⋯ menu'), t('Finish or discard your workout here. You can also change settings and layouts, add notes and extra exercises.')],
   'go-stats': () => [t('Your progress'), t('Back home, practice over. Stats is where the gains pile up. Tap it.')],
   stats: () => [t('Your numbers'), t('Workouts, streaks and everything you’ve lifted. It fills up as you train.')],
   'stats-body': () => [t('Body map'), t('See which muscles got the work and which still need rest. Tap one for details.')],
@@ -114,7 +113,7 @@ const COPY = {
   'b-import': () => [t('Restore a backup'), t('Pick a backup file and it’s all back.')],
   'b-apps': () => [t('Moving in?'), t('Strong, Hevy, FitNotes, GymMane or Apple Health body weight: import their export here.')],
   'b-up2': () => [t('One more'), t('Syncing lives under your account. Tap back to Settings.')],
-  'b-sync': () => [t('Your own server'), t('Syncing your devices through your own openGym server lives under your account. No server? Everything still works on this device.')],
+  'b-sync': () => [t('Your own server'), t('Syncing your devices through your own Email’s Gym server lives under your account. No server? Everything still works on this device.')],
   'b-done': () => [t('That’s the lot'), t('Your data, your call. Back it up now and then, future you will be grateful.')],
 }
 

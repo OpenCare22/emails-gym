@@ -605,7 +605,7 @@ function ImportSummary({ parsed, close }) {
     </div>}
     {/* A Liftosaur plan's progression is a script; it arrives as a note on each exercise. */}
     {plans?.scripted > 0 && <div className="small dim" style={{ marginBottom: 10 }}>
-      {t('Liftoscript progressions come along as notes on the exercises. openGym doesn’t run them.')}
+      {t('Liftoscript progressions come along as notes on the exercises. Email’s Gym doesn’t run them.')}
     </div>}
     {plans && newPlans < plans.routines.length && <div className="small dim" style={{ marginBottom: 10 }}>
       {tn('{0} routine is already here and will be left alone.', '{0} routines are already here and will be left alone.', plans.routines.length - newPlans)}
@@ -636,7 +636,7 @@ export function importFromApp(file, onDone) {
     if (parsed.error === 'empty') { toast(t('That file is empty')); return }
     // It looks like that app's export but does not read as one: say so rather than guess.
     if (parsed.error === 'format') { toast(t('This looks like a {0} export, but we couldn’t read it. Nothing was imported.', parsed.app)); return }
-    if (parsed.error === 'opengym') { toast(t('That’s an openGym backup or plan file. Use Import backup, or import it on the Plan screen.')); return }
+    if (parsed.error === 'opengym') { toast(t('That’s an Email’s Gym backup or plan file. Use Import backup, or import it on the Plan screen.')); return }
     if (parsed.error) { toast(t("We don't recognise that file's columns. Check the docs for supported apps.")); return }
     if (parsed.kind === 'bodyweight' ? !parsed.bodyweight.length && !parsed.measurements?.length : !parsed.workouts.length && !parsed.routines?.routines?.length) {
       toast(t('Nothing to import from that file')); return
@@ -804,21 +804,21 @@ function HevyImportSheet({ close }) {
         <div className="tt" style={{ fontSize: 'var(--fs-subhead)' }}>{t('Import workouts')}</div>
         <div className="small dim">{t('{0} new · {1} days already here', freshW, haveW)}</div>
       </div>
-      <Switch checked={wantWorkouts} onChange={setWantWorkouts} />
+      <Switch aria-label={t('Import workouts')} checked={wantWorkouts} onChange={setWantWorkouts} />
     </div>}
     {r.routines.length > 0 && <div className="row between" style={{ padding: '10px 2px', borderTop: '1px solid var(--sep)', gap: 12 }}>
       <div>
         <div className="tt" style={{ fontSize: 'var(--fs-subhead)' }}>{t('Import routines')}</div>
         <div className="small dim">{t('{0} routines · {1} exercises, added as new plans', freshR, r.exerciseCount)}</div>
       </div>
-      <Switch checked={wantRoutines} onChange={setWantRoutines} />
+      <Switch aria-label={t('Import routines')} checked={wantRoutines} onChange={setWantRoutines} />
     </div>}
     {b.bodyweight.length > 0 && <div className="row between" style={{ padding: '10px 2px', borderTop: '1px solid var(--sep)', borderBottom: '1px solid var(--sep)', gap: 12, marginBottom: 8 }}>
       <div>
         <div className="tt" style={{ fontSize: 'var(--fs-subhead)' }}>{t('Import weigh-ins')}</div>
         <div className="small dim">{t('{0} new · {1} days already here', freshB, haveB)}</div>
       </div>
-      <Switch checked={wantBody} onChange={setWantBody} />
+      <Switch aria-label={t('Import weigh-ins')} checked={wantBody} onChange={setWantBody} />
     </div>}
     {!b.bodyweight.length && <div style={{ borderBottom: '1px solid var(--sep)', marginBottom: 8 }} />}
 
@@ -969,7 +969,7 @@ function BarWeightEditor({ ex, cfg, extra }) {
     {kind !== 'none' && <>
       {bar && <div className="list menu-list" style={{ marginBottom: 6 }}>
         <Row icon="barbell" title={t('No bar')} subtitle={t('The weight you log is all plates.')}>
-          <Switch checked={noBar} onChange={setNoBar} />
+          <Switch aria-label={t('No bar')} checked={noBar} onChange={setNoBar} />
         </Row>
       </div>}
       {!noBar && <div className="row cfgrow" style={{ marginBottom: 6 }}>
@@ -1176,7 +1176,7 @@ function DumbbellInventorySheet({ close }) {
         deamondo). On, the list has nothing to say and steps aside; it is kept for the day you buy a pair. */}
     <div className="list menu-list" style={{ marginBottom: 12 }}>
       <Row icon="dumbbell" title={t('I own no dumbbells')} subtitle={t('Dumbbell lifts stay out of the library, the picker and the Coach’s plans.')}>
-        <Switch checked={none} onChange={setNone} />
+        <Switch aria-label={t('I own no dumbbells')} checked={none} onChange={setNone} />
       </Row>
     </div>
     {!none && <>
@@ -1366,7 +1366,7 @@ function ExerciseDetail({ ex, close }) {
     {/* The catalogue is community-edited (catalogue/README.md): a wrong muscle, a clumsy step or a
         missing translation is one tap from an issue that already names the exercise. */}
     {!isCustomEx(ex) && !ex.missing && <a className="small dim exfix-link" target="_blank" rel="noopener"
-      href={'https://github.com/DuarteSantos8/openGym/issues/new?template=exercise.yml&exercise=' + encodeURIComponent(ex.id + ', ' + ex.n)}>
+      href={'https://github.com/OpenCare22/emails-gym/issues/new?title=' + encodeURIComponent('Exercise ' + ex.id + ', ' + ex.n)}>
       <Icon name="pencil" /> {t('Suggest a fix for this exercise')}</a>}
     {/* The end of the sheet: what makes this exercise go away. Merge into… (#656,
         lib/exercise-merge.js) moves its history and plans onto another and then deletes or hides
@@ -2129,7 +2129,7 @@ function ProgressionFields({ ex, mode, c, setC, routine, unit, perSide, bw, fall
       <div className="sect-b" style={{ marginBottom: 8 }}>
         <Row icon="steps" iconTint="var(--acc)" title={t('Back-off sets')}
           subtitle={t('Each set one step lighter than the one before. The weight above is the first set.')}>
-          <Switch checked={backoff} onChange={v => setC(x => ({ ...x, backoff: v || undefined }))} />
+          <Switch aria-label={t('Back-off sets')} checked={backoff} onChange={v => setC(x => ({ ...x, backoff: v || undefined }))} />
         </Row>
       </div>
       <div className="small dim" style={{ marginBottom: 18 }}>
@@ -2550,7 +2550,7 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
     {!cardio && <div className="sect-b" style={{ marginBottom: 8 }}>
       <Row icon="figureStrength" iconTint="var(--acc)" title={t('Bodyweight')}
         subtitle={bw ? (mode === 'time' ? t('No weight to enter. Just time the hold.') : t('No weight to enter. Just log the reps.')) : t('Ask for a weight on every set.')}>
-        <Switch checked={bw} onChange={v => setC(x => ({ ...x, bodyweight: v, weight: v ? 0 : x.weight }))} />
+        <Switch aria-label={t('Bodyweight')} checked={bw} onChange={v => setC(x => ({ ...x, bodyweight: v, weight: v ? 0 : x.weight }))} />
       </Row>
       {mode !== 'cardio' && <Row icon="sides" iconTint="var(--blue)" title={t('Per side')}
         subtitle={mode === 'time'
@@ -2561,7 +2561,7 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
         {/* Reps: turning it on rounds the target up to an even number, since half of an odd total
             is a rep one side does not get. Time: nothing to round — a hold's whole duration
             happens twice, so only the flag changes (buildWorkSets doubles the planned sets). */}
-        <Switch checked={perSide} onChange={v => setC(x => {
+        <Switch aria-label={t('Per side')} checked={perSide} onChange={v => setC(x => {
           if (mode === 'time') return { ...x, side: v || undefined }
           const next = { ...x, side: v || undefined, reps: v ? Math.ceil((x.reps || 0) / 2) * 2 : x.reps }
           return climbsRange(policyFor({ ...next, id: ex.id }, routine, 'reps', profileRule(st)))
@@ -2576,11 +2576,11 @@ function ExConfig({ ex, existing, onSave, onDelete, onReplace, close, routine, i
           already has its Max set for that. */}
       {!pyramid && <Row icon="gauge" iconTint="var(--purple)" title={t('Last set to failure')}
         subtitle={c.lastToFailure ? t('The last set goes until nothing is left, and counts as all-out effort unless you rate it.') : t('Plan the final set as an all-out one.')}>
-        <Switch checked={c.lastToFailure === true} onChange={v => setC(x => ({ ...x, lastToFailure: v || undefined }))} />
+        <Switch aria-label={t('Last set to failure')} checked={c.lastToFailure === true} onChange={v => setC(x => ({ ...x, lastToFailure: v || undefined }))} />
       </Row>}
       {mode === 'reps' && <Row icon="steps" iconTint="var(--acc)" title={t('Pyramid sets')}
         subtitle={t('A different rep target for each set, e.g. 12 · 8 · 6 · Max · 12.')}>
-        <Switch checked={pyramid} onChange={v => setC(x => (v
+        <Switch aria-label={t('Pyramid sets')} checked={pyramid} onChange={v => setC(x => (v
           ? { ...x, pyramid: x.pyramidDraft || pyramidFromFlat(x), intensifier: undefined }
           : { ...x, ...flatFromPyramid(x.pyramid), pyramidDraft: x.pyramid, pyramid: undefined }))} />
       </Row>}
@@ -2857,7 +2857,7 @@ function PlanImport({ bundle, close }) {
     </div>}
     {bundle.scheduledDays > 0 && <div className="row between" style={{ padding: '10px 2px', borderTop: '1px solid var(--sep)', borderBottom: '1px solid var(--sep)', marginBottom: 16, gap: 12 }}>
       <div><div className="tt" style={{ fontSize: 'var(--fs-subhead)' }}>{t('Use this weekly schedule')}</div><div className="small dim">{t('Replaces your current Mon–Sun assignments.')}</div></div>
-      <Switch checked={schedule} onChange={setSchedule} />
+      <Switch aria-label={t('Use this weekly schedule')} checked={schedule} onChange={setSchedule} />
     </div>}
     <Button variant="primary" onClick={apply}>{t('Add to my plan')}</Button>
     <div style={{ height: 8 }} />
@@ -3319,7 +3319,7 @@ function ShareWorkoutImage({ w, close }) {
   const day = workoutDay(w) || todayISO()
   const model = useMemo(() => workoutCardModel(w, { unit: st.unit, nameOf: shareNameOf, warmups, streak: streakInfo(st, day).current }), [w, st.unit, warmups, st.workouts, st.weekStart, day]) // eslint-disable-line react-hooks/exhaustive-deps
   return <ShareCardSheet title={t('Share workout')} close={close} toast={toast}
-    name={'opengym-workout-' + day + '.png'} shareTitle={w.name || 'openGym'}
+    name={'opengym-workout-' + day + '.png'} shareTitle={w.name || 'Email’s Gym'}
     deps={[model, withMap, st.body]}
     render={pref => workoutCardImage(model, { ...pref, map: withMap, body: st.body })}>
     {model.levels && <div className="sect-b" style={{ marginBottom: 12 }}>
@@ -3711,7 +3711,7 @@ function ExerciseNote({ entryIdx, close }) {
     <div className="sect-b">
       <Row icon="pin" iconTint="var(--yellow)" title={t('Show this next time')}
         subtitle={t('Brings it up again the next time you train this exercise.')}>
-        <Switch checked={pin} onChange={setPin} disabled={!note.trim()} />
+        <Switch aria-label={t('Show this next time')} checked={pin} onChange={setPin} disabled={!note.trim()} />
       </Row>
     </div>
     {!editing && <>

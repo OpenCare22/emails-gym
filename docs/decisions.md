@@ -20,3 +20,9 @@
   it back). The audit log is off unless `AUDIT_LOG=1`. Review after a week or two of use.
 - **2026-11-09: Phase 1 tickets T-003 to T-007 done by Claude, not Codex** (Codex was out of
   tokens). T-001 and T-002 were Codex's, reviewed and checked under Node 22 before merging.
+- **2026-11-10: Temporary phone testing over Tailscale.** `tailscale serve --bg 8080` publishes the
+  app at https://emils-macbook-air.tail4efe2e.ts.net (tailnet only), and `.env` has `RP_ID` /
+  `ORIGIN` set to that name, so passkeys and push work on Emil's iPhone with Tailscale on.
+  Friends can't reach it; the real address comes in Phase 3, and changing it means everyone
+  registers a new passkey. To stop: `tailscale serve --https=443 off`, and put `.env` back to
+  localhost for local-only use.

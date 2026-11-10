@@ -40,6 +40,7 @@ let sheetContainer
 
 function renderWorkout(entries, { withRoutines = routines, withHistory = history } = {}) {
   const S = clone(DEF)
+  S.workoutView = 'cards' // These tests exercise the card rows and controls.
   S.routines = clone(withRoutines)
   S.workouts = clone(withHistory)
   S.active = { id: 'noprog-test', d: '2026-09-23', start: Date.now(), routineIds: ['main'], routineId: 'main', name: 'Main', bw: null, cur: 0, entries }

@@ -179,7 +179,7 @@ export default function AdminCoach() {
   return <div className="card" style={{ borderColor: live ? 'var(--acc)' : undefined }}>
     <div className="row between" style={{ marginBottom: 2 }}>
       <h2 style={{ margin: 0 }}>AI Coach</h2>
-      <Switch checked={!!d.enabled} disabled={busy} onChange={v => patch({ enabled: v })} />
+      <Switch aria-label="AI Coach" checked={!!d.enabled} disabled={busy} onChange={v => patch({ enabled: v })} />
     </div>
     <div className="adm-status">
       <span className={'adm-pill ' + (live ? 'ok' : 'warn')}>{live ? 'ready' : 'not ready'}</span>
@@ -335,7 +335,7 @@ export default function AdminCoach() {
             <div className="adm-hint" style={{ margin: 0 }}>
               <b>Let people compare with each other.</b> Anonymous medians (estimated 1RM, sessions per week) across profiles that opt in; at least three must share before anyone sees a number. Each person switches themselves on in the Coach chat, and sees nothing unless they do.
             </div>
-            <Switch checked={!!d.community} disabled={busy} onChange={v => patch({ community: v })} />
+            <Switch aria-label="Let people compare with each other." checked={!!d.community} disabled={busy} onChange={v => patch({ community: v })} />
           </div>
 
           <div className="adm-group-t" style={{ marginTop: 14 }}>Whose account pays</div>

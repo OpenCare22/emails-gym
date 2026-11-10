@@ -36,6 +36,7 @@ afterEach(() => {
 })
 
 const tabs = () => [...host.querySelectorAll('#tabbar button')]
+const start = () => host.querySelector('#tabbar .start')
 
 describe('the tab bar across a store write', () => {
   it('keeps the very same buttons instead of rebuilding them every tick', () => {
@@ -53,12 +54,10 @@ describe('the tab bar across a store write', () => {
 
   it('still lights the tab for the route it is on, and follows a change of state', () => {
     act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(tabs()[0].className).toBe('on')
-    expect(tabs()[1].className).toBe('')
-    expect(tabs()[2].className).toBe('start')
+    expect(tabs().map(b => b.className)).toEqual(['on', '', 'start', '', ''])
 
     act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0 } }, false) })
-    expect(tabs()[2].className).toBe('start rec')
+    expect(start().className).toBe('start rec')
     expect(tabs()[0].className).toBe('on')
   })
 })
@@ -83,19 +82,19 @@ describe('the connection dot on Home', () => {
   })
 })
 
-// v1.3.11 icon sweep: one icon per concept. Every tab carries its name under the icon, Start is a
-// play button whether or not a session runs, and Exercises is the dumbbell (no more generic list).
+// One icon per concept, each tab named under its icon; Start is a play button whether or not a
+// session runs (Email's Gym: Home · Workouts · Start · Progress · Friends).
 describe('the tab icons and labels', () => {
   const icon = el => el.querySelector('svg')?.getAttribute('data-icon')
   const label = el => el.querySelector('span:last-child').textContent
   it('labels every tab and uses one icon per concept', () => {
     act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(tabs().map(icon)).toEqual(['house', 'calendar', 'play', 'chart', 'dumbbell'])
-    expect(tabs().map(label)).toEqual(['Home', 'Plan', 'Start', 'Stats', 'Exercises'])
+    expect(tabs().map(icon)).toEqual(['house', 'dumbbell', 'play', 'chart', 'users'])
+    expect(tabs().map(label)).toEqual(['Home', 'Workouts', 'Start', 'Progress', 'Friends'])
 
     act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0 } }, false) })
-    expect(icon(tabs()[2])).toBe('play')
-    expect(label(tabs()[2])).toBe('Resume')
+    expect(icon(start())).toBe('play')
+    expect(label(start())).toBe('Resume')
   })
 
   it('shows a minimized session’s running time, still named Resume', () => {
@@ -104,36 +103,31 @@ describe('the tab icons and labels', () => {
       vi.setSystemTime(new Date(2026, 9, 5, 18, 0, 0))
       act(() => { useStore.getState().update(s => { s.active = { id: 'a', entries: [], cur: 0, start: Date.now() - 754_000 } }, false) })
       act(() => { root.render(<TabBar onStart={() => {}} />) })
-      const start = tabs()[2]
-      expect(label(start)).toBe('12:34')
-      expect(start.getAttribute('aria-label')).toBe('Resume')
+      const btn = start()
+      expect(label(btn)).toBe('12:34')
+      expect(btn.getAttribute('aria-label')).toBe('Resume')
       act(() => { vi.advanceTimersByTime(2000) })
-      expect(label(start)).toBe('12:36')
-      expect(tabs()[2]).toBe(start)   // the same button, only its text ticks
+      expect(label(btn)).toBe('12:36')
+      expect(start()).toBe(btn)   // the same button, only its text ticks
 
       // a past workout being edited has no clock running
       act(() => { useStore.getState().update(s => { s.active.editingWorkoutId = 'w1' }, false) })
-      expect(label(tabs()[2])).toBe('Edit workout')
+      expect(label(start())).toBe('Edit workout')
     } finally { vi.useRealTimers() }
   })
 })
 
-// A screen without a tab of its own keeps the tab it was opened from lit. Check-in, Progress photos
-// and Body measurements lit none: Measurements moved under Stats (75a3b750) and the bar never heard.
+// A screen without a tab of its own lights the tab it belongs to (DESIGN_PLAN step 3's table).
 describe('the tab a screen without its own lights', () => {
   const lit = () => tabs().filter(b => b.classList.contains('on')).map(b => b.textContent)
   it.each([
-    ['/history', 'Stats'], ['/structural-balance', 'Stats'], ['/progress-photos', 'Stats'], ['/measurements', 'Stats'],
-    ['/settings', 'Home'], ['/settings/units', 'Home'], ['/checkin', 'Home'], ['/muscles', 'Exercises'],
+    ['/plan', 'Workouts'], ['/plan/r/abc', 'Workouts'], ['/history', 'Workouts'], ['/library', 'Workouts'],
+    ['/stats', 'Progress'], ['/measurements', 'Progress'], ['/muscles', 'Progress'],
+    ['/structural-balance', 'Progress'], ['/progress-photos', 'Progress'],
+    ['/settings', 'Home'], ['/settings/units', 'Home'], ['/checkin', 'Home'], ['/friends', 'Friends'],
   ])('%s lights %s', (pathname, tab) => {
     where.loc = { pathname }
     act(() => { root.render(<TabBar onStart={() => {}} />) })
     expect(lit()).toEqual([tab])
-  })
-
-  it('Muscles opened from Stats lights Stats, the way its back button goes', () => {
-    where.loc = { pathname: '/muscles', state: { from: '/stats' } }
-    act(() => { root.render(<TabBar onStart={() => {}} />) })
-    expect(lit()).toEqual(['Stats'])
   })
 })

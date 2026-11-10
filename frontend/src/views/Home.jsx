@@ -30,8 +30,13 @@ import { WrappedHomeCard } from '../components/WrappedEntry.jsx'
 import RecoveryHint from '../components/RecoveryHint.jsx'
 import { ChallengesCard } from '../components/Challenges.jsx'
 import { isOn } from '../lib/modules.js'
+import BrandMark from '../components/BrandMark.jsx'
+import { HomeMetrics, TrainingBarChart } from '../components/HomeMetrics.jsx'
 
 // Home = what to do now + a quick glance. Deep charts & history live in Stats.
+// The first word of a profile name: "Emil" from "Emil Mladenov".
+const firstName = name => String(name || '').trim().split(/\s+/)[0] || ''
+
 export default function Home() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
@@ -124,10 +129,19 @@ export default function Home() {
   const onQueueStart = id => { if (S.active) nav('/workout'); else startFlow([id]) }
 
   return <div className="narrow">
-    <div className="hdr">
-      <SeasonDeco spot="header-bats" />
-      <div><h1>{user ? t('Hi {0}', user.name) : 'openGym'}</h1><div className="sub">{today.toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
+    {/* Email's Gym (handoff §4A): the mark and the name, Settings on the right; then the
+        greeting with the real first name and this week's training days from the plan. */}
+    <div className="home-top">
+      <div className="home-brand"><BrandMark size={22} /><span>Email’s Gym</span></div>
       <button className="iconbtn" data-tour="settings-gear" onClick={() => nav('/settings')} aria-label={trouble ? t('Settings') + ', ' + t('Connection problem') : t('Settings')}><Icon name="gear" />{trouble && <span className="tab-dot" aria-hidden="true" />}</button>
+    </div>
+    <div className="hdr home-hello">
+      <div>
+        <h1>{user ? t('Hi, {0}.', firstName(user.name)) : t('Hi there.')}</h1>
+        <div className="sub">{plannedPerWeek > 0
+          ? tn('{1} of {0} training day this week.', '{1} of {0} training days this week.', plannedPerWeek, Math.min(doneThisWeek, plannedPerWeek))
+          : today.toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      </div>
     </div>
 
     <div className="card">
@@ -141,9 +155,9 @@ export default function Home() {
         <div style={{ marginTop: 10 }}><Button size="sm" variant="tinted" onClick={() => nav('/plan')}>{t('Set up in Plan')}</Button></div>
       </div>) : <>
         <div className="row between" style={{ marginBottom: 8 }}>
-          <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 'var(--fs-subhead)' }} onClick={() => setWeekOffset(w => w - 1)} aria-label={t('Previous week')}><Icon name="chevronLeft" /></button>
+          <button className="iconbtn home-week-arrow" style={{ fontSize: 'var(--fs-subhead)' }} onClick={() => setWeekOffset(w => w - 1)} aria-label={t('Previous week')}><Icon name="chevronLeft" /></button>
           <div className="small muted" style={{ fontWeight: 500 }}>{wkLabel}</div>
-          <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 'var(--fs-subhead)' }} onClick={() => setWeekOffset(w => w + 1)} aria-label={t('Next week')}><Icon name="chevronRight" /></button>
+          <button className="iconbtn home-week-arrow" style={{ fontSize: 'var(--fs-subhead)' }} onClick={() => setWeekOffset(w => w + 1)} aria-label={t('Next week')}><Icon name="chevronRight" /></button>
         </div>
         <div className="week">{strip}</div>
       </>}
@@ -151,6 +165,9 @@ export default function Home() {
       {left && <div className={'small dim wkleft' + (left.left > 0 ? '' : ' done')}>
         {left.left > 0 ? tn('{0} of {1} left this week', '{0} of {1} left this week', left.left, left.of) : t('All done this week. Nice.')}
       </div>}
+    </div>
+
+    <div className="card today-card">
       {/* Once today's session is logged the row stops asking for it. The week strip already
           knew (its dot goes 'done'); this row did not, so a finished day kept showing the
           routine name behind a green Start tag and read as still outstanding (issue #4).
@@ -174,7 +191,7 @@ export default function Home() {
         </div>
         {S.active ? <span className="tag" style={{ color: 'var(--orange)', background: 'color-mix(in srgb,var(--orange) 16%,transparent)' }}>{editingSaved ? t('Edit') : t('Resume')}</span>
           : doneToday ? <span className="tag" style={{ color: 'var(--green)', background: 'color-mix(in srgb,var(--green) 16%,transparent)' }}>{t('Done')}</span>
-          : routine ? <span className="row" style={{ gap: 8 }}><MiniBodyMap routines={todayRoutines} body={S.body} /><span className="tag acc">{t('Start')}</span></span>
+          : routine ? <span className="row" style={{ gap: 10 }}><MiniBodyMap routines={todayRoutines} body={S.body} /><span className="today-play" role="img" aria-label={t('Start')}><Icon name="play" /></span></span>
           : <Icon name="plus" className="chev" />}
       </div>
       {/* The row above starts today's plan in one tap, and so does the Start button in the tab
@@ -190,6 +207,10 @@ export default function Home() {
       </div>}
       <SeasonDeco spot="home-hero" />
     </div>
+
+    {/* Steps and resting heart rate (Google Health, PLAN.md Phase 4), then this week's training. */}
+    <HomeMetrics />
+    {S.workouts.length > 0 && <TrainingBarChart S={S} />}
 
     {/* Monday: Your week; the 1st: Your month (lib/recap.js). Off in Settings → Look & Home. */}
     <RecapHomeCard S={S} />

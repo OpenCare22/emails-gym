@@ -2,7 +2,7 @@
 // Do not edit by hand: change the frontend strings and run the script again.
 export const WRAPPED_COPY = {
   "en": {
-    "title": "Your {0} in openGym is ready 🎉",
+    "title": "Your {0} in Email’s Gym is ready 🎉",
     "body": "Workouts, records and one very honest personality test. Tap to see your year."
   }
 };

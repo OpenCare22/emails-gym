@@ -8,7 +8,8 @@
 export const FORMATS = { story: { width: 1080, height: 1920 }, square: { width: 1080, height: 1080 } }
 export const FORMAT_IDS = Object.keys(FORMATS)
 export const STYLE_IDS = ['dark', 'light']
-export const SITE = 'opengym.ch'
+// No site of our own to print under the name (upstream printed opengym.ch here).
+export const SITE = ''
 
 /**
  * The colours of a card, the app's own (index.css) in a fixed light or dark look, whatever the
@@ -42,32 +43,52 @@ export function mixColor(a, b, p) {
   return `rgb(${ch(0)}, ${ch(1)}, ${ch(2)})`
 }
 
-export function cardPalette(style, acc = '#30d158') {
+export function cardPalette(style, acc = '#a7c7a2') {
   const light = style === 'light'
-  const a = parseColor(acc) ? acc : '#30d158'
+  const a = parseColor(acc) ? acc : '#a7c7a2'
   return light
-    ? { bg: '#f2f2f7', surface: '#ffffff', tile: '#f2f2f7', label: '#000000', label2: '#6c6c70', acc: a, accText: mixColor(a, '#000000', 0.62), sep: '#e5e5ea', light: true }
-    : { bg: '#000000', surface: '#1c1c1e', tile: '#2c2c2e', label: '#ffffff', label2: '#98989f', acc: a, accText: a, sep: '#38383a', light: false }
+    ? { bg: '#f8f9f7', surface: '#ffffff', tile: '#f0f2ef', label: '#161b17', label2: '#626c64', acc: a, accText: mixColor(a, '#000000', 0.62), sep: '#dce2dc', light: true }
+    : { bg: '#0b0d0c', surface: '#161a18', tile: '#202622', label: '#f5f7f4', label2: '#a0aaa1', acc: a, accText: a, sep: '#333a35', light: false }
 }
 
-// The dumbbell of the app icon (public/icon-512.png) on a 208×72 grid, centred on 0,0.
-const MARK = [[-72, -10, 144, 20], [-80, -36, 20, 72], [-104, -25, 17, 50], [60, -36, 20, 72], [87, -25, 17, 50]]
-export const MARK_ASPECT = 208 / 72
+// The Email's Gym slab E (design/emails_gym_icon.svg), in the icon's own 1024 grid: three bands
+// as M/H/L/Q/Z paths, drawn with plain canvas calls (no Path2D, which not every runtime has).
+const MARK_PATHS = [
+  'M409 301 H702 Q718 301 709 317 L665 379 Q656 392 636 392 H353 Q338 392 348 378 L392 316 Q399 301 409 301Z',
+  'M334 466 H650 Q667 466 658 482 L612 547 Q603 560 584 560 H278 Q264 560 273 545 L318 481 Q324 466 334 466Z',
+  'M266 633 H580 Q596 633 586 649 L540 713 Q532 725 514 725 H211 Q196 725 207 710 L251 646 Q257 633 266 633Z',
+]
+const MARK_BOX = { x: 196, y: 301, w: 522, h: 424 }
+export const MARK_ASPECT = MARK_BOX.w / MARK_BOX.h
 
-/** The logo mark, `h` high, its left edge at x (its right edge for rtl), centred on y. */
+function tracePath(ctx, d) {
+  const tok = d.match(/[MHLQZ]|-?\d+(?:\.\d+)?/g)
+  let i = 0, x = 0, y = 0
+  const n = () => Number(tok[i++])
+  ctx.beginPath()
+  while (i < tok.length) {
+    const c = tok[i++]
+    if (c === 'M') { x = n(); y = n(); ctx.moveTo(x, y) }
+    else if (c === 'L') { x = n(); y = n(); ctx.lineTo(x, y) }
+    else if (c === 'H') { x = n(); ctx.lineTo(x, y) }
+    else if (c === 'Q') { const cx = n(), cy = n(); x = n(); y = n(); ctx.quadraticCurveTo(cx, cy, x, y) }
+    else if (c === 'Z') ctx.closePath()
+  }
+}
+
+/** The logo mark, `h` high, its left edge at x, centred on y. */
 export function drawMark(ctx, x, y, h, color) {
-  const s = h / 72
+  const s = h / MARK_BOX.h
   ctx.save()
-  ctx.translate(x + 104 * s, y)
+  ctx.translate(x - MARK_BOX.x * s, y - (MARK_BOX.y + MARK_BOX.h / 2) * s)
   ctx.scale(s, s)
   ctx.fillStyle = color
-  for (const [rx, ry, rw, rh] of MARK) { roundRect(ctx, rx, ry, rw, rh, 7); ctx.fill() }
+  for (const d of MARK_PATHS) { tracePath(ctx, d); ctx.fill() }
   ctx.restore()
 }
 
 /**
- * The footer every card ends with: the mark, "openGym" with "Gym" in the accent, and the site at
- * the other end. `y` is the text's baseline. Drawn left to right whatever the language: it is a
+ * The footer every card ends with: the mark and "Email’s Gym" with "Gym" in the accent. `y` is the text's baseline. Drawn left to right whatever the language: it is a
  * logo, and a logo does not mirror.
  */
 export function drawBrand(ctx, { x, y, width, colors, family, size = 40 }) {
@@ -78,15 +99,17 @@ export function drawBrand(ctx, { x, y, width, colors, family, size = 40 }) {
   ctx.textAlign = 'left'
   ctx.font = `800 ${size}px ${family}`
   ctx.fillStyle = colors.label
-  ctx.fillText('open', tx, y)
-  tx += ctx.measureText('open').width
+  ctx.fillText('Email’s ', tx, y)
+  tx += ctx.measureText('Email’s ').width
   ctx.fillStyle = colors.accText || colors.acc
   ctx.fillText('Gym', tx, y)
-  ctx.font = `600 ${Math.round(size * 0.72)}px ${family}`
-  ctx.fillStyle = colors.label2
-  ctx.textAlign = 'right'
-  ctx.fillText(SITE, x + width, y)
-  ctx.textAlign = 'left'
+  if (SITE) {
+    ctx.font = `600 ${Math.round(size * 0.72)}px ${family}`
+    ctx.fillStyle = colors.label2
+    ctx.textAlign = 'right'
+    ctx.fillText(SITE, x + width, y)
+    ctx.textAlign = 'left'
+  }
 }
 
 export function roundRect(ctx, x, y, w, h, r) {

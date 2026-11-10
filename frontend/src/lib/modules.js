@@ -20,6 +20,7 @@
 // The core (logging, plans, history, the exercise library, the basic stats) is not a module.
 // Pure: no imports, so lib/ helpers such as history.js effortOf can use it without a cycle.
 
+import { hidden } from './fork-hidden.js'
 /* `title` and `desc` are English keys, translated where they are shown. Order is the page's. */
 export const MODULES = [
   { id: 'effort', group: 'training', icon: 'gauge', tint: 'var(--purple)', title: 'Effort',
@@ -39,7 +40,7 @@ export const MODULES = [
   { id: 'health', group: 'body', icon: 'heart', tint: 'var(--red)', title: 'Health',
     desc: 'Apple Health or Health Connect, heart rate and recovery tips.' },
   { id: 'motivation', group: 'extras', icon: 'flame', tint: 'var(--orange)', title: 'Motivation',
-    desc: 'Streaks, challenges, badges, recaps and your year in openGym.' },
+    desc: 'Streaks, challenges, badges, recaps and your year in Email’s Gym.' },
   { id: 'coach', group: 'extras', icon: 'sparkles', tint: 'var(--green)', title: 'AI Coach',
     desc: 'Reviews your training and suggests changes. You still say yes or no.' },
   { id: 'integrations', group: 'extras', icon: 'webhook', tint: 'var(--indigo)', title: 'Integrations',
@@ -69,6 +70,8 @@ const isMap = v => !!v && typeof v === 'object' && !Array.isArray(v)
 
 /** Whether module `id` is on for this profile. Unknown ids are on (a newer client's module). */
 export function isOn(S, id) {
+  // A module this fork hides (lib/fork-hidden.js) is off, whatever the profile says.
+  if (hidden(id)) return false
   const v = isMap(S?.modules) ? S.modules[id] : undefined
   if (typeof v === 'boolean') return v
   // Before 1.4.4 the check-in had its own switch in Look & Home; it decides until Modules does.

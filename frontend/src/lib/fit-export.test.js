@@ -171,7 +171,7 @@ describe('a strength workout as FIT', () => {
   const sets = of(d, MSG.set)
   const active = sets.filter(s => s[5] === 1)
 
-  it('is a valid activity file from openGym', () => {
+  it('is a valid activity file from Email’s Gym', () => {
     expect(fitCrc(workoutFit(strength))).toBe(0)
     const [id] = of(d, MSG.fileId)
     expect(id[0]).toBe(4)                         // activity
@@ -179,7 +179,7 @@ describe('a strength workout as FIT', () => {
     expect(id[3]).toBeGreaterThan(0)              // serial, stable per workout
     expect(id[4]).toBe(fitTime(T0))
     expect(of(d, MSG.fileCreator)[0][0]).toBe(104)
-    expect(of(d, MSG.deviceInfo)[0][27]).toBe('openGym')
+    expect(of(d, MSG.deviceInfo)[0][27]).toBe("Email's Gym")
     expect(decode(workoutFit(strength)).messages.find(m => m.global === MSG.fileId).f[3]).toBe(id[3])
   })
 

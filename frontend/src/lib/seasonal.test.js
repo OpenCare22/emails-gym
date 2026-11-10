@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 // Seasonal themes (lib/seasonal.js): the date window, the choice, the opt-in colours, once a day.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Upstream's behaviour with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('./fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { THEMES, inSeason, seasonChoice, themeOn, activeSeason, seasonAccent, seasonInWorkout, onceToday, doneToday } from './seasonal.js'
 
 const local = (y, m, d, h = 12, min = 0) => new Date(y, m - 1, d, h, min)

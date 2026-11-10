@@ -11,7 +11,7 @@
 //    element inside the page area (Firefox clips anything placed in the margin), sitting on the
 //    last lines of each page, and page numbers would need our own pagination guessing where the
 //    browser breaks pages. A wrong page number is worse than none;
-//  - a white, ink-light page: thin rules, grey text, the lime accent only as a small mark;
+//  - a white, ink-light page: thin rules, grey text, the sage accent only as a small mark;
 //  - the page-break rules: anything marked .keep stays on one page, a heading is printed inside
 //    the same .keep as the first block under it so it can never be left alone at a page bottom,
 //    and long tables repeat their header row on the next page. All of it in plain block layout,
@@ -43,11 +43,13 @@ export function probeMarks(probe) {
   return { s: id => mark('s', id), e: id => mark('e', id), h: id => mark('h', id) }
 }
 
-// The app icon (frontend/resources/icon.svg), drawn small: the lime dumbbell on its dark tile.
-export const LOGO_SVG = '<svg class="logo-mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#0c0e12"/>'
-  + '<g fill="#a3e635"><rect x="80" y="242" width="352" height="28"/><rect x="80" y="199" width="36" height="114"/>'
-  + '<rect x="131" y="169" width="47" height="174"/><rect x="334" y="169" width="47" height="174"/>'
-  + '<rect x="396" y="199" width="36" height="114"/></g></svg>'
+// The Email's Gym mark (design/emails_gym_icon.svg), drawn small: the slab E on its dark tile.
+export const LOGO_SVG = '<svg class="logo-mark" viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" rx="224" fill="#0b0d0c"/>'
+  + '<g fill="#f4f6f2" transform="translate(45 0)">'
+  + '<path d="M409 301 H702 Q718 301 709 317 L665 379 Q656 392 636 392 H353 Q338 392 348 378 L392 316 Q399 301 409 301Z"/>'
+  + '<path d="M334 466 H650 Q667 466 658 482 L612 547 Q603 560 584 560 H278 Q264 560 273 545 L318 481 Q324 466 334 466Z"/>'
+  + '<path d="M266 633 H580 Q596 633 586 649 L540 713 Q532 725 514 725 H211 Q196 725 207 710 L251 646 Q257 633 266 633Z"/>'
+  + '</g></svg>'
 
 // "Page {0} of {1}" in the reader's language, as the content of an @page margin box: the text
 // around the two numbers comes from the translation, the numbers from CSS counters.
@@ -70,13 +72,13 @@ export const PRINT_CSS = `
   @page {
     size: auto;
     margin: 15mm 14mm 17mm;
-    @bottom-left { content: "opengym.ch"; font: 7.5pt/1 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #9aa0ad; }
-    @bottom-right { font: 7.5pt/1 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #9aa0ad; }
+    @bottom-left { content: "Email’s Gym"; font: 7.5pt/1 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #9aa59b; }
+    @bottom-right { font: 7.5pt/1 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #9aa59b; }
   }
   :root {
-    --ink: #15171c; --ink-2: #3b404b; --muted: #6b7180; --faint: #9aa0ad;
-    --rule: #e3e6ec; --rule-soft: #eff1f5; --tint: #f6f7f9;
-    --lime: #a3e635; --lime-ink: #4d7c0f; --lime-soft: #f1f9e1;
+    --ink: #161b17; --ink-2: #414a43; --muted: #626c64; --faint: #9aa59b;
+    --rule: #dce2dc; --rule-soft: #eef1ed; --tint: #f8f9f7;
+    --sage: #648d68; --sage-ink: #355d3b; --sage-soft: #eef4ee;
   }
   * { box-sizing: border-box; }
   html { color-scheme: light; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -100,7 +102,7 @@ export const PRINT_CSS = `
   .logo-mark { width: 18pt; height: 18pt; flex: none; }
   .mast-meta { font-size: 8pt; color: var(--muted); text-align: end; line-height: 1.35; }
   .mast-meta b { color: var(--ink-2); font-weight: 600; }
-  .kicker { font-size: 7.5pt; letter-spacing: .12em; text-transform: uppercase; color: var(--lime-ink); font-weight: 700; margin-bottom: 2pt; }
+  .kicker { font-size: 7.5pt; letter-spacing: .12em; text-transform: uppercase; color: var(--sage-ink); font-weight: 700; margin-bottom: 2pt; }
   h1 { font-size: 19pt; line-height: 1.15; letter-spacing: -.02em; margin: 0; font-weight: 700; overflow-wrap: anywhere; }
   .facts { color: var(--muted); font-size: 9pt; margin-top: 4pt; }
   .facts .dot { color: var(--faint); padding: 0 4pt; }
@@ -151,13 +153,13 @@ export function printShell({ title, kicker = '', facts = [], owner = '', date, b
 ${css}</style></head>
 <body><div class="doc">
   <header class="mast keep">
-    <div class="mast-top"><div class="brand">${LOGO_SVG}<span>openGym</span></div><div class="mast-meta">${meta}</div></div>
+    <div class="mast-top"><div class="brand">${LOGO_SVG}<span>Email’s Gym</span></div><div class="mast-meta">${meta}</div></div>
     ${kicker ? `<div class="kicker">${esc(kicker)}</div>` : ''}
     <h1>${esc(title)}</h1>
     ${factLine ? `<div class="facts">${factLine}</div>` : ''}
   </header>
   ${body}
-  <div class="end keep">${esc(t('Made with openGym'))} · opengym.ch${credit ? `<div class="credit" lang="en" dir="ltr">${esc(credit)}</div>` : ''}</div>
+  <div class="end keep">${esc(t('Made with Email’s Gym'))}${credit ? `<div class="credit" lang="en" dir="ltr">${esc(credit)}</div>` : ''}</div>
 </div></body></html>`
 }
 
@@ -174,7 +176,7 @@ export function paperFor(locale) {
 export function printOptions() {
   let locale = ''
   try { locale = navigator.language || '' } catch (e) { /* */ }
-  return { paper: paperFor(locale), footer: { left: 'opengym.ch', page: t('Page {0} of {1}') } }
+  return { paper: paperFor(locale), footer: { left: 'Email’s Gym', page: t('Page {0} of {1}') } }
 }
 
 // The web: a hidden iframe and the browser's own print dialog (→ Save as PDF), so we never
@@ -212,7 +214,7 @@ function printInFrame(html) {
  * suggested PDF file; Android refuses a job without one.
  */
 export function printDocument(html, name) {
-  if (MOBILE) return printHtml(html, name || 'openGym', printOptions()).catch(() => { /* dismissed */ })
+  if (MOBILE) return printHtml(html, name || 'Email’s Gym', printOptions()).catch(() => { /* dismissed */ })
   printInFrame(html)
   return Promise.resolve()
 }

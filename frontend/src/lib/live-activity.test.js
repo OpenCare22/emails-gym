@@ -11,7 +11,7 @@ const L = await import('./live-activity.js')
 
 const set = (over = {}) => ({ w: 60, r: 8, done: false, ...over })
 const entry = (id, sets, over = {}) => ({ id, target: { mode: 'reps', restSec: 120 }, sets, ...over })
-const S = (active, over = {}) => ({ unit: 'kg', restSec: 90, accent: 'lime', active, ...over })
+const S = (active, over = {}) => ({ unit: 'kg', restSec: 90, accent: 'sage', active, ...over })
 
 describe('upcomingSets', () => {
   it('goes through the current exercise first, then the ones after it, then the ones before', () => {
@@ -34,7 +34,7 @@ describe('buildLiveActivity', () => {
 
   it('shows the set to do now, the few after it, and how far along the session is', () => {
     const live = L.buildLiveActivity(S(A))
-    expect(live.attributes).toMatchObject({ v: 2, wid: 'w1', start: 1000, accent: '#30d158' })
+    expect(live.attributes).toMatchObject({ v: 2, wid: 'w1', start: 1000, accent: '#a7c7a2' })
     for (const k of ['done', 'rest', 'next', 'allDone', 'restOver', 'nextExercise', 'skipRest', 'openApp']) expect(typeof live.attributes.labels[k], k).toBe('string')
     expect(live.state.name).toBe('Push')
     expect(live.state.cur).toMatchObject({ exId: '0025', entryIdx: 0, setIdx: 1, setLine: 'Set 2 of 3', restAfter: 120 })

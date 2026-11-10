@@ -9,6 +9,9 @@
   // i18n-core RTL_LANGS is the runtime source of truth — keep this list in sync.
   try {
     var s = JSON.parse(localStorage.getItem('gym_state_v1') || '{}');
+    if (s.theme === 'light' || (s.theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
     var l = s.lang || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
     document.documentElement.lang = l;
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
@@ -47,76 +50,76 @@
     }
     window.addEventListener('error', function (e) {
       var t = e && e.target;
-      if (t && t.tagName === 'SCRIPT') return fail('openGym could not start on this browser.', 'Could not load ' + (t.src || 'a script'));
+      if (t && t.tagName === 'SCRIPT') return fail('Email’s Gym could not start on this browser.', 'Could not load ' + (t.src || 'a script'));
       if (!e || !e.message) return;
       last = e.message + (e.filename ? ' at ' + e.filename.split('/').pop() + ':' + e.lineno : '');
-      if (/SyntaxError|Unexpected|Invalid regular expression/i.test(e.message)) fail('openGym could not start on this browser.', last);
+      if (/SyntaxError|Unexpected|Invalid regular expression/i.test(e.message)) fail('Email’s Gym could not start on this browser.', last);
     }, true);
     window.addEventListener('unhandledrejection', function (e) {
       var r = e && e.reason;
       if (r) last = String((r && r.message) || r);
     });
     setTimeout(function () {
-      fail(last ? 'openGym could not start on this browser.' : 'openGym is taking too long to start.', last);
+      fail(last ? 'Email’s Gym could not start on this browser.' : 'Email’s Gym is taking too long to start.', last);
     }, 10000);
   })();
 </script>
-<title>openGym</title>
-<meta name="description" content="Personal gym & body weight tracker">
-<meta name="theme-color" content="#0c0e12">
+<title>Email’s Gym</title>
+<meta name="description" content="Private workout tracker for you and your friends">
+<meta name="theme-color" content="#0b0d0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="openGym">
+<meta name="apple-mobile-web-app-title" content="Email’s Gym">
 <!-- use-credentials: browsers fetch the manifest without cookies, even same-origin; behind an auth
      proxy (Authelia, Cloudflare Access, Teleport…) that fetch is a login redirect and the Home Screen
      icon comes out generic. iOS 26 reads the icon from the manifest, so this is where it shows. -->
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-180.png">
+<!-- Inter, bundled (public/fonts, OFL: Inter-LICENSE.txt) so no phone calls Google Fonts. Relative
+     URLs, like the rest of the head, so the app also works under a sub-path. -->
+<link rel="preload" href="fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face{font-family:"Inter";src:url("fonts/InterVariable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+</style>
 </head>
 <body>
 <!-- The boot screen: painted with the HTML, before any script runs, so the gap between the
-     native splash and the first real screen is the logo loading its plates instead of a black
-     page. Same dark and lime as the native splash. lib/boot.js takes it away the moment the
+     native splash and the first real screen is the mark building itself instead of a blank page.
+     The Email's Gym slab E on the app's near-black: its three bands slide in, then it breathes
+     (lib/boot.js times its exit to that loop on .db). lib/boot.js takes it away the moment the
      app can draw, so it never adds a wait. -->
 <style>
-  #boot{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#0c0e12;transition:opacity .22s ease-out}
+  #boot{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#0b0d0c;transition:opacity .22s ease-out}
   #boot.out{opacity:0;pointer-events:none}
-  #boot svg{width:112px;height:auto;overflow:visible}
-  #boot rect,#boot ellipse{transform-box:fill-box;transform-origin:center}
-  #boot .bar{animation:boot-bar .32s cubic-bezier(.3,.7,.4,1) both}
-  #boot .pl{animation:boot-plate .28s cubic-bezier(.3,.7,.4,1.3) both}
-  #boot .pr{animation:boot-plate-r .28s cubic-bezier(.3,.7,.4,1.3) both}
-  #boot .in{animation-delay:.22s}
-  #boot .outer{animation-delay:.36s}
-  #boot .db{animation:boot-rep 1.25s ease-in-out .75s infinite}
-  #boot ellipse{fill:#a3e635;opacity:.12;animation:boot-shadow 1.25s ease-in-out .75s infinite}
-  @keyframes boot-bar{from{transform:scaleX(0)}}
-  @keyframes boot-plate{from{transform:translateX(-40px);opacity:0}}
-  @keyframes boot-plate-r{from{transform:translateX(40px);opacity:0}}
-  @keyframes boot-rep{50%{transform:translateY(-26px)}}
-  @keyframes boot-shadow{50%{transform:scaleX(.72);opacity:.05}}
+  #boot svg{width:96px;height:auto;overflow:visible}
+  #boot path{transform-box:fill-box;transform-origin:center;animation:boot-band .34s cubic-bezier(.3,.7,.4,1) both}
+  #boot .b2{animation-delay:.12s}
+  #boot .b3{animation-delay:.24s}
+  #boot .db{animation:boot-breathe 1.25s ease-in-out .75s infinite}
+  @keyframes boot-band{from{transform:translateX(-28px);opacity:0}}
+  @keyframes boot-breathe{50%{opacity:.6}}
   #boot.fail{place-items:center;padding:24px}
-  #boot.fail div{max-width:340px;font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#e6e8ec;text-align:center}
+  #boot.fail div{max-width:340px;font:15px/1.4 "Inter",system-ui,-apple-system,sans-serif;color:#f5f7f4;text-align:center}
   #boot.fail .h{font-size:19px;font-weight:600;margin:0 0 8px}
-  #boot.fail code{display:block;margin:14px 0 18px;padding:10px;border-radius:10px;background:#1a1d24;color:#a9b0bc;font-size:12px;text-align:left;word-break:break-word;-webkit-user-select:text;user-select:text}
-  #boot.fail button{font:inherit;font-weight:600;color:#0c0e12;background:#a3e635;border:0;border-radius:12px;min-height:44px;padding:0 28px}
+  #boot.fail code{display:block;margin:14px 0 18px;padding:10px;border-radius:12px;background:#161a18;color:#c4cec5;font-size:12px;text-align:left;word-break:break-word;-webkit-user-select:text;user-select:text}
+  #boot.fail button{font:inherit;font-weight:600;color:#101510;background:#f5f7f4;border:0;border-radius:12px;min-height:44px;padding:0 28px}
+  html[data-theme="light"] #boot{background:#f8f9f7}
+  html[data-theme="light"] #boot .db{fill:#161b17}
+  html[data-theme="light"] #boot.fail div{color:#161b17}
+  html[data-theme="light"] #boot.fail code{background:#f0f2ef;color:#414a43}
+  html[data-theme="light"] #boot.fail button{background:#161b17;color:#ffffff}
   @media (prefers-reduced-motion:reduce){
-    #boot .bar,#boot .pl,#boot .pr,#boot ellipse{animation:none}
-    #boot .db{animation:boot-breathe 1.6s ease-in-out infinite}
-    @keyframes boot-breathe{50%{opacity:.55}}
+    #boot path{animation:none}
   }
 </style>
 <div id="boot" aria-hidden="true">
-  <svg viewBox="80 140 352 250">
-    <ellipse cx="256" cy="372" rx="150" ry="9"/>
-    <g class="db" fill="#a3e635">
-      <rect class="bar" x="80" y="242" width="352" height="28"/>
-      <rect class="pl in" x="131" y="169" width="47" height="174"/>
-      <rect class="pr in" x="334" y="169" width="47" height="174"/>
-      <rect class="pl outer" x="80" y="199" width="36" height="114"/>
-      <rect class="pr outer" x="396" y="199" width="36" height="114"/>
+  <svg viewBox="240 290 560 445">
+    <g class="db" fill="#f4f6f2" transform="translate(45 0)">
+      <path class="b1" d="M409 301 H702 Q718 301 709 317 L665 379 Q656 392 636 392 H353 Q338 392 348 378 L392 316 Q399 301 409 301Z"/>
+      <path class="b2" d="M334 466 H650 Q667 466 658 482 L612 547 Q603 560 584 560 H278 Q264 560 273 545 L318 481 Q324 466 334 466Z"/>
+      <path class="b3" d="M266 633 H580 Q596 633 586 649 L540 713 Q532 725 514 725 H211 Q196 725 207 710 L251 646 Q257 633 266 633Z"/>
     </g>
   </svg>
 </div>

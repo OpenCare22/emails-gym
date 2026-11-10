@@ -120,7 +120,7 @@ export function AnimationQualitySheet({ close }) {
     </Section>
     {packs.available && <Section>
       <Row icon="cloud" iconTint="var(--blue)" title={t('Download over Wi-Fi only')}>
-        <Switch checked={wifiOnly} onChange={v => writePrefs({ wifiOnly: v })} />
+        <Switch aria-label={t('Download over Wi-Fi only')} checked={wifiOnly} onChange={v => writePrefs({ wifiOnly: v })} />
       </Row>
     </Section>}
     {ready.length > 0 && <Section title={t('On this device')}>

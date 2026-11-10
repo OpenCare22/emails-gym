@@ -54,7 +54,6 @@ export const STEPS = [
   { id: 'rest', route: '/workout', anchor: 'rest', sandbox: 'practice', when: c => c.rest, optional: true },
   { id: 'swipe', route: '/workout', anchor: 'swipe', sandbox: 'practice', when: c => c.swipe, optional: true },
   { id: 'more', route: '/workout', anchor: 'workout-more', sandbox: 'practice' },
-  { id: 'finish', route: '/workout', anchor: 'finish', sandbox: 'practice' },
   { id: 'go-stats', route: '/home', anchor: 'tab-stats', go: '/stats' },
   { id: 'stats', route: '/stats', anchor: 'stats-tiles' },
   { id: 'stats-body', route: '/stats', anchor: 'stats-body', when: c => c.balance, optional: true },

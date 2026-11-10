@@ -53,7 +53,7 @@ const failure = (message, code, status) => Object.assign(new Error(message), { c
 // the address they opened only ever saw "cross-origin request refused", and nobody could tell
 // what to change. The answer names ORIGIN, so the sentence can too (api/verify-error.js).
 function refusal(status, body) {
-  if (body && body.code === 'origin-mismatch') return t('This server only takes changes made at {0}. If you opened openGym at another address, whoever runs the server can set ORIGIN and RP_ID to match it (the self-hosting guide shows how).', String(body.expected || '?'))
+  if (body && body.code === 'origin-mismatch') return t('This server only takes changes made at {0}. If you opened Email’s Gym at another address, whoever runs the server can set ORIGIN and RP_ID to match it (the self-hosting guide shows how).', String(body.expected || '?'))
   return (body && body.error) || ('HTTP ' + status)
 }
 
@@ -101,7 +101,7 @@ async function exchange(url, init) {
   const body = parsed && data && typeof data === 'object' ? data : null
   // The body rides along on the error: a 409 from /api/data carries the server's document.
   if (!r.ok) { const e = new Error(refusal(r.status, body)); e.status = r.status; e.data = body || {}; throw e }
-  if (!body) throw failure(t('The server answered with something other than openGym data.'), 'bad-response', r.status)
+  if (!body) throw failure(t('The server answered with something other than Email’s Gym data.'), 'bad-response', r.status)
   return body
 }
 
@@ -211,7 +211,7 @@ export function apiUpload(path, blob, mime, { onProgress, idleMs = 60000, XHR = 
       if (body && typeof body !== 'object') body = null
       if (xhr.status >= 200 && xhr.status < 300) {
         if (body) resolve(body)
-        else reject(failure(t('The server answered with something other than openGym data.'), 'bad-response', xhr.status))
+        else reject(failure(t('The server answered with something other than Email’s Gym data.'), 'bad-response', xhr.status))
         return
       }
       if (xhr.status === 413 && !body) { reject(failure('HTTP 413', 'proxy-too-large', 413)); return }
@@ -281,14 +281,14 @@ async function whyUnreachable(base, ms) {
   // answer at all leaves the CORS explanation.
   const answer = reached ? await healthAnswer(base, ms) : null
   if (answer === 'front') {
-    return failure(t('That address answers, but a login page or proxy rule replied instead of openGym. Let /api/ through to openGym unchanged. See “Phone app and CORS” in docs/SELF_HOSTING.md.'), 'proxy-answered')
+    return failure(t('That address answers, but a login page or proxy rule replied instead of Email’s Gym. Let /api/ through to Email’s Gym unchanged. See “Phone app and CORS” in docs/SELF_HOSTING.md.'), 'proxy-answered')
   }
   if (answer === 'other') {
-    return failure(t('That address answers, but it isn’t an openGym server. Check the URL.'), 'not-opengym')
+    return failure(t('That address answers, but it isn’t an Email’s Gym server. Check the URL.'), 'not-opengym')
   }
   if (reached) {
     const origin = globalThis.location?.origin || 'https://localhost'
-    return failure(t('Your server was reached, but it refused the app’s request (CORS). If a reverse proxy such as Traefik adds CORS headers, let requests from {0} through to openGym unchanged. See “Phone app and CORS” in docs/SELF_HOSTING.md.', origin), 'cors')
+    return failure(t('Your server was reached, but it refused the app’s request (CORS). If a reverse proxy such as Traefik adds CORS headers, let requests from {0} through to Email’s Gym unchanged. See “Phone app and CORS” in docs/SELF_HOSTING.md.', origin), 'cors')
   }
   // An address typed without a scheme is tried as https://. A home server on plain http gives
   // that try nothing to talk to, while the phone's browser, which tries http, opens it (#428).
@@ -337,7 +337,7 @@ export async function pairRedeem(serverBase, code, { probeMs = PROBE_MS } = {}) 
   }
   // Anything that is not a pairing would be saved as one — and the phone would then send every
   // change to a server that never gave it a token.
-  if (!data.token || !data.user) throw failure(t('The server answered with something other than openGym data.'), 'bad-response', 200)
+  if (!data.token || !data.user) throw failure(t('The server answered with something other than Email’s Gym data.'), 'bad-response', 200)
   return data
 }
 

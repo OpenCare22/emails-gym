@@ -41,18 +41,18 @@ export function WorkoutSettings({ close }) {
         })} />
       <Row icon="speaker" iconTint="var(--pink)" title={t('Play a sound')}>
         {/* A tap: unlock the audio now so a rest ending before the next tick can sound (iOS, #152). */}
-        <Switch checked={!!S.sound} onChange={v => { if (v) unlock(true); update(s => { s.sound = v }) }} />
+        <Switch aria-label={t('Play a sound')} checked={!!S.sound} onChange={v => { if (v) unlock(true); update(s => { s.sound = v }) }} />
       </Row>
       <Row icon="vibrate" iconTint="var(--indigo)" title={t('Vibrate')} className={canVibrate ? '' : 'dis'}
         subtitle={canVibrate ? null : iPhone ? t('Not on iPhone') : t('Not supported in this browser.')}>
-        <Switch checked={canVibrate && S.vibrate !== false} disabled={!canVibrate} onChange={v => update(s => { s.vibrate = v })} />
+        <Switch aria-label={t('Vibrate')} checked={canVibrate && S.vibrate !== false} disabled={!canVibrate} onChange={v => update(s => { s.vibrate = v })} />
       </Row>
       <Row icon="sun" iconTint="var(--yellow)" title={t('Flash the screen')}>
-        <Switch checked={!!S.timerFlash} onChange={v => update(s => { s.timerFlash = v })} />
+        <Switch aria-label={t('Flash the screen')} checked={!!S.timerFlash} onChange={v => update(s => { s.timerFlash = v })} />
       </Row>
       {(wakeOK || !MOBILE) && <Row icon="phoneScreen" iconTint="var(--yellow)" title={t('Keep screen awake')}
         subtitle={wakeOK ? t('The screen stays on while a workout is running, so you don’t have to unlock your phone between sets.') : t('Not supported in this browser.')}>
-        <Switch checked={wakeOK && S.keepAwake !== false} disabled={!wakeOK} onChange={v => update(s => { s.keepAwake = v })} />
+        <Switch aria-label={t('Keep screen awake')} checked={wakeOK && S.keepAwake !== false} disabled={!wakeOK} onChange={v => update(s => { s.keepAwake = v })} />
       </Row>}
     </Section>
     <Section>

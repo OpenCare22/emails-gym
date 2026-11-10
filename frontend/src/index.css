@@ -17,70 +17,105 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------- tokens -- */
+/* Email's Gym tokens (design/EMAILS_GYM_CLAUDE_CODE_HANDOFF.md §2), mapped onto the variables the
+   app already uses, so every component picks them up without a second system:
+
+   handoff token            this sheet         dark       light
+   ------------------------ ------------------ ---------- ----------
+   Background               --bg               #0B0D0C    #F8F9F7
+   (sheets, bars)           --bg-el            #111412    #F3F5F2    between bg and surface
+   Surface/card             --surface          #161A18    #FFFFFF
+   Elevated surface         --surface-2        #202622    #F0F2EF    also --surface-raised
+   (controls, tracks)       --surface-3        #2A312C    #E4E8E3    between elevated and border
+   Divider/border           --sep              #333A35    #DCE2DC
+   Primary text             --label            #F5F7F4    #161B17
+   Secondary text           --label-2          #C4CEC5    #414A43
+   Muted text               --label-3/-dim     #A0AAA1    #626C64    solid, never opacity
+   Accent (decorative)      --acc              #A7C7A2    #648D68    per preset below
+   Text/link accent         --acc-ink          #A7C7A2    #355D3B
+   Accent foreground        --on-acc           #101510    #101510    5.0:1 on light sage
+   Primary button           --btn              #F5F7F4    #161B17
+   Primary button text      --on-btn           #101510    #FFFFFF
+   Success / PR             --green-ink        #76C59A    #236B46
+   Warning                  --orange-ink       #F0BE65    #8A5B0B
+   Error                    --red-ink          #FF8A8E    #A83138
+   Heart rate               --heart-rate       #FF7785    #B33443    new
+   HR zones                 --zone-1..5        one set for both themes   new
+   Chart series             --chart-1..6       one set for both themes   new
+   Card radius              --r-card           16px
+   Control radius           --r                12px
+
+   frontend/src/lib/theme-contrast.test.js reads this block and checks every text/background
+   pair in both themes and every accent preset against WCAG AA. */
 :root {
   /* surfaces — dark is the default */
-  --bg:        #000000;
-  --bg-el:     #0e0e10;   /* elevated backdrop (sheets, bars) */
-  --surface:   #1c1c1e;   /* card / grouped-list fill */
-  --surface-2: #2c2c2e;   /* pressed + nested fill */
-  --surface-3: #3a3a3c;   /* controls (segmented track, switch off) */
-  /* Things that float over the page (the tour bubble, a dialog, the rest timer, a chart's tooltip,
-     the back-to-top button): one step lighter than a card and edged with a hairline of light, so
-     in the dark theme they read as lifted rather than as one more card under a shadow you cannot
-     see on black (redesign 1.4.5, P11). In the light theme white with the shadow does that. */
-  --surface-raised: #2c2c2e;
-  --raised-line: rgba(255,255,255,.09);
+  --bg:        #0b0d0c;
+  --bg-el:     #111412;   /* elevated backdrop (sheets, bars) */
+  --surface:   #161a18;   /* card / grouped-list fill */
+  --surface-2: #202622;   /* pressed + nested fill */
+  --surface-3: #2a312c;   /* controls (segmented track, switch off) */
+  /* Things that float over the page (the tour bubble, a dialog, the rest timer, a chart's tooltip):
+     one step lighter than a card and edged with a hairline of light. */
+  --surface-raised: #202622;
+  --raised-line: rgba(245,247,244,.09);
 
-  /* text */
-  --label:     #ffffff;
-  --label-2:   rgba(235,235,245,.60);
-  --label-3:   rgba(235,235,245,.32);
-  --label-4:   rgba(235,235,245,.18);
-  --label-dim: rgba(235,235,245,.50);
+  /* text: solid colours, so contrast is what the test measures */
+  --label:     #f5f7f4;
+  --label-2:   #c4cec5;
+  --label-3:   #a0aaa1;
+  --label-4:   rgba(160,170,161,.22);   /* fills and faint rules only, never text */
+  --label-dim: #a0aaa1;
 
   /* lines */
-  --sep:       rgba(84,84,88,.60);
-  --sep-op:    rgba(84,84,88,.34);   /* for edges sitting over blur */
+  --sep:       #333a35;
+  --sep-op:    rgba(51,58,53,.6);   /* for edges sitting over blur */
   --hair:      .5px;
 
-  /* system palette (iOS dark values) */
-  --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
-  --yellow:#ffd60a; --teal:#40c8e0; --indigo:#5e5ce6; --pink:#ff375f;
-  --purple:#bf5af2; --mint:#63e6e2; --brown:#ac8e68; --grey:#8e8e93;
+  /* system palette, kept for icon tints and status glyphs */
+  --blue:#76b9f1; --green:#76c59a; --red:#ff8a8e; --orange:#f0be65;
+  --yellow:#f0be65; --teal:#4db8a3; --indigo:#c0abe9; --pink:#e58e86;
+  --purple:#c0abe9; --mint:#4db8a3; --brown:#a9b8bf; --grey:#a0aaa1;
 
-  /* accent (per-account, synced) */
-  --acc:  var(--green);
-  --acc-2:#248a3d;
-  --on-acc:#000000;
+  /* accent (per-account, synced): sage by default */
+  --acc:  #a7c7a2;
+  --acc-2:#7d9a79;
+  --on-acc:#101510;
   --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
   --acc-line: color-mix(in srgb, var(--acc) 38%, transparent);
-  /* The accent as text, an icon or a focus ring: the accent itself in the dark theme. In the light
-     theme the presets' fills (#34c759 green, #ff9500 orange, #ffcc00 yellow) are 2:1 on the page,
-     so every accent-coloured word (Add set, Next, the progression line, links) takes a darker
-     shade of the same hue that reaches 4.5:1 (design review 1.4.5). Fills keep --acc. */
-  --acc-ink: var(--acc);
+  /* The accent as text, an icon or a focus ring. */
+  --acc-ink: #a7c7a2;
+
+  /* the primary action: off-white in the dark theme, near-black in the light one (handoff §1) */
+  --btn: #f5f7f4;
+  --on-btn: #101510;
+
+  /* heart rate, its zones, and chart series (handoff §2): series hues, not text colours */
+  --heart-rate: #ff7785;
+  --zone-1:#438fe0; --zone-2:#30b78b; --zone-3:#9dbe55; --zone-4:#e9a64f; --zone-5:#e76670;
+  --chart-1:#56a8e3; --chart-2:#e1aa51; --chart-3:#4db8a3; --chart-4:#bb8bdd; --chart-5:#e58e86; --chart-6:#a9b8bf;
 
   /* geometry */
-  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:14px;
+  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:16px;
   --pad:16px;
+  --gutter:20px; --card-gap:12px; --touch-min:44px;
   --icon-stroke:1.7;
 
-  /* type scale (redesign 1.4.5, P1): the iPhone's text styles, in rem so a browser's text size
-     and zoom scale the words and the layout around them together. Every text size in the sheets
-     and the views is one of these; what stays in px is a glyph (an icon's size) or a display
-     figure inside a fixed box (the timer, a tile's number). Size, leading and tracking move as a
-     set: tighter as the type grows, a hair looser as it shrinks (APPLE §15). */
+  /* type scale, in rem so a browser's text size and zoom scale it (handoff §3) */
+  --font: "Inter", system-ui, -apple-system, sans-serif;
   --fs-caption2:.6875rem;  /* 11: tab labels, badges */
-  --fs-caption:.75rem;     /* 12: meta, axis text, small labels */
-  --fs-footnote:.8125rem;  /* 13: subtitles, the small line over a title */
-  --fs-subhead:.9375rem;   /* 15: secondary lines, values */
-  --fs-callout:1rem;       /* 16: titles in dense lists, inputs */
-  --fs-body:1.0625rem;     /* 17: body and row titles */
-  --fs-title3:1.25rem;     /* 20: card titles, an exercise name */
+  --fs-caption:.75rem;     /* 12: small metadata */
+  --fs-footnote:.8125rem;  /* 13: small metadata, subtitles */
+  --fs-subhead:.875rem;    /* 14: secondary labels */
+  --fs-callout:1rem;       /* 16: body, controls */
+  --fs-body:1rem;          /* 16: body and row titles */
+  --fs-card:1.0625rem;     /* 17: card headings */
+  --fs-section:1.125rem;   /* 18: section headings */
+  --fs-title3:1.375rem;    /* 22: the exercise on the workout screen */
   --fs-title2:1.375rem;    /* 22: a lead line */
-  --fs-large:2.125rem;     /* 34: the page title (30 on a narrow phone, below) */
-  --lh-tight:1.06; --lh-title:1.2; --lh-body:1.29; --lh-small:1.38;
-  --ls-large:-.028em; --ls-title:-.021em; --ls-body:-.01em; --ls-small:-.004em;
+  --fs-large:2rem;         /* 32: the screen heading (30 on a narrow phone, below) */
+  --fs-display:3rem;       /* 48: big workout weight and the timer */
+  --lh-tight:1.08; --lh-title:1.2; --lh-body:1.4; --lh-small:1.4;
+  --ls-large:-.022em; --ls-title:-.017em; --ls-body:-.006em; --ls-small:0em;
 
   /* motion */
   --ease:cubic-bezier(.32,.72,0,1);
@@ -113,90 +148,52 @@
 }
 
 :root[data-theme="light"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #f7f7fa;
+  --bg:        #f8f9f7;
+  --bg-el:     #f3f5f2;
   --surface:   #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
+  --surface-2: #f0f2ef;
+  --surface-3: #e4e8e3;
   --surface-raised: #ffffff;
-  --raised-line: rgba(60,60,67,.10);
+  --raised-line: rgba(22,27,23,.10);
 
-  --label:     #000000;
-  /* .75, not the system's .60: at .60 the secondary text was 3.5:1 on a white card and 3.2:1 on
-     the grey page, under the 4.5:1 that 13-15px text needs. .75 is 5.2:1 and 4.9:1, still
-     plainly the second voice next to the black (design review 1.4.5). */
-  --label-2:   rgba(60,60,67,.75);
-  --label-3:   rgba(60,60,67,.30);
-  --label-4:   rgba(60,60,67,.16);
-  --label-dim: var(--label-2);
+  --label:     #161b17;
+  --label-2:   #414a43;
+  --label-3:   #626c64;
+  --label-4:   rgba(98,108,100,.18);
+  --label-dim: #626c64;
 
-  --sep:       rgba(60,60,67,.29);
-  --sep-op:    rgba(60,60,67,.20);
+  --sep:       #dce2dc;
+  --sep-op:    rgba(220,226,220,.7);
 
-  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
-  --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
-  --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
-  --acc-2:#248a3d;
-  --on-acc:#ffffff;
+  --blue:#2466a0; --green:#236b46; --red:#a83138; --orange:#8a5b0b;
+  --yellow:#8a5b0b; --teal:#1f7a68; --indigo:#735aa0; --pink:#9c503a;
+  --purple:#735aa0; --mint:#1f7a68; --brown:#5d6b72; --grey:#626c64;
+
+  --acc:#648d68; --acc-2:#4e7052; --on-acc:#101510; --acc-ink:#355d3b;
+  --btn: #161b17;
+  --on-btn: #ffffff;
+  --heart-rate: #b33443;
+  /* The handoff's zone and series hues are 2.0-3.4:1 on white; the same hues darkened just
+     enough for 3:1 against the light card and elevated surface (WCAG 1.4.11 graphics). */
+  --zone-1:#428cdc; --zone-2:#299c76; --zone-3:#799241; --zone-4:#b3803d; --zone-5:#de626c;
+  --chart-1:#4a90c3; --chart-2:#ad833e; --chart-3:#3f9786; --chart-4:#a379c0; --chart-5:#be766f; --chart-6:#808c91;
 }
 
-/* accents — Apple's system colours, so a recolour never looks off-system */
-:root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
-:root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
-:root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
-:root[data-accent="violet"]{ --acc:var(--purple); --acc-2:#8944ab; --on-acc:#fff }
-:root[data-accent="pink"]  { --acc:var(--pink);   --acc-2:#d70036; --on-acc:#fff }
-:root[data-accent="red"]   { --acc:var(--red);    --acc-2:#d70015; --on-acc:#fff }
-:root[data-accent="teal"]  { --acc:var(--teal);   --acc-2:#0071a4; --on-acc:#000 }
-:root[data-accent="gold"]  { --acc:var(--yellow); --acc-2:#b25000; --on-acc:#000; --knob-ring:rgba(0,0,0,.28) }
-/* --acc-ink in the light theme, per preset: 4.5:1 or better on both --bg (#f2f2f7) and white. A
-   colour of the user's own gets its --acc-ink inline from lib/accent.js (inkIn), to the same 4.5:1
-   in both themes (redesign 1.4.5, P12). */
-:root[data-theme="light"][data-accent="lime"]  { --acc-ink:#1a7f37 }
-:root[data-theme="light"][data-accent="sky"]   { --acc-ink:#0062cc }
-:root[data-theme="light"][data-accent="orange"]{ --acc-ink:#a85200 }
-:root[data-theme="light"][data-accent="violet"]{ --acc-ink:#8944ab }
-:root[data-theme="light"][data-accent="pink"]  { --acc-ink:#d70036 }
-:root[data-theme="light"][data-accent="red"]   { --acc-ink:#d70015 }
-:root[data-theme="light"][data-accent="teal"]  { --acc-ink:#0071a4 }
-:root[data-theme="light"][data-accent="gold"]  { --acc-ink:#8f5e00 }
-/* Label colour on a filled accent button is picked per accent by measured contrast,
-   not by taste. Button text is 17px/600, so the AA bar is 3:1 (large text). White on
-   the light-theme green is 2.22:1 and on teal 2.57:1 — both fail, and green is the
-   DEFAULT accent, so every primary button in light mode was failing. Black scores
-   9.46 / 8.16 there. Blue, purple, pink and red keep white (3.5–4.1:1), which both
-   passes and matches the platform convention. */
-:root[data-theme="light"][data-accent="lime"],
-:root[data-theme="light"][data-accent="teal"]  { --on-acc:#000 }
-:root[data-theme="light"][data-accent="sky"],
-:root[data-theme="light"][data-accent="violet"],
-:root[data-theme="light"][data-accent="pink"],
-:root[data-theme="light"][data-accent="red"]   { --on-acc:#fff }
+/* accents: sage (the default, above), blue, terracotta, lavender. Each has a fill (--acc), its
+   pressed shade, the text on it (--on-acc) and its colour as text (--acc-ink), per theme.
+   A colour of the user's own gets the same set inline from lib/accent.js, held to the same bars. */
+:root[data-accent="blue"]      { --acc:#76b9f1; --acc-2:#4f93cc; --on-acc:#101510; --acc-ink:#76b9f1 }
+:root[data-accent="terracotta"]{ --acc:#e9a08a; --acc-2:#c47d68; --on-acc:#101510; --acc-ink:#e9a08a }
+:root[data-accent="lavender"]  { --acc:#c0abe9; --acc-2:#9a86c4; --on-acc:#101510; --acc-ink:#c0abe9 }
+:root[data-theme="light"][data-accent="blue"]      { --acc:#2466a0; --acc-2:#1b4f7c; --on-acc:#ffffff; --acc-ink:#2466a0 }
+:root[data-theme="light"][data-accent="terracotta"]{ --acc:#9c503a; --acc-2:#7a3e2d; --on-acc:#ffffff; --acc-ink:#9c503a }
+:root[data-theme="light"][data-accent="lavender"]  { --acc:#735aa0; --acc-2:#59457d; --on-acc:#ffffff; --acc-ink:#735aa0 }
 
-/* Increase Contrast (iOS, macOS) and the other platforms' high-contrast settings. Apple's HIG
-   asks custom colours to supply a "significantly more differentiated increased contrast option";
-   the system colours below are the increased-contrast values from its colour table. Secondary
-   text and hairlines get firmer too, since those are what fade first. The brighter dark-theme
-   accents fall under 3:1 with white on a filled button (blue 2.2:1, red 2.9:1), so every accent
-   takes black text there; the darker light-theme ones keep the inks chosen above. */
+/* Increase Contrast: secondary and muted text move toward the primary, and hairlines firm up,
+   since those are what fade first. The accents keep their fills; their inks already pass AA. */
 @media (prefers-contrast: more){
-  :root{
-    --blue:#5cb8ff; --green:#4ad968; --red:#ff6165; --orange:#ffa056;
-    --yellow:#fedf43; --teal:#3bddec; --indigo:#a7aaff; --pink:#ff8ac4;
-    --purple:#ea8dff; --mint:#54dfcb; --brown:#dba679; --grey:#aeaeb2;
-    --label-2:rgba(235,235,245,.78); --label-3:rgba(235,235,245,.55); --label-4:rgba(235,235,245,.36);
-    --label-dim:rgba(235,235,245,.66);
-    --sep:rgba(84,84,88,.95); --sep-op:rgba(84,84,88,.8);
-  }
-  :root:not([data-theme="light"]){ --on-acc:#000 }
-  :root[data-theme="light"]{
-    --blue:#1e6ef4; --green:#008932; --red:#e9152d; --orange:#c55300;
-    --yellow:#a16a00; --teal:#008198; --indigo:#564ade; --pink:#e7124d;
-    --purple:#b02fc2; --mint:#008575; --brown:#956d51; --grey:#6c6c70;
-    --label-2:rgba(60,60,67,.82); --label-3:rgba(60,60,67,.6); --label-4:rgba(60,60,67,.4);
-    --label-dim:var(--label-2);
-    --sep:rgba(60,60,67,.6); --sep-op:rgba(60,60,67,.5);
-  }
+  :root{ --label-2:#dde4dd; --label-3:#c4cec5; --label-dim:#c4cec5; --sep:#4a534c; --sep-op:#4a534c }
+  :root[data-theme="light"]{ --label-2:#2b322d; --label-3:#414a43; --label-dim:#414a43; --sep:#b9c2ba; --sep-op:#b9c2ba }
 }
 
 /* ---------------------------------------------------------------- reset -- */
@@ -211,7 +208,7 @@ html{
 }
 body{
   background:var(--bg);color:var(--label);
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Segoe UI',Roboto,system-ui,sans-serif;
+  font-family:var(--font);
   font-size:var(--fs-body);line-height:var(--lh-body);letter-spacing:var(--ls-body);
   min-height:100vh;min-height:100dvh;overscroll-behavior-y:none;overflow-x:clip;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
@@ -275,8 +272,13 @@ button,.chip,.tile,.item,.wday,.cal-d,.swatch,.hm-c,.lrow,.seg button,.stp butto
 .nocap,.tag.nocap,.chip.nocap{text-transform:none}
 
 /* ---------------------------------------------------------------- layout -- */
+/* --top-clear: room under the status bar. iOS draws a soft blur along the top edge of a Home
+   Screen web app, a little below the safe area, so titles start clear of it (Emil's iPhone,
+   2026-11-10: the tops of the page titles were caught in it at 8px). */
+:root{--top-clear:8px}
+@media (display-mode:standalone){:root{--top-clear:20px}}
 #app{
-  padding:calc(var(--sat) + var(--conn) + 8px) var(--pad) calc(88px + var(--sab));
+  padding:calc(var(--sat) + var(--conn) + var(--top-clear)) var(--pad) calc(88px + var(--sab));
   max-width:560px;margin:0 auto;
 }
 /* Android 15 with the keyboard up: room to scroll the last field on a page above the keys.
@@ -394,6 +396,7 @@ button.conn:active{filter:brightness(1.12)}
   display:flex;align-items:center;justify-content:center;font-size:18px;
   transition:background var(--fast),transform var(--fast);
 }
+.iconbtn.home-week-arrow{width:30px;height:30px}
 .iconbtn:active{transform:scale(var(--press-scale-sm))}
 /* invisible hit-area extension: these look right at their size but fall short of a
    finger-sized target, so the pseudo element widens what the tap lands on without
@@ -401,7 +404,13 @@ button.conn:active{filter:brightness(1.12)}
    only grow vertically or the neighbour would steal the edge of the tap. */
 .iconbtn,.chip,.seg button,.helpbtn{position:relative}
 .iconbtn::before,.chip::before,.seg button::before,.helpbtn::before{content:'';position:absolute;inset:-6px}
-.seg button::before{inset:-6px 0}
+/* Grow each axis only as far as 44px: 36px buttons with an 8px gap must not overlap. */
+.iconbtn::before{inset:0;inset-block:min(0px, calc((100% - 44px)/2));inset-inline:min(0px, calc((100% - 44px)/2))}
+/* Wide controls only need extra height. Stop at 44px, keeping neighbouring
+   controls' horizontal hit areas separate and taller buttons unchanged. */
+.btn.sm,.sp-back{position:relative}
+.btn.sm::before,.sp-back::before{content:'';position:absolute}
+.btn.sm::before,.seg button::before,.sp-back::before{inset:0;inset-block:min(0px, calc((100% - 44px)/2))}
 .iconbtn.on-ss{background:var(--acc-soft);color:var(--acc-ink)}
 .iconbtn:disabled{opacity:.32}
 
@@ -576,10 +585,14 @@ h4.sec{
 }
 .btn .icn{font-size:19px}
 .btn:active{transform:scale(var(--press-scale))}
-.btn.primary{background:var(--acc);color:var(--on-acc)}
-.btn.primary:active{background:var(--acc-2)}
+/* The primary action is off-white in the dark theme and near-black in the light one (handoff §1);
+   sage stays for completion and small highlights (.btn.confirm, the tinted button, ticks). */
+.btn.primary{background:var(--btn);color:var(--on-btn)}
+.btn.primary:active{background:var(--label-2);background:color-mix(in srgb,var(--btn) 82%,var(--bg))}
+.btn.confirm{background:var(--acc);color:var(--on-acc)}
+.btn.confirm:active{background:var(--acc-2)}
 .btn.tinted{background:var(--acc-soft);color:var(--acc-ink)}
-.btn.danger{background:rgba(255,69,58,0.15);background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+.btn.danger{background:var(--surface-2);background:color-mix(in srgb,var(--red-ink) 15%,transparent);color:var(--red-ink)}
 .btn.ghost,.btn.plain{background:none;color:var(--acc-ink);font-weight:400}
 /* a ghost or plain button is a control: it scales like the others, no fill flash (P13) */
 /* The quiet text button: Cancel and Done under a sheet's main button, "Lost access?" and "Continue
@@ -666,7 +679,7 @@ h4.sec{
    fully opaque instead. Keep this in sync with the rules above. */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   #tabbar{background:var(--bg-el)}
-  :root[data-theme="light"] #tabbar{background:#f9f9fb}
+  :root[data-theme="light"] #tabbar{background:var(--bg-el)}
   #timer{background:var(--surface-raised)}
   #toast{background:var(--surface-2)}
 }
@@ -676,7 +689,7 @@ h4.sec{
 @media (prefers-reduced-transparency: reduce){
   #tabbar,#timer,#toast,.conn-bar,.whdr.stick,.stats-index{-webkit-backdrop-filter:none;backdrop-filter:none}
   #tabbar{background:var(--bg-el)}
-  :root[data-theme="light"] #tabbar{background:#f9f9fb}
+  :root[data-theme="light"] #tabbar{background:var(--bg-el)}
   #timer{background:var(--surface-raised)}
   #toast{background:var(--surface-2)}
   .conn-bar,.whdr.stick,.stats-index{background:var(--bg)}
@@ -840,7 +853,7 @@ h4.sec{
 
 /* ---------------------------------------------------------------- chips -- */
 .chips{
-  display:flex;gap:7px;overflow-x:auto;padding:4px 4px 6px;   /* room for a chip's focus outline inside a sheet (#162) */
+  display:flex;--chip-row-gap:7px;gap:var(--chip-row-gap) 7px;overflow-x:auto;padding:4px 4px 6px;   /* room for a chip's focus outline inside a sheet (#162) */
   scrollbar-width:none;
 }
 .chips::-webkit-scrollbar{display:none}
@@ -853,11 +866,16 @@ h4.sec{
    strip is at its end, a diagonal drag must not chain into the page either. */
 .chips,.hm-wrap{overscroll-behavior-x:contain;scroll-padding-inline:16px}
 .chips{touch-action:pan-x;overscroll-behavior:contain}
-/* The chip hit-area (.chip::before, inset:-6px) must not poke out of the strip vertically:
+/* The chip hit-area must not poke out of the strip vertically:
    overflow-x:auto makes overflow-y auto as well, and that 6px of positioned overflow gave
    the 32px row a 36px scroll height — a diagonal swipe, wheel or drag then scrolled the
    whole row up by 4px and left it there. Vertical slop is clipped by the strip anyway. */
-.chips .chip::before{top:0;bottom:0}
+/* No horizontal growth. Outside a known wrapping row there is no guaranteed spare
+   space; scrolling strips keep their target inside the visible chip height. */
+.chip::before{inset:0}
+/* Split the existing row gap equally, capped at 44px total height. A 32px chip
+   gets a 39px target with the 7px gap, without moving or overlapping any row. */
+.chips.wrap .chip::before{inset-block:max(calc(var(--chip-row-gap) / -2), min(0px, calc((100% - 44px)/2)))}
 .chip{
   flex:none;padding:6px 13px;border-radius:99px;background:var(--surface);
   font-size:14px;font-weight:400;color:var(--label);text-transform:capitalize;
@@ -1004,15 +1022,15 @@ body.chips-dragging *{cursor:inherit}
    padding box, which is what the thumb needs. */
 .seg{
   position:relative;display:flex;
-  background:var(--surface-3);border-radius:9px;padding:2px;isolation:isolate;
+  background:var(--surface-3);border-radius:999px;padding:3px;isolation:isolate;
 }
 .seg>button{flex:1 1 0;min-width:0}
-:root[data-theme="light"] .seg{background:rgba(118,118,128,.12)}
+:root[data-theme="light"] .seg{background:var(--surface-3)}
 .seg-sel{
-  position:absolute;z-index:0;top:2px;bottom:2px;inset-inline-start:2px;
-  width:calc((100% - 4px)/var(--n));
+  position:absolute;z-index:0;top:3px;bottom:3px;inset-inline-start:3px;
+  width:calc((100% - 6px)/var(--n));
   transform:translateX(calc(100% * var(--i)));
-  background:var(--surface);border-radius:7px;
+  background:var(--surface);border-radius:999px;
   box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.06);
   transition:transform var(--med) var(--ease);
 }
@@ -1020,12 +1038,14 @@ body.chips-dragging *{cursor:inherit}
 /* Dark: the chosen segment is raised, a step lighter than its track, as on the iPhone. It used to
    be --surface on a --surface-3 track, darker than the track, so the choice read as a dent pressed
    into the control rather than the piece standing on it (design review 1.4.5). */
-:root:not([data-theme="light"]) .seg{background:rgba(118,118,128,.24)}
-:root:not([data-theme="light"]) .seg-sel{background:#636366;box-shadow:0 3px 8px rgba(0,0,0,.24),0 1px 1px rgba(0,0,0,.12)}
+:root:not([data-theme="light"]) .seg{background:var(--surface-2)}
+/* Email's Gym: the chosen segment is an off-white pill with near-black words (the Friends render). */
+:root:not([data-theme="light"]) .seg-sel{background:var(--label);box-shadow:none}
+:root:not([data-theme="light"]) .seg button.on{color:var(--on-btn)}
 .seg button{
-  position:relative;z-index:1;padding:6px 8px;font-size:14px;font-weight:500;
+  position:relative;z-index:1;padding:6px 10px;font-size:var(--fs-subhead);font-weight:500;border-radius:999px;
   letter-spacing:-.006em;color:var(--label);display:flex;align-items:center;
-  justify-content:center;gap:5px;min-height:32px;transition:opacity var(--fast),transform var(--fast) var(--ease);
+  justify-content:center;gap:5px;min-height:36px;transition:opacity var(--fast),transform var(--fast) var(--ease);
 }
 .seg button .icn{font-size:var(--fs-callout)}
 .seg button:not(.on){color:var(--label-2);font-weight:400}
@@ -1044,11 +1064,11 @@ body.chips-dragging *{cursor:inherit}
    Where the row does fit, the segments still share it out evenly (design review 1.4.5). */
 .seg.seg-scroll{overflow-x:auto;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
 .seg.seg-scroll::-webkit-scrollbar{display:none}
-.seg.seg-scroll>button{flex:1 0 auto;padding-inline:12px;white-space:nowrap;border-radius:7px;transition:background var(--fast),opacity var(--fast)}
+.seg.seg-scroll>button{flex:1 0 auto;padding-inline:12px;white-space:nowrap;border-radius:999px;transition:background var(--fast),opacity var(--fast)}
 .seg.seg-scroll>.seg-sel{display:none}
 .seg.seg-scroll>button.on{background:var(--surface);box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.06)}
 :root[data-theme="light"] .seg.seg-scroll>button.on{background:#fff}
-:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:#636366}
+:root:not([data-theme="light"]) .seg.seg-scroll>button.on{background:var(--label);color:var(--on-btn)}
 /* Every segment as wide as the widest label (QA 10-05: with flex:1 1 0 the track was sized by the
    labels' sum but split evenly, so "Compact" / "Versteckt" got less than its own width and
    touched the segment's edge). A grid of equal 1fr columns sizes each to the widest one, so the
@@ -1161,8 +1181,8 @@ body.chips-dragging *{cursor:inherit}
 .stats-sect-h{font-size:var(--fs-title3);font-weight:700;letter-spacing:var(--ls-title);line-height:var(--lh-title);margin:0 2px 12px}
 .whdr.stick{
   position:sticky;top:0;z-index:20;
-  margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 6px;
-  padding:calc(var(--sat) + var(--conn) + 8px) var(--pad) 0;
+  margin:calc(-1 * (var(--sat) + var(--conn) + var(--top-clear))) calc(-1 * var(--pad)) 6px;
+  padding:calc(var(--sat) + var(--conn) + var(--top-clear)) var(--pad) 0;
   background:var(--bg);background:color-mix(in srgb,var(--bg) 94%,transparent);
   -webkit-backdrop-filter:saturate(180%) blur(10px);backdrop-filter:saturate(180%) blur(10px);
 }
@@ -2123,9 +2143,9 @@ body.no-tabbar #timer.countin{box-shadow:inset 0 var(--hair) 0 var(--acc),0 -10p
 .bodymap.bm-mini .bm-sil{fill:color-mix(in srgb,var(--label) 34%,var(--surface))}
 .bodymap.bm-mini .bm-v path{stroke-width:3}
 /* The live session's body (#670, components/SessionMuscles.jsx): at the end of the exercise
-   chips, and no taller than their 37px row, so it moves nothing in any layout. */
+   chips. The drawing stays 32px tall inside the row's 44px hit area. */
 .iconbtn.whdr-map{width:auto;height:32px;padding:0 2px;border-radius:10px}
-.wchips-row{display:flex;align-items:center;gap:4px}
+.wchips-row{display:flex;align-items:center;gap:6px}
 .wchips-row>.wchips{flex:1;min-width:0}
 .whdr-map .bodymap.bm-mini{gap:1px}
 .whdr-map .bodymap.bm-mini .bm-v{height:30px}
@@ -2250,7 +2270,7 @@ button.mchip{border:none;font:inherit;font-size:var(--fs-caption);cursor:pointer
    favourites): the system yellow is 1.6:1 on white, so in the light theme those read as blank
    space (design review 1.4.5). Fills and tints keep --yellow. */
 :root{
-  --streak-ink:var(--orange); --win-ink:var(--green); --frost:#64d2ff; --frost-soft:rgba(100,210,255,.16);
+  --streak-ink:var(--orange); --win-ink:var(--green); --frost:#76b9f1; --frost-soft:rgba(118,185,241,.16);
   --gold-ink:var(--yellow);
   /* The status greens and oranges as text, a glyph or a thin bar (the set-vs-last arrows, the
      weekly-sets status, a level's steps): the system colours in the dark theme, a darker shade of
@@ -2262,10 +2282,10 @@ button.mchip{border:none;font:inherit;font-size:var(--fs-caption);cursor:pointer
   --red-ink:var(--red);
 }
 :root[data-theme="light"]{
-  --streak-ink:#e06a00; --win-ink:#1e9e47; --frost:#0a7fc4; --frost-soft:rgba(10,127,196,.12);
+  --streak-ink:#8a5b0b; --win-ink:#236b46; --frost:#2466a0; --frost-soft:rgba(36,102,160,.12);
   --gold-ink:#8f5e00;
-  --green-ink:#1a7f37; --orange-ink:#a85200;
-  --red-ink:#d70015;
+  --green-ink:#236b46; --orange-ink:#8a5b0b;
+  --red-ink:#a83138;
 }
 /* The flame: a warm gradient with a light core; three gentle flickers when it appears, then still. */
 .flame{display:inline-block;flex:none;overflow:visible;vertical-align:-.12em}
@@ -2533,6 +2553,7 @@ body.totop-on.resting #app{padding-bottom:calc(232px + var(--sab))}
 /* --- accent swatches --- */
 .swatches{display:flex;gap:12px;flex-wrap:wrap}
 .swatch{width:32px;height:32px;border-radius:50%;flex:none;position:relative;transition:transform var(--fast)}
+.swatch::before{content:'';position:absolute;inset:-6px}
 .swatch:active{transform:scale(var(--press-scale-sm))}
 /* The ring takes no taps: over the own colour it lay on the colour input, so the picker never opened. */
 .swatch.on::after{content:'';position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 2px var(--label);pointer-events:none}
@@ -2544,7 +2565,7 @@ body.totop-on.resting #app{padding-bottom:calc(232px + var(--sab))}
     conic-gradient(#ff453a,#ff9f0a,#ffd60a,#30d158,#40c8e0,#0a84ff,#bf5af2,#ff375f,#ff453a);
   color:var(--label-2);
 }
-.swatch-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;border-radius:50%;cursor:pointer;-webkit-appearance:none;appearance:none}
+.swatch-input{position:absolute;inset:-6px;width:44px;height:44px;opacity:0;border:0;padding:0;margin:0;border-radius:0;cursor:pointer;-webkit-appearance:none;appearance:none}
 .swatch-note{margin-top:-4px}
 /* Settings → App icon: the previews in the shape of a home-screen icon, the chosen one ringed like a swatch. */
 .app-icons{flex-basis:100%;padding-inline-start:41px;display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:12px}
@@ -2649,20 +2670,22 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 /* One numbered chip per unit, filled as far as it is done: an outline waiting, half full started,
    full when every work set is ticked, so the state reads without the colour. The current one has
    the accent ring. Every chip is the same height whatever its state, and the row scrolls sideways
-   (.chips), so nothing here can move the page while you type. 28px chips with the strip's own
-   padding keep the row at about the height of the line it replaces. */
-.chips.wchips{gap:6px;padding:4px 5px 5px;margin-bottom:2px}   /* room for the current chip's ring: the strip clips */
-.wchip{
+   (.chips), so nothing here can move the page while you type. Each 28px face has a 44px target. */
+.chips.wchips{gap:0;padding:0 1px;margin-bottom:2px}
+/* Each 28px face lives in its own 44px slot. Extensions on the old 34px
+   pitch would overlap, and the scrolling strip would clip their vertical edges. */
+.wchip{flex:none;position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:8px;background:none}
+.wchip-face{
   flex:none;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:2px;
   min-width:28px;height:28px;padding:0 8px;border-radius:99px;
   font-size:var(--fs-footnote);font-weight:600;font-variant-numeric:tabular-nums;color:var(--label-2);
   background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--sep);
 }
 .wchip .icn{width:12px;height:12px}
-.wchip.partial{background:linear-gradient(to top,rgba(255,159,10,0.45) 50%,var(--surface) 50%);background:linear-gradient(to top,color-mix(in srgb,var(--orange) 45%,var(--surface)) 50%,var(--surface) 50%);box-shadow:inset 0 0 0 1.5px var(--orange);color:var(--label)}
-.wchip.done{background:var(--green);background:color-mix(in srgb,var(--green) 70%,var(--surface));box-shadow:none;color:var(--label)}
-.wchip.cur{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--acc);color:var(--label)}
-.wchip.partial.cur{box-shadow:inset 0 0 0 1.5px var(--orange),0 0 0 2px var(--bg),0 0 0 3.5px var(--acc)}
+.wchip.partial .wchip-face{background:linear-gradient(to top,rgba(255,159,10,0.45) 50%,var(--surface) 50%);background:linear-gradient(to top,color-mix(in srgb,var(--orange) 45%,var(--surface)) 50%,var(--surface) 50%);box-shadow:inset 0 0 0 1.5px var(--orange);color:var(--label)}
+.wchip.done .wchip-face{background:var(--green);background:color-mix(in srgb,var(--green) 70%,var(--surface));box-shadow:none;color:var(--label)}
+.wchip.cur .wchip-face{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--acc);color:var(--label)}
+.wchip.partial.cur .wchip-face{box-shadow:inset 0 0 0 1.5px var(--orange),0 0 0 2px var(--bg),0 0 0 3.5px var(--acc)}
 /* part of the give-back above — one edge for all three insets of a row in the list view */
 @media (max-width:404px){
   .wl-unit{padding:10px 8px 2px}
@@ -3272,3 +3295,110 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
   .kpis .tile{padding:10px 11px}
   .kpis .tile .v{font-size:var(--fs-title3)}
 }
+
+/* ---------------------------------------- Email's Gym navigation (Phase 2 step 3) -- */
+/* Four tabs around the round Start button. The disc is the primary action: off-white with a
+   near-black glyph in the dark theme (near-black and white in the light one); a running session
+   rings it in sage. Labels are 11px, the active tab is sage text (--acc-ink, 4.5:1). */
+#tabbar button{font-size:var(--fs-caption2);min-height:var(--touch-min);justify-content:flex-end}
+#tabbar button.start .cir{background:var(--btn);color:var(--on-btn);box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
+#tabbar button.start span{color:var(--label)}
+#tabbar button.start.rec .cir{background:var(--btn);color:var(--on-btn);box-shadow:0 0 0 3px var(--acc)}
+#tabbar button.start.rec span{color:var(--acc-ink)}
+#tabbar button.start.rec .cir::after{border-color:var(--acc)}
+
+/* The Workouts tab's three pages: Routines · History · Exercises. */
+.workouts-switch{margin:0 0 14px}
+
+/* Friends (handoff §4C): a quiet ranked list, the user's own row with a hairline in sage. */
+.friends .seg{margin-bottom:6px}
+.friends-metric{margin:0 2px 14px}
+.friends-state{padding:28px 8px;text-align:center;color:var(--label-2)}
+.friends-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:40px 16px}
+.friends-empty>.icn{font-size:40px;color:var(--label-3)}
+.friends-empty h2{font-size:var(--fs-section);font-weight:600}
+.friends-empty p{max-width:32ch}
+.lb-list{list-style:none;display:flex;flex-direction:column;gap:var(--card-gap)}
+.lb-row{
+  display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;
+  background:var(--surface);border-radius:var(--r-card);border:1px solid transparent;
+}
+.lb-row.lb-self{border-color:var(--acc-line);background:var(--surface);background:color-mix(in srgb,var(--acc) 6%,var(--surface))}
+.lb-rank{width:1.5em;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;color:var(--label-2)}
+.lb-avatar{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:var(--surface-2);color:var(--label);font-weight:600;font-size:var(--fs-subhead);
+}
+.lb-who{flex:1;min-width:0;display:flex;flex-direction:column}
+.lb-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-sub{font-size:var(--fs-footnote);color:var(--label-2)}
+.lb-value{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ---------------------------------------------------- Email's Gym Home (Phase 2 step 5) -- */
+.home-top{display:flex;align-items:center;justify-content:space-between;min-height:var(--touch-min);margin:0 0 2px}
+.home-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:var(--fs-card);letter-spacing:-.01em}
+.home-brand svg{color:var(--label)}
+.home-hello{padding-top:4px}
+.home-hello h1{font-size:var(--fs-large)}
+.home-hello .sub{font-size:var(--fs-body);color:var(--label-2)}
+.today-card .today-row{margin-top:0;background:none;padding-inline:0}
+.today-card .today-row .ttl{font-size:var(--fs-title3);font-weight:700}
+.today-play{
+  width:var(--touch-min);height:var(--touch-min);border-radius:50%;flex:none;
+  display:grid;place-items:center;background:var(--acc);color:var(--on-acc);
+}
+.today-play .icn{font-size:20px;--icon-stroke:2;color:inherit}
+.metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--card-gap);margin-bottom:var(--card-gap)}
+.metric-pair .card{margin:0}
+.metric-card{display:flex;flex-direction:column;gap:6px;min-height:112px}
+.metric-head{display:flex;align-items:center;gap:8px;color:var(--label-2);font-size:var(--fs-subhead);font-weight:500}
+.metric-head .icn{font-size:18px;color:var(--acc)}
+.metric-value{font-size:1.75rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric-unit{font-size:var(--fs-body);font-weight:500;color:var(--label-2)}
+.metric-off{font-size:var(--fs-body);font-weight:600;color:var(--label-2)}
+.metric-note{font-size:var(--fs-footnote);color:var(--label-3)}
+.week-chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.week-chart-head h2{font-size:var(--fs-card);font-weight:600}
+.week-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:132px}
+.week-bar{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.week-bar-n{font-size:var(--fs-caption);color:var(--label-2);min-height:1.2em;font-variant-numeric:tabular-nums}
+.week-bar-track{flex:1;width:100%;max-width:28px;display:flex;align-items:flex-end;border-radius:8px;background:var(--surface-2)}
+.week-bar-fill{display:block;width:100%;min-height:0;border-radius:8px;background:var(--acc)}
+.week-bar.future .week-bar-track{background:transparent;border:1px dashed var(--sep)}
+.week-bar.today .week-bar-day{color:var(--label);font-weight:600}
+.week-bar-day{font-size:var(--fs-caption);color:var(--label-3)}
+
+/* Focus logging: quiet heading, separate number cards and an inline rest. */
+.focus-view .focus-card{padding:0;background:none;box-shadow:none;border-radius:0;display:flex;flex-direction:column}
+.focus-view .focus-card-header{position:relative;flex-wrap:wrap;justify-content:center;border:0;padding:16px 44px 0}
+.focus-view .focus-card-header h2{flex:0 0 100%;text-align:center;font-size:var(--fs-title3);font-weight:700}
+.focus-view .focus-card-header .iconbtn{position:absolute;top:8px;right:0;width:44px;height:44px}
+.focus-view .focus-card-header .iconbtn:first-of-type{left:0;right:auto}
+.focus-view .focus-heading-detail{text-align:center;color:var(--label-2);margin:4px 0 20px;order:0}
+.focus-view .focus-last{color:var(--label-3);font-size:var(--fs-footnote);margin-top:8px}
+.focus-view .focus-context,.focus-view .focus-prescription{order:2}
+.focus-view .focus-progress{display:none}
+.focus-view .focus-set>.stp-w,.focus-view .focus-side>.stp-w{margin:0 0 12px}
+.focus-view .stp-w{position:relative;background:var(--surface);border-radius:var(--r-card);padding:16px}
+.focus-view .stp-l{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.focus-view .stp{background:none;border-radius:0;min-height:56px}
+.focus-view .stp button{width:44px;height:56px}
+.focus-view .stp .val{align-self:center;align-items:baseline;gap:4px}
+.focus-view .stp .num{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;width:3.5ch;flex:0 1 auto;min-height:56px}
+.focus-view .stp .val i{font-size:var(--fs-body);color:var(--label-2)}
+.focus-view .focus-sides,.focus-view .focus-extra{grid-template-columns:minmax(0,1fr)}
+.focus-view .focus-side,.focus-view .focus-extra{padding:0;background:none}
+.focus-view .focus-timed{background:var(--surface);border-radius:var(--r-card);padding:16px;flex-wrap:wrap}
+.focus-view .focus-timed strong{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.focus-view .focus-card>.btn.primary{min-height:56px;margin-top:12px}
+.focus-rest{display:grid;grid-template-columns:minmax(80px,120px) minmax(0,1fr);align-items:center;justify-content:center;gap:16px;margin-top:20px;padding:20px;background:var(--surface);border-radius:var(--r-card)}
+.focus-rest>svg{width:100%;fill:none;stroke-width:8}
+.focus-rest-track{stroke:var(--surface-2)}
+.focus-rest-progress{stroke:var(--acc);stroke-linecap:round}
+.focus-rest-clock{display:grid;gap:4px;text-align:center;color:var(--label-2)}
+.focus-rest-clock strong{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--label)}
+.focus-rest-actions{grid-column:1/-1;display:flex;gap:12px}
+.focus-rest-actions .btn{min-width:44px;min-height:44px;background:var(--surface-3);color:var(--label)}
+/* Never interpolate the ring, including when reduced motion is requested. */
+.focus-rest circle{transition:none;animation:none}
+body:has(.focus-rest) #timer.rest:not(.auto){display:none}

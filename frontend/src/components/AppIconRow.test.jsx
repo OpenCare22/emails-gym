@@ -5,6 +5,8 @@
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// Upstream's behaviour with nothing hidden: what un-hiding a feature in lib/fork-hidden.js brings back.
+vi.mock('../lib/fork-hidden.js', () => ({ HIDDEN: new Set(), hidden: () => false }))
 import { APP_ICON_VARIANTS } from '../lib/app-icon-variants.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
