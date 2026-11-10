@@ -134,3 +134,45 @@ describe('a programme', () => {
     expect(mocks.S.week).toEqual({ 1: ['r1'] })
   })
 })
+
+
+it('edits sets and profile effort separately for each routine slot', () => {
+  mocks.S.effort = 'rir'
+  mocks.S.routines.push({ ...structuredClone(mocks.S.routines[0]), id: 'r2', name: 'Second day' })
+  mocks.S.programmes = { P: { id: 'P', days: { 1: ['r1'], 3: ['r2'] }, weeks: [{}] } }
+  mocks.params = { id: 'P' }
+  render(<ProgrammeEdit />)
+  click([...host.querySelectorAll('.lrow.tap')].find(r => r.textContent.startsWith('Week 1')))
+  const sheet = mocks.sheets.at(-1)
+  render(sheet(() => {}))
+  const increase = () => host.querySelectorAll('button[aria-label="Increase Sets"]')
+  expect(increase()).toHaveLength(2)
+  click(increase()[0])
+  expect(mocks.S.programmes.P.weeks[0].t).toEqual({ 'r1:0025': { sets: 1 } })
+  render(sheet(() => {}))
+  const input = host.querySelector('input[aria-label="RIR"]')
+  expect(input).not.toBeNull()
+  act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, '2.5')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  expect(mocks.S.programmes.P.weeks[0].t['r1:0025']).toEqual({ sets: 1, rir: 2.5 })
+  render(sheet(() => {}))
+  click(host.querySelector('button[aria-label="Decrease Sets"]'))
+  expect(mocks.S.programmes.P.weeks[0].t['r1:0025']).toEqual({ rir: 2.5 })
+  mocks.S.effort = 'rpe'
+  render(sheet(() => {}))
+  expect(host.querySelector('input[aria-label="RPE"]').value).toBe('7.5')
+})
+
+
+it('clears an exercise-wide target on one day while preserving the other day', () => {
+  mocks.S.routines.push({ ...structuredClone(mocks.S.routines[0]), id: 'r2', name: 'Second day' })
+  mocks.S.programmes = { P: { id: 'P', days: { 1: ['r1'], 3: ['r2'] }, weeks: [{ t: { '0025': { sets: 1 } } }] } }
+  mocks.params = { id: 'P' }
+  render(<ProgrammeEdit />)
+  click([...host.querySelectorAll('.lrow.tap')].find(r => r.textContent.startsWith('Week 1')))
+  render(mocks.sheets.at(-1)(() => {}))
+  click(host.querySelector('button[aria-label="Decrease Sets"]'))
+  expect(mocks.S.programmes.P.weeks[0].t).toEqual({ 'r2:0025': { sets: 1 } })
+})

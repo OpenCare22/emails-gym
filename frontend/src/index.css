@@ -3408,3 +3408,9 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .install-required p { line-height: 1.5; }
 .install-required ol { padding-left: 24px; margin: 28px 0; }
 .install-required li { padding-left: 4px; margin: 16px 0; line-height: 1.5; }
+
+.prog-lift{flex-wrap:wrap}
+.prog-targets{display:flex;flex-wrap:wrap;align-items:end;gap:12px;width:100%}
+.prog-targets label{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-footnote)}
+.prog-targets button,.prog-targets input{min-width:44px;min-height:44px}
+.prog-targets label>.num{width:72px}

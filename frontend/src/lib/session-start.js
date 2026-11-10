@@ -128,13 +128,18 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
   // A generated or saved warm-up block (lib/warmup-ramp.js) is built last too, from the weight the
   // first work set really opens at, on the active gym's plates and dumbbells.
   const block = !warmCarry && ['auto', 'own'].includes(warmupSource(st, cfg).kind)
-  const built = applyPrescription(buildSets(st, warmCarry || block ? { ...cfg, warmupSets: 0 } : cfg, { step: ramp, rid: routine?.id, useTarget: policyKind === 'off' && !fromLast, planReps }), plan, ramp, barFloor(st, cfg.id), isAssisted(cfg))
-  const rows = backoffStep ? applyBackoff(built, backoffStep) : built
+  const buildCfg = slot?.sets != null ? { ...cfg, sets: slot.sets } : cfg
+  const built = applyPrescription(buildSets(st, warmCarry || block ? { ...buildCfg, warmupSets: 0 } : buildCfg, { step: ramp, rid: routine?.id, useTarget: policyKind === 'off' && !fromLast, planReps }), plan, ramp, barFloor(st, cfg.id), isAssisted(cfg))
+  const durationRows = modeOf(cfg) === 'cardio' && slot?.min != null
+    ? built.map(row => isWarmupRow(row) ? row : { ...row, min: slot.min }) : built
+  const rows = backoffStep ? applyBackoff(durationRows, backoffStep) : durationRows
   const shaped = applyIntensifierPlan(rows, cfg, dropGrid(st, cfg))
   const sets = warmCarry ? withCarriedWarmups(shaped, warmCarry, modeOf(cfg), cfg, ramp, barFloor(st, cfg.id))
     : block ? withWarmupBlock(st, cfg, shaped, { grid: dropGrid(st, cfg), floor: barFloor(st, cfg.id), unit: st.unit })
       : shaped
   const target = { ...cfg }
+  if (slot?.note != null) target.note = slot.note
+  if (modeOf(cfg) === 'cardio' && slot?.min != null) target.min = slot.min
   // Stamped on the session, so the meaning it was logged with stays with it (dumbbells.js).
   if (meaning !== 'as') target.dbLoad = meaning
   if (plan.weight != null) target.weight = plan.weight
@@ -181,7 +186,7 @@ function inExUnit(stored, cfg, build) {
  * The prescription a programme's target makes of the policy's (buildPlannedEntry). A %1RM with an
  * estimate to take it from sets the weight; without one (a first session, a body-weight lift) the
  * policy's weight stands. A deload week without a %1RM takes the policy's weight down by the
- * deload factor. The reps and sets are left to the routine, the RPE rides along to be shown.
+ * deload factor. Reps stay with the routine; optional sets and effort come from the week.
  */
 export function programmePlan(st, cfg, plan, slot, step) {
   const reps = modeOf(cfg) === 'reps' && !isBw(cfg) && !isAssisted(cfg)
@@ -195,9 +200,10 @@ export function programmePlan(st, cfg, plan, slot, step) {
     slot.week, slot.weeks, slot.pct]
   return {
     policy: plan.policy, kind: 'programme', why,
+    ...(slot.sets != null ? { sets: slot.sets } : {}),
     // Without a weight of its own the policy's stands, so the weight still moves as it would have.
     ...(weight != null ? { weight } : plan.weight != null ? { weight: plan.weight } : {}),
-    prog: { week: slot.week, weeks: slot.weeks, ...(slot.pct != null ? { pct: slot.pct } : {}), ...(slot.rpe != null ? { rpe: slot.rpe } : {}), ...(slot.deload ? { deload: true } : {}) },
+    prog: { week: slot.week, weeks: slot.weeks, ...(slot.pct != null ? { pct: slot.pct } : {}), ...(slot.rpe != null ? { rpe: slot.rpe } : slot.rir != null ? { rpe: 10 - slot.rir } : {}), ...(slot.deload ? { deload: true } : {}) },
   }
 }
 
