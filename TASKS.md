@@ -10,10 +10,14 @@ nightly data backups. Runbook: docs/fork/DEPLOY.md. Emil's profile "Email" is th
 Done 2026-11-10 and deployed: swipe to delete in History with Undo (T-012), Add to Home Screen
 required on iPhone/iPad (T-013), programme weeks with sets/RIR/cardio minutes/notes (T-014), the
 program library with checks and the coach's review sheet (T-015), Programs browse/detail/start
-(T-016), Find a program for me (T-017). Open: the coach friend reviews
-docs/emails-gym-planning/COACH_REVIEW.md, approvals go in library/review.json; a friend's first
+(T-016). Then Build my plan replaced T-017's matcher: EG Plan Model v1 builds a personal 8-week plan
+from the whole catalogue (docs/superpowers/specs/2026-11-10-plan-builder-design.md; lib/exercise-index,
+plan-person, plan-model, plan-build; views/PlanBuild). Coach reviews docs/emails-gym-planning/MODEL_REVIEW.md
+too. Open: the coach friend reviews
+docs/emails-gym-planning/COACH_REVIEW.md and MODEL_REVIEW.md, approvals go in library/review.json; a friend's first
 sign-up + test push (Phase 3 done-check); then return-after-a-break and RIR-aware progression
-(research D), a structured interval logger, more programs (3-day muscle, home/dumbbell).
+(research D), a structured interval logger, more programs (3-day muscle, home/dumbbell); nutrition and
+supplements after Emil's research (body details already saved in S.body).
 
 ## Phase 0: Fork, run, baseline
 
