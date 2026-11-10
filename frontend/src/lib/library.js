@@ -167,3 +167,10 @@ export function canApprove(program, reviewEntry) {
     && new Date(reviewEntry.date).toISOString().slice(0, 10) === reviewEntry.date && reviewEntry.version === program.version
     && Array.isArray(program.blockers) && program.blockers.length === 0);
 }
+
+export const approaches = {
+  double_progression: 'Build repetitions within the range before adding load when performance allows.',
+  strength_submax: 'Submaximal strength practice with accessory work. See the program notes for progression.',
+  hybrid_dual: 'Strength practice and aerobic training with separate progression.',
+  cardio_duration: 'Planned weekly aerobic duration changes. Tolerance still determines whether to progress.',
+};

@@ -457,6 +457,7 @@ function Routines({ S, update, nav }) {
   const sub = r => [exCount(r.ex.length), daysOf(r.id).join(', ')].filter(Boolean).join(' · ')
 
   return <>
+    <Row title={t('Programs')} subtitle={t('Ready-made plans, 2 to 4 days a week')} accessory="chevron" onClick={() => nav('/programs')} />
     <div className="row between plan-sec-h plan-routines-bar">
       {routines.length > 0
         ? <button className="plan-textbtn" aria-pressed={edit} onClick={() => setEdit(e => !e)}>{edit ? t('Done') : t('Edit')}</button>

@@ -3414,3 +3414,9 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .prog-targets label{display:flex;flex-direction:column;gap:4px;font-size:var(--fs-footnote)}
 .prog-targets button,.prog-targets input{min-width:44px;min-height:44px}
 .prog-targets label>.num{width:72px}
+
+.program-library .chips { margin: 12px 0; }
+.program-library .chip, .program-library button { min-height: 44px; }
+.program-library .card { margin: 16px 0; }
+.program-library .program-exercise { padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.program-library .program-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
