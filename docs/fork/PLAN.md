@@ -118,6 +118,19 @@ address. Pick the final URL now, because changing it later forces everyone to re
 **Done when:** a friend can open the link, add it to the Home Screen, sign in with Face ID, and
 receive a test push.
 
+## Phase 3b: Workout and programme library (added 2026-11-10)
+
+The app ships 4 starter plans; the programmes engine (`lib/programmes.js`: up to 16 weeks, %1RM,
+RPE, progression) already runs multi-week plans. Build on it:
+
+- A deep library of routines and monthly/multi-week programmes, written in the formats the app
+  already reads (routines, programmes), using catalogue exercise ids. Sound training content:
+  goals (strength, hypertrophy, general fitness, fat loss), levels, days per week, equipment
+  (full gym, dumbbells only, home, bodyweight), length (4-16 weeks).
+- A browse screen under Workouts: filter by those, preview a plan, start it in one tap.
+- Library data as plain files with a validation test (every exercise id exists, every
+  programme parses), so content can grow without code changes.
+
 ## Phase 4: Google Health integration (Fitbit Air)
 
 **Manual steps for me (Claude Code can't do these):** create a Google Cloud project, enable the
@@ -227,6 +240,11 @@ log, only what they choose to share.
    per day, and a "mute nudges" setting.
 5. **Activity feed + kudos:** "Emil finished Push Day, 2 PRs" with a reaction button. Opt-in.
 6. **Weekly challenges** (later): e.g. "most sessions this week", with the winner shown on Home.
+7. **Trophies and unlockables** (added 2026-11-10): build on what exists (streak badges at
+   4/12/26/52/104 weeks, monthly challenges, medal art). Trophies for standings and milestones,
+   a trophy cabinet on each profile, unlockable card backgrounds and badges earned from the
+   leaderboards. Original artwork in the Email's Gym style (no third-party assets). Only what a
+   friend has chosen to share counts towards standings.
 
 **Done when:** two test accounts can friend each other, see each other on the leaderboard, send
 a nudge that arrives as a push on iPhone, and turning sharing off removes someone immediately.

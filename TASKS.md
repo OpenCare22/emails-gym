@@ -41,6 +41,12 @@ docs/decisions.md). Next: merge Phase 2, then Phase 3 (hosting with a real addre
 
 ## Next
 
+- T-012 (Codex): swipe a History row to delete a workout, with Undo (Emil, 2026-11-10).
+- Phase 3 hosting: Hetzner CX22 + domain on Cloudflare + Cloudflare Tunnel at gym.<domain>.
+  Emil: buy domain, create server with ~/.ssh/emails_gym_ed25519.pub, one tunnel approval click.
+  Push main to GitHub before deploying (asked, not yet done).
+- Phase 3b (new): workout and programme library (docs/fork/PLAN.md).
+- Phase 7 (extended): trophies, cabinet, unlockables from standings.
 - Phase 2: Integrations' "Works with" note still says "Apple Health or Health Connect" (`frontend/src/views/Integrations.jsx`).
 - Leftover on disk: `~/Code/emails-gym/mcp/node_modules` (untracked, ignored) can be deleted by hand.
 - Phase 2: routine share links still point at upstream's `https://opengym.ch/r` (`frontend/src/lib/routine-link.js` LINK_BASE). Point them at our own server's `/#/r/<payload>`.
