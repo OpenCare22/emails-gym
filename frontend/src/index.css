@@ -3420,3 +3420,5 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .program-library .card { margin: 16px 0; }
 .program-library .program-exercise { padding: 10px 0; border-bottom: 1px solid var(--sep); }
 .program-library .program-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.program-why { margin: 8px 0 4px; padding-inline-start: 20px; }
+.program-why li { margin: 4px 0; line-height: 1.4; }

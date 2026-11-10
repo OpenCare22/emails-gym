@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { t } from '../lib/i18n.js'
 import { isVisible, reviewed } from '../lib/library.js'
-import { Row } from '../components/ui.jsx'
+import { Button, Row } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 
 export function usePrograms() {
@@ -39,6 +39,7 @@ export default function Programs() {
       <div style={{ flex: 1, margin: '0 12px', minWidth: 0 }}><h1>{t('Programs')}</h1>
         <div className="sub">{t('Ready-made plans you can start or copy and change.')}</div></div>
     </div>
+    <Button variant="primary" icon="sparkles" onClick={() => nav('/programs/find')} style={{ width: '100%', margin: '4px 0 8px' }}>{t('Find a program for me')}</Button>
     {chips(t('Goal'), [...new Set(visible.map(p => p.goal))], goal, setGoal, goalLabel)}
     {chips(t('Days per week'), [...new Set(visible.map(p => p.days))].sort(), days, setDays, n => t('{0} days', n))}
     {chips(t('Level'), ['beginner', 'intermediate', 'any'], level, setLevel, levelLabel)}
