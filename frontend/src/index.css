@@ -3442,3 +3442,9 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .plan-building-bar span { display: block; height: 100%; background: var(--acc); transition: width .6s ease; }
 @media (prefers-reduced-motion: reduce) { .plan-building-bar span { transition: none; } }
 .plan-body-pair > span { min-width: 40px; }
+.ghealth-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 14px; }
+.ghealth-actions .btn { width: auto; min-height: 44px; }
+.ghealth-error { padding: 0 16px 12px; }
+.metric-tap { all: unset; display: block; cursor: pointer; border-radius: var(--radius-card, 16px); }
+.metric-tap:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.metric-tap > .card { height: 100%; }

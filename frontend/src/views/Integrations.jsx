@@ -6,6 +6,7 @@ import { t } from '../lib/i18n.js'
 import { api } from '../lib/api.js'
 import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
+import GoogleHealthCard from '../components/GoogleHealthCard.jsx'
 import { fmtAgo } from '../lib/format.js'
 import { copyText } from '../lib/clipboard.js'
 import { platformNow } from '../lib/platform-now.js'
@@ -157,12 +158,20 @@ export default function IntegrationsPage({ android = false, ios = false }) {
   return <>
     <p className="sect-f intg-intro">{t('Only what you switch on talks to anything. The rest stays out of your way.')}</p>
     {server.error && <Section><Row icon="warning" iconTint="var(--orange)" title={t('Could not reach your server')} subtitle={t('Tap to try again')} onClick={() => server.load()} /></Section>}
-    {dir.map(cat => <div key={cat.id}>
-      <Section title={t(cat.title)}>
-        {cat.cards.map(card => <Card key={card.id} card={card} onOpen={() => open(card)} onAction={() => act(card)} />)}
-      </Section>
-      {cat.id === 'health' && <WorksWith platform={platform} nav={nav} />}
-    </div>)}
+    <GoogleHealthCard />
+    {/* In the web app the phone's health stores can't be read at all, so their cards and the
+        "works with" list would only promise what isn't there: one plain line instead. */}
+    {!MOBILE && <p className="sect-f intg-intro">{t('Apple Watch and Apple Health come with the Email’s Gym iPhone app, which is in development.')}</p>}
+    {dir.map(cat => {
+      const cards = MOBILE ? cat.cards : cat.cards.filter(card => card.state.status !== 'device')
+      if (!cards.length) return null
+      return <div key={cat.id}>
+        <Section title={t(cat.title)}>
+          {cards.map(card => <Card key={card.id} card={card} onOpen={() => open(card)} onAction={() => act(card)} />)}
+        </Section>
+        {cat.id === 'health' && MOBILE && <WorksWith platform={platform} nav={nav} />}
+      </div>
+    })}
     <input ref={fileRef} type="file" accept=".csv,.xml,text/csv,text/xml" style={{ display: 'none' }}
       onChange={ev => { const f = ev.target.files[0]; if (f) importFromApp(f); ev.target.value = '' }} />
   </>

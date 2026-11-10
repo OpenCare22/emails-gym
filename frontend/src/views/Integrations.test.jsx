@@ -85,22 +85,16 @@ const type = (input, v) => act(() => {
 })
 
 describe('the cards', () => {
-  it('a guest in a browser: the health stores live in the phone app, webhooks need a server, nothing fake to connect', async () => {
+  it('a guest in a browser: no phone health stores or "works with" list, one plain line instead; webhooks need a server', async () => {
     await mount()
-    expect([...host.querySelectorAll('.sect-t')].map(e => e.textContent)).toEqual(['Health & devices', 'Works with', 'Training apps', 'Automation'])
-    expect(pill('apple-health')).toBe('Not available on this device')
-    expect(pill('health-connect')).toBe('Not available on this device')
-    expect(action('apple-health')).toBeNull()
+    expect([...host.querySelectorAll('.sect-t')].map(e => e.textContent)).toEqual(['Training apps', 'Automation'])
+    expect(card('apple-health')).toBeNull()
+    expect(card('health-connect')).toBeNull()
+    expect(host.querySelectorAll('.intg-chip')).toHaveLength(0)
+    expect(host.textContent).toContain('Apple Watch and Apple Health come with the Email’s Gym iPhone app, which is in development.')
     expect(pill('webhook')).toBe('Needs your server')
     expect(action('webhook')).toBeNull()
     expect(card('coach')).toBeNull()
-    // Works with: names only, each a way to the explanation, none a Connect button.
-    const chips = [...host.querySelectorAll('.intg-chip')].map(b => b.textContent)
-    expect(chips).toEqual(['Garmin', 'COROS', 'Polar', 'Fitbit', 'Samsung Health', 'Oura', 'Withings', 'Renpho'])
-    act(() => host.querySelector('.intg-chip').click())
-    await showSheet()
-    expect(sheetHost.textContent).toContain('Garmin saves to Apple Health on iPhone or Health Connect on Android.')
-    expect(sheetHost.textContent).toContain('Install the Email’s Gym app on your phone to use this.')
     // Screen readers hear the name and the state in one go.
     expect(card('webhook').querySelector('.intg-open').getAttribute('aria-label')).toBe('Webhooks, Needs your server')
   })
@@ -247,7 +241,9 @@ describe('the Settings search', () => {
     const tr = s => s
     expect(searchSettings('integrations', ctx, tr)[0]).toMatchObject({ page: 'integrations', isPage: true })
     expect(searchSettings('home assistant', ctx, tr).map(h => h.title)).toContain('Webhooks')
-    expect(searchSettings('garmin', ctx, tr).map(h => h.title)).toContain('Garmin')
+    // The devices that write to a phone's health store are the phone app's; on the web, Fitbit is Google Health.
+    expect(searchSettings('garmin', { ...ctx, mobile: true }, tr).map(h => h.title)).toContain('Garmin')
+    expect(searchSettings('fitbit', { user: { id: 'u' }, mobile: false }, tr).map(h => h.title)).toContain('Google Health')
     expect(searchSettings('webhook', { user: { id: 'u' }, mobile: false, integrations: [] }, tr).map(h => h.title)).not.toContain('Webhooks')
     // On a phone the health store is its own page, found under Integrations.
     const phone = searchSettings('healthkit', { mobile: true, ios: true }, tr)
