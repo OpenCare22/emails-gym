@@ -66,7 +66,7 @@ export default function ProgramFind() {
 
   return <div className="narrow program-library">
     <div className="hdr">
-      <button className="iconbtn" onClick={back} aria-label={t('Back')}><Icon name="chevronLeft" /></button>
+      <button className="iconbtn" data-back="/programs" onClick={back} aria-label={t('Back')}><Icon name="chevronLeft" /></button>
       <div style={{ flex: 1, margin: '0 12px', minWidth: 0 }}><h1>{t('Find a program')}</h1>
         {!done && <div className="sub" role="status">{t('{0} of {1}', step + 1, qs.length)}</div>}</div>
     </div>
