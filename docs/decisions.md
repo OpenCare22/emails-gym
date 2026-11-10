@@ -57,3 +57,6 @@
   cool-down (20 to 30 min, within 3 min of the source). The source file stays unchanged; the coach
   sees both versions in the review sheet. No program runs over its stated time once rest between
   exercises is counted.
+- **2026-11-10: Known flaky API test.** `api/test/server-wrapped-push.test.js` ("Dec 1 from
+  18:00") failed once under full-suite load during T-014's check (an opted-out user's push fired)
+  and passed on 3 reruns and a full rerun. Rerun before suspecting a change; fix if it recurs.
