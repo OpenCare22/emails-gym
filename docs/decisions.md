@@ -67,3 +67,6 @@
   Testing (100 users, connections expire every 7 days, a Reconnect button) because publishing
   restricted health scopes needs Google's verification and a security assessment. The web app
   stops showing the phone-only Apple Health card and "works with" list.
+- **2026-11-10: Second flaky API test.** `api/test/server-origin-hint.test.js` ("a page on
+  another site gets the same refusal") failed once under full-suite load in T-026's check and
+  passed 3 times alone and in a full rerun. Same rule: rerun first, fix if it recurs.
