@@ -1,8 +1,9 @@
+import { readAppleBody } from './apple.js';
 /* /api/google-health: Settings → Integrations and Home talk to these (PLAN.md Phase 4). Handed the
  * session helpers by server.js, like integrations/routes.js. Every route needs a signed-in profile
  * and only ever touches that profile's own connection. Documented in api/openapi.yaml (tag Health). */
 
-export function healthRoutes({ json, readSession, health, audit = () => {} }) {
+export function healthRoutes({ json, readSession, health, apple, audit = () => {} }) {
   const guard = fn => async (req, res) => {
     const user = readSession(req);
     if (!user) return json(res, 401, { error: 'not signed in' });
@@ -15,6 +16,26 @@ export function healthRoutes({ json, readSession, health, audit = () => {} }) {
   const back = (res, query) => { res.writeHead(302, { Location: `/#/settings/integrations?${query}`, 'Cache-Control': 'no-store' }); res.end(); };
 
   return {
+    'GET /api/apple-health': guard(async (req, res, user) => json(res, 200, apple.describe(user.id))),
+    'POST /api/apple-health/token': guard(async (req, res, user) => {
+      res.setHeader('Cache-Control', 'no-store');
+      json(res, 200, apple.token(user.id));
+    }),
+    'POST /api/apple-health/disconnect': guard(async (req, res, user) => {
+      apple.removeUser(user.id);
+      json(res, 200, { ok: true });
+    }),
+    'POST /api/apple-health/ingest': async (req, res) => {
+      try {
+        const auth = apple.authenticate(req.headers.authorization);
+        const body = await readAppleBody(req);
+        json(res, 200, apple.ingest(auth, body));
+      } catch (e) {
+        if (!e.status) throw e;
+        if (e.retryAfter) res.setHeader('Retry-After', String(e.retryAfter));
+        json(res, e.status, { error: e.message });
+      }
+    },
     'GET /api/google-health': guard(async (req, res, user) => json(res, 200, health.describe(user.id))),
 
     'GET /api/google-health/heart-rate': guard(async (req, res, user) => {

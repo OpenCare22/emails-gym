@@ -50,8 +50,9 @@ export default function GoogleHealthCard() {
   if (!user || MOBILE) return null
   const connected = !!info?.connected
   const status = info?.status
-  const today = info?.data ? stepsOn(info.data, todayISO()) : null
-  const rhr = info?.data ? latestRestingHr(info.data) : null
+  const data = info?.googleData ?? info?.data
+  const today = stepsOn(data, todayISO())
+  const rhr = latestRestingHr(data)
   const subtitle = !offered
     ? (user.admin ? t('Not set up on this server yet: add the Google client to .env (docs/fork/GOOGLE_HEALTH_SETUP.md).') : t('Not set up on this server yet.'))
     : !connected ? t('Steps, resting heart rate, sleep, weight and workouts from your Fitbit.')

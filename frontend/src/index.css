@@ -3448,3 +3448,7 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .metric-tap { all: unset; display: block; cursor: pointer; border-radius: var(--radius-card, 16px); }
 .metric-tap:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 .metric-tap > .card { height: 100%; }
+
+.apple-export { padding: 0 16px 16px; }
+.apple-export li { margin: 12px 0; }
+.apple-export code { display: block; overflow-wrap: anywhere; user-select: text; margin: 8px 0; }

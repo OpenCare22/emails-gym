@@ -91,7 +91,7 @@ describe('the cards', () => {
     expect(card('apple-health')).toBeNull()
     expect(card('health-connect')).toBeNull()
     expect(host.querySelectorAll('.intg-chip')).toHaveLength(0)
-    expect(host.textContent).toContain('Apple Watch and Apple Health come with the Email’s Gym iPhone app, which is in development.')
+    expect(host.textContent).toContain('Send your Apple Health data with Health Auto Export on your iPhone.')
     expect(pill('webhook')).toBe('Needs your server')
     expect(action('webhook')).toBeNull()
     expect(card('coach')).toBeNull()

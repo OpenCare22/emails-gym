@@ -36,7 +36,7 @@ export default function ActivityCards({ today = todayISO() }) {
   const offered = !!useStore(s => s.config)?.health?.google
   const [days, setDays] = useState(7)
   useEffect(() => {
-    if (user && offered && !MOBILE) load({ sync: 'auto' })
+    if (user && !MOBILE) load({ sync: 'auto' })
   }, [user, offered, load])
   const data = info?.data || {}
   const metrics = [
@@ -45,7 +45,7 @@ export default function ActivityCards({ today = todayISO() }) {
     { key: 'restingHr', title: t('Resting heart rate'), unit: t('bpm'), color: 'var(--heart-rate)' },
     { key: 'sleep', title: t('Sleep'), unit: t('hours'), color: 'var(--chart-4)' },
   ].filter(m => Object.values(data[m.key] || {}).some(v => Number.isFinite(v) && v >= 0))
-  if (!info?.connected || !metrics.length) return null
+  if (!(info?.anyConnected ?? info?.connected) || !metrics.length) return null
   return <section className="stats-sect" id="stats-activity" aria-labelledby="stats-h-activity">
     <h2 className="stats-sect-h" id="stats-h-activity">{t('Activity')}</h2>
     <Segmented className="seg-range" ariaLabelledby="stats-h-activity" value={days} onChange={setDays} options={[

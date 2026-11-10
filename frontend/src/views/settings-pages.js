@@ -194,6 +194,7 @@ export const SEARCH = [
   // Integrations: the cards (lib/integrations.js cardState says where each shows)
   // The web app reads Fitbit through Google Health (components/GoogleHealthCard.jsx); the phone
   // health stores and the devices that write to them live in the phone app only.
+  { page: 'integrations', title: 'Apple Watch', icon: 'watch', tint: 'var(--heart-rate)', kw: 'apple health auto export rest api key steps sleep', when: c => !c.mobile },
   { page: 'integrations', title: 'Google Health', icon: 'heart', tint: 'var(--heart-rate)', kw: 'google health fitbit pixel watch steps resting heart rate sleep weight connect', when: c => !c.mobile && !!c.user },
   { page: 'integrations', title: 'Webhooks', icon: 'webhook', tint: 'var(--indigo)', mod: 'integrations', kw: 'webhook webhooks home assistant n8n ntfy node-red zapier ifttt automation notify', when: c => c.demo || !c.user || (c.integrations || []).includes('webhook') || !!c.user?.admin },
   { page: 'integrations', title: 'Hevy', icon: 'key', tint: 'var(--teal)', kw: 'hevy api key import', when: c => !hidden('imports') && !c.demo },

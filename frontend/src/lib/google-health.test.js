@@ -78,6 +78,7 @@ it('load writes through the store and remembers empty attempts separately for ea
     let reads = 0
     mocks.api.mockImplementation(async path => {
       if (path === '/api/google-health') return { connected: true, status: 'ok', lastSync: new Date().toISOString() }
+      if (path === '/api/apple-health') return { connected: false }
       reads++
       return { samples: reads === 1 ? [] : [{ t: start + 1000, bpm: 120 }, { t: start + 2000, bpm: 130 }] }
     })
@@ -96,4 +97,34 @@ it('load writes through the store and remembers empty attempts separately for ea
     mocks.api.mockReset()
     useGoogleHealth.setState({ info: null, busy: false, error: null })
   }
+})
+
+it('loads Apple-only data even when Google fails, and preserves its weigh-in source', async () => {
+  const weights = [{ id: 'apple:w', at: '2026-11-10T08:00:00Z', d: '2026-11-10', kg: 80 }]
+  const onWeights = vi.fn()
+  mocks.api.mockImplementation(async path => {
+    if (path === '/api/google-health') throw new Error('Google unavailable')
+    return { connected: true, data: { steps: { '2026-11-10': 1234 }, weight: weights } }
+  })
+  useGoogleHealth.setState({ busy: false, info: null })
+  const info = await useGoogleHealth.getState().load({ sync: 'none' }, onWeights)
+  expect(info.connected).toBe(false)
+  expect(info.anyConnected).toBe(true)
+  expect(info.data.steps).toEqual({ '2026-11-10': 1234 })
+  expect(onWeights).toHaveBeenCalledWith([{ ...weights[0], src: 'apple' }])
+  mocks.api.mockReset()
+  useGoogleHealth.getState().clear()
+})
+
+it('does not restore data from an in-flight request after clearing the profile', async () => {
+  let done
+  mocks.api.mockImplementation(path => path === '/api/google-health' ? new Promise(resolve => { done = resolve }) : Promise.resolve({ connected: false }))
+  useGoogleHealth.setState({ busy: false, info: null })
+  const pending = useGoogleHealth.getState().load()
+  useGoogleHealth.getState().clear()
+  done({ connected: true, data: { steps: { '2026-11-10': 100 } } })
+  await pending
+  expect(useGoogleHealth.getState().info).toBeNull()
+  expect(useGoogleHealth.getState().busy).toBe(false)
+  mocks.api.mockReset()
 })

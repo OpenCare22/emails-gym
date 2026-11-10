@@ -32,7 +32,7 @@ let host, root
 beforeEach(() => {
   localStorage.clear(); useGoogleHealth.setState({ info: null, busy: false, error: null })
   mocks.state = { S: { unit: 'kg', bodyweight: [] }, user: { id: 'u1' }, config: { health: { google: true } } }
-  mocks.answers = {}; mocks.calls = []; mocks.toasts = []; mocks.navs = []
+  mocks.answers = { '/api/apple-health': { connected: false } }; mocks.calls = []; mocks.toasts = []; mocks.navs = []
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
 })
 afterEach(async () => { await act(async () => root.unmount()); host.remove() })
@@ -59,7 +59,7 @@ it('shows today’s numbers when connected, and copies Fitbit weigh-ins into the
   expect(host.textContent).toContain('resting HR 57')
   expect([...host.querySelectorAll('.btn')].map(b => b.textContent)).toEqual(['Sync now', 'Disconnect'])
   expect(mocks.state.S.bodyweight[0]).toMatchObject({ d: today, w: 75.2 })
-  expect(mocks.calls.map(c => c[0])).toEqual(['/api/google-health'])
+  expect(mocks.calls.map(c => c[0])).toEqual(['/api/google-health', '/api/apple-health'])
 })
 
 it('asks to reconnect when Google expired the connection, keeping the data', async () => {
@@ -73,7 +73,7 @@ it('syncs on open when the last sync is old', async () => {
   mocks.answers['/api/google-health'] = connected({ lastSync: '2026-01-01T00:00:00Z' })
   mocks.answers['/api/google-health/sync'] = connected()
   await render(<GoogleHealthCard />)
-  expect(mocks.calls).toEqual([['/api/google-health', 'GET'], ['/api/google-health/sync', 'POST']])
+  expect(mocks.calls).toEqual([['/api/google-health', 'GET'], ['/api/apple-health', 'GET'], ['/api/google-health/sync', 'POST']])
 })
 
 it('fills Home’s Steps and Resting HR cards, and a tap opens Integrations', async () => {
@@ -91,5 +91,44 @@ it('keeps Home’s cards honest when nothing is connected', async () => {
   mocks.answers['/api/google-health'] = { available: true, connected: false }
   await render(<HomeMetrics />)
   expect(host.textContent).toContain('Not connected')
-  expect(host.textContent).toContain('Connect Google Health to see it here.')
+  expect(host.textContent).toContain('Connect your Fitbit or Apple Watch in Settings to see it here.')
+})
+
+it('loads Apple-only Home readings without a Google client', async () => {
+  mocks.state.config = {}
+  mocks.answers['/api/google-health'] = { connected: false }
+  mocks.answers['/api/apple-health'] = { connected: true, data: { steps: { [today]: 8500 }, restingHr: { [today]: 55 } } }
+  await render(<HomeMetrics />)
+  expect(host.textContent).toContain('8,500')
+  expect(host.textContent).toContain('55')
+  expect(host.textContent.match(/from Apple Watch/g)).toHaveLength(2)
+  expect(host.textContent).not.toContain('Not connected')
+  expect(mocks.calls).toEqual([['/api/google-health', 'GET'], ['/api/apple-health', 'GET']])
+})
+
+it('labels each Home value with its own source and prefers Google on overlapping days', async () => {
+  mocks.answers['/api/google-health'] = connected({ data: { steps: { [today]: 0 } } })
+  mocks.answers['/api/apple-health'] = { connected: true, data: { steps: { [today]: 8500 }, restingHr: { [today]: 55 } } }
+  await render(<HomeMetrics />)
+  const cards = host.querySelectorAll('.metric-card')
+  expect(cards[0].querySelector('.metric-value').textContent).toBe('0')
+  expect(cards[0].textContent).toContain('from Fitbit')
+  expect(cards[1].textContent).toContain('from Apple Watch')
+})
+
+it('keeps Apple readings out of the Fitbit connection summary', async () => {
+  mocks.answers['/api/google-health'] = connected({ data: {} })
+  mocks.answers['/api/apple-health'] = { connected: true, data: { steps: { [today]: 8500 }, restingHr: { [today]: 55 } } }
+  await render(<GoogleHealthCard />)
+  expect(host.textContent).not.toContain('steps today')
+  expect(host.textContent).not.toContain('resting HR')
+})
+
+it('omits source labels when a cached value has no provenance', async () => {
+  mocks.state.user = null
+  useGoogleHealth.setState({ info: connected() })
+  await render(<HomeMetrics />)
+  expect(host.textContent).toContain('6,421')
+  expect(host.textContent).not.toContain('from Fitbit')
+  expect(host.textContent).not.toContain('from Apple Watch')
 })
