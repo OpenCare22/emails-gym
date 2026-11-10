@@ -7,7 +7,7 @@
 // exercise-index-data.js. Built from the catalogue's JSON only, never its media.
 //
 //   Entry = { id, pattern, compound, skill: 1 | 2 | 3, tier: 'core' | 'common' | 'variant' | 'excluded',
-//             stress: area[], eq }
+//             stress: area[], eq, hold? }  (hold: a timed exercise, logged in seconds)
 
 export const PATTERNS = ['squat', 'hinge', 'lunge', 'hpush', 'vpush', 'hpull', 'vpull', 'hipext', 'kneeflex',
   'kneeext', 'calf', 'curl', 'triext', 'latraise', 'reardelt', 'fly', 'core', 'corerot', 'carry']
@@ -67,6 +67,8 @@ export function stressOf(ex, pattern) {
 }
 
 export function skillOf(ex, pattern) {
+  // A cable moves freely like a dumbbell; the rest of the machines guide the movement.
+  if (ex.equipment === 'cable') return 2
   if (MACHINES.has(ex.equipment)) return 1
   if (FREE_COMPLEX.has(ex.equipment) && COMPOUND_PATTERNS.has(pattern)) return 3
   if (ex.equipment === 'body weight' && (pattern === 'vpull' || /dip|pistol/.test(ex.name))) return 3
@@ -92,5 +94,6 @@ export function classify(ex, { core = {}, overrides = {} } = {}) {
     id: ex.id, pattern: pattern || null, compound: !!compound,
     skill: o.skill || skillOf(ex, pattern), tier,
     stress: o.stress || stressOf(ex, pattern), eq: ex.equipment,
+    ...(ex.hold ? { hold: true } : {}),
   }
 }
