@@ -80,6 +80,17 @@ const release = () => act(() => { picker().dispatchEvent(new Event('change', { b
 const pick = value => { drag(value); release() }
 
 describe('Settings: your own accent colour', () => {
+  it('names every visible switch in Look from its row title', () => {
+    mount()
+    const switches = [...host.querySelectorAll('[role="switch"]')]
+    expect(switches.length).toBeGreaterThan(0)
+    expect(switches.some(el => el.getAttribute('aria-label') === 'Body weight')).toBe(true)
+    for (const el of switches) {
+      expect(el.getAttribute('aria-label')).toBe(el.closest('.lrow').querySelector('.lrow-t').textContent)
+      expect(el.getAttribute('aria-label').trim()).not.toBe('')
+    }
+  })
+
   it('starts as a rainbow swatch that opens the colour picker', () => {
     mount()
     expect(own().classList.contains('unset')).toBe(true)

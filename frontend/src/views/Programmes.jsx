@@ -186,7 +186,7 @@ function WeekSheet({ id, index, close }) {
     <h3>{t('Week {0} of {1}', index + 1, p.weeks.length)}</h3>
     <div className="sect-b" style={{ marginBottom: 14 }}>
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload week')} subtitle={t('Lighter weights, and its sessions do not count toward progression.')}>
-        <Switch checked={w.deload === true} onChange={v => setWeek(x => ({ ...x, deload: v }))} />
+        <Switch aria-label={t('Deload week')} checked={w.deload === true} onChange={v => setWeek(x => ({ ...x, deload: v }))} />
       </Row>
     </div>
     <div className="small muted" style={{ margin: '0 2px 6px' }}>{t('Effort for the week')}</div>

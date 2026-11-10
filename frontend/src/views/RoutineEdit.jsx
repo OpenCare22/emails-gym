@@ -479,7 +479,7 @@ export default function RoutineEdit() {
           progresses from (session-start.js, history.js entryExcluded). */}
       <Row icon="chartLineSlash" iconTint="var(--orange)" title={t('Deload routine')}
         subtitle={t('Its workouts do not count toward progression. They still show in history and statistics.')}>
-        <Switch checked={r.excludeFromProgression === true} onChange={v => update(s => {
+        <Switch aria-label={t('Deload routine')} checked={r.excludeFromProgression === true} onChange={v => update(s => {
           const routine = s.routines.find(x => x.id === id)
           if (v) routine.excludeFromProgression = true
           else delete routine.excludeFromProgression
