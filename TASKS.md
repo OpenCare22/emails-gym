@@ -5,7 +5,7 @@ Plans: [docs/fork/PLAN.md](docs/fork/PLAN.md) (phases) and [docs/fork/DESIGN_PLA
 
 ## Where we left off
 
-Phase 2 done on `phase-2/make-it-mine` (not merged to main, not pushed); report in
+Phase 2 done and merged into main (not pushed); report in
 docs/fork/PHASE2_REPORT.md. Emil confirmed it on his iPhone over Tailscale (temporary, see
 docs/decisions.md). Next: merge Phase 2, then Phase 3 (hosting with a real address).
 
