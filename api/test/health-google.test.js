@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHealth } from '../health/index.js';
 import { stepsByDay, restingHrByDay, sleepByDay, weights, exercises, mergeData } from '../health/data.js';
+import { healthRoutes } from '../health/routes.js';
 import { SCOPES } from '../health/google.js';
 
 const ENV = { GOOGLE_HEALTH_CLIENT_ID: 'cid', GOOGLE_HEALTH_CLIENT_SECRET: 'csecret' };
@@ -29,6 +30,10 @@ function fakeGoogle({ refreshFails = false } = {}) {
     if (u.pathname.endsWith('/steps/dataPoints:dailyRollUp')) return reply(200, { rollupDataPoints: [{ civilStartTime: civil(2026, 11, 9), steps: { countSum: '8123' } }, { civilStartTime: civil(2026, 11, 10), steps: { countSum: '2001' } }] });
     if (u.pathname.endsWith('/daily-resting-heart-rate/dataPoints')) return reply(200, { dataPoints: [{ dailyRestingHeartRate: { date: { year: 2026, month: 11, day: 10 }, beatsPerMinute: '58' } }], nextPageToken: '' });
     if (u.pathname.endsWith('/sleep/dataPoints')) return reply(200, { dataPoints: [{ sleep: { interval: { civilEndTime: civil(2026, 11, 10) }, summary: { minutesAsleep: '421' } } }] });
+    if (u.pathname.endsWith('/heart-rate/dataPoints')) {
+      const second = u.searchParams.get('pageToken') === 'hr2';
+      return reply(200, { dataPoints: [{ heartRate: { beatsPerMinute: second ? '110' : '130', sampleTime: { physicalTime: second ? '2026-11-10T10:00:00Z' : '2026-11-10T10:30:00Z' } } }], ...(second ? {} : { nextPageToken: 'hr2' }) });
+    }
     if (u.pathname.endsWith('/weight/dataPoints')) {
       // Two pages, to prove the page token is followed.
       if (!u.searchParams.get('pageToken')) return reply(200, { dataPoints: [{ name: 'users/42/dataTypes/weight/dataPoints/w1', weight: { weightGrams: 75400, sampleTime: { physicalTime: '2026-11-09T06:30:00Z', civilTime: civil(2026, 11, 9) } } }], nextPageToken: 'p2' });
@@ -139,4 +144,60 @@ test('disconnecting revokes the token and deletes the file', async () => {
   assert.ok(g.calls.some(c => c.url.pathname === '/revoke' && c.body.token === 'ref-1'));
   assert.equal(fs.existsSync(path.join(dataDir, 'health', 'u1.json')), false);
   assert.equal(health.describe('u1').connected, false);
+});
+
+test('heart rate validates windows, pages with the physical-time filter, and never caches samples', async () => {
+  const { health, g, dataDir, tick } = setup();
+  const window = { start: '2026-11-10T10:00:00Z', end: '2026-11-10T11:00:00Z' };
+  await assert.rejects(health.heartRate('u1', window), e => e.status === 404 && e.code === 'not_connected');
+  await health.connectCallback('u1', { code: 'c', state: new URL(health.authorizeUrl('u1')).searchParams.get('state') });
+  const before = g.calls.length;
+  for (const bad of [
+    { ...window, start: '2026-11-10T04:00:00Z' },
+    { start: '2026-01-01T10:00:00Z', end: '2026-01-01T11:00:00Z' },
+    { ...window, end: '2026-11-10T13:00:00Z' },
+    { ...window, start: window.end }, { ...window, start: 'bad' }, {},
+  ]) await assert.rejects(health.heartRate('u1', bad), e => e.status === 400);
+  assert.equal(g.calls.length, before);
+  tick(3600000);
+  assert.deepEqual(await health.heartRate('u1', window), { samples: [
+    { t: Date.parse(window.start), bpm: 110 }, { t: Date.parse('2026-11-10T10:30:00Z'), bpm: 130 },
+  ] });
+  const calls = g.calls.filter(c => c.url.pathname.endsWith('/heart-rate/dataPoints'));
+  assert.equal(calls.length, 2);
+  for (const c of calls) {
+    assert.equal(c.url.searchParams.get('filter'), `heart_rate.sample_time.physical_time >= "${window.start}" AND heart_rate.sample_time.physical_time < "${window.end}"`);
+    assert.equal(c.url.searchParams.get('pageSize'), '10000');
+  }
+  assert.equal(calls[1].url.searchParams.get('pageToken'), 'hr2');
+  assert.ok(g.calls.some(c => c.body?.grant_type === 'refresh_token'));
+  assert.ok(!fs.readFileSync(path.join(dataDir, 'health', 'u1.json'), 'utf8').includes('samples'));
+});
+
+test('heart rate reports expired refresh tokens as reconnect', async () => {
+  const { health, tick } = setup({ refreshFails: true });
+  await health.connectCallback('u1', { code: 'c', state: new URL(health.authorizeUrl('u1')).searchParams.get('state') });
+  tick(3600000);
+  await assert.rejects(health.heartRate('u1', { start: '2026-11-10T10:00:00Z', end: '2026-11-10T11:00:00Z' }), e => e.status === 409 && e.code === 'reconnect');
+  assert.equal(health.describe('u1').status, 'reconnect');
+});
+
+test('heart-rate route requires a session and reads only its profile', async () => {
+  const { health } = setup();
+  await health.connectCallback('u1', { code: 'c', state: new URL(health.authorizeUrl('u1')).searchParams.get('state') });
+  let user = null, answer;
+  const routes = healthRoutes({ health, readSession: () => user, json: (_, status, body) => { answer = { status, body }; } });
+  const route = routes['GET /api/google-health/heart-rate'];
+  const req = { url: '/api/google-health/heart-rate?start=2026-11-10T10:00:00Z&end=2026-11-10T11:00:00Z' };
+  await route(req, {});
+  assert.equal(answer.status, 401);
+  user = { id: 'u2' };
+  await route(req, {});
+  assert.equal(answer.status, 404);
+  user = { id: 'u1' };
+  await route(req, {});
+  assert.equal(answer.status, 200);
+  assert.equal(answer.body.samples.length, 2);
+  await route({ url: '/api/google-health/heart-rate' }, {});
+  assert.equal(answer.status, 400);
 });

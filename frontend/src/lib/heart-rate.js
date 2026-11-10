@@ -11,7 +11,7 @@
 // for every other watch; they only ever fill a set that has none, so the Apple Watch's own
 // reading is never replaced. A finished workout may carry the session's too:
 //
-//   hr      { avg, max, src, n }  src: 'watch' | 'hc' (Health Connect) | 'ah' (Apple Health),
+//   hr      { avg, max, src, n }  src: 'watch' | 'hc' (Health Connect) | 'ah' (Apple Health) | 'gh' (Fitbit),
 //                                 n: how many samples it was worked out from
 import { modeOf } from './history.js'
 import { isSideSet, dropsOf } from './workout-model.js'
