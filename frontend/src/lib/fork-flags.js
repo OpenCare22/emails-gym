@@ -2,7 +2,7 @@
 //
 // FRIENDS_SCREEN  the Friends tab and screen. On: it shows the layout with an honest empty state
 //                 ("Invite friends") and never made-up people.
-// FRIENDS_API     whether the server has friends, leaderboards and nudges yet. Off until Phase 7
-//                 builds them; the screen then loads real data instead of the empty state.
+// FRIENDS_API     whether the server has friends and leaderboards (api/social/, Phase 7). On: the
+//                 screen loads real groups and boards; off shows only the empty state.
 export const FRIENDS_SCREEN = true
-export const FRIENDS_API = false
+export const FRIENDS_API = true

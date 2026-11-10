@@ -27,6 +27,29 @@ const fail = (status, code, message) => Object.assign(new Error(message), { stat
 const safeId = uid => String(uid).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
 export const noSharing = () => Object.fromEntries(SHARE_KEYS.map(k => [k, false]));
 
+// What each leaderboard reads from a summary, and which sharing switch opens it to the group.
+export const METRICS = {
+  workouts: { share: 'workouts', ranges: { week: 'workoutsWeek', month: 'workoutsMonth', all: 'workoutsAll' } },
+  streak: { share: 'streak', ranges: { current: 'streakWeeks' }, second: 'bestStreakWeeks' },
+  volume: { share: 'volume', ranges: { week: 'volumeWeekKg', month: 'volumeMonthKg' } },
+  prs: { share: 'prs', ranges: { month: 'prsMonth' } },
+  steps: { share: 'steps', ranges: { week: 'stepsWeek' } },
+  activeMinutes: { share: 'activeMinutes', ranges: { week: 'activeMinutesWeek' } },
+  strength: { share: 'strength', ranges: { squat: 'squat', bench: 'bench', deadlift: 'deadlift' } },
+};
+
+/** Ranks with ties sharing a rank (1, 1, 3); people without a value come last, unranked. */
+export function rankRows(rows) {
+  const sorted = [...rows].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity) || String(a.name).localeCompare(String(b.name)));
+  let last = null, rank = 0;
+  sorted.forEach((r, i) => {
+    if (r.value == null) { r.rank = null; return; }
+    if (r.value !== last) { rank = i + 1; last = r.value; }
+    r.rank = rank;
+  });
+  return sorted;
+}
+
 export function createSocial({ dataDir, now = Date.now, readState = () => null, healthOf = () => ({}), nameOf = uid => uid }) {
   const dir = path.join(dataDir, 'social');
   const file = path.join(dir, 'social.json');
@@ -154,6 +177,26 @@ export function createSocial({ dataDir, now = Date.now, readState = () => null, 
       return clean;
     },
     setNudges(uid, on) { const d = load(); d.nudges[uid] = !!on; save(d); return !!on; },
+    /** One group's board for a metric: members who share it with this group, and you. */
+    leaderboard(uid, { groupId, metric = 'workouts', range } = {}) {
+      const d = load();
+      const g = member(d, groupId, uid);
+      const m = METRICS[metric];
+      if (!m) throw fail(400, 'metric', 'unknown metric');
+      const r = range && m.ranges[range] ? range : Object.keys(m.ranges)[0];
+      const field = m.ranges[r];
+      const rows = [];
+      for (const { uid: who } of g.members) {
+        const self = who === uid;
+        const shared = !!d.sharing[who]?.[groupId]?.[m.share];
+        if (!shared && !self) continue;
+        const sum = readSummary(who) || (self ? refreshSummary(who) : null);
+        const value = metric === 'strength' ? sum?.strength?.[field] ?? null : sum?.[field] ?? null;
+        if (value == null && !self) continue;
+        rows.push({ uid: who, name: nameOf(who), value, ...(m.second && sum ? { second: sum[m.second] ?? null } : {}), self, ...(self ? { shared } : {}) });
+      }
+      return { metric, range: r, members: g.members.length, rows: rankRows(rows) };
+    },
     sharingOf(uid, groupId) { return { ...noSharing(), ...(load().sharing[uid]?.[groupId] || {}) }; },
     nudgesOn: uid => load().nudges[uid] !== false,
     group(groupId) { return load().groups.find(g => g.id === groupId) || null; },

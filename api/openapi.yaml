@@ -2944,6 +2944,25 @@ paths:
       responses:
         '200': { description: OK. }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/social/leaderboard:
+    get:
+      tags: [social]
+      operationId: socialLeaderboard
+      summary: A group's leaderboard for one metric
+      description: >-
+        metric workouts (range week, month, all), streak (current, with best as second), volume
+        (week, month; kg), prs (month), steps (week), activeMinutes (week), strength (range squat,
+        bench, deadlift; e1RM per body weight). Only members who share that metric with this group,
+        plus you (with shared false when you don't). Ties share a rank.
+      parameters:
+        - { name: groupId, in: query, required: true, schema: { type: string } }
+        - { name: metric, in: query, schema: { type: string } }
+        - { name: range, in: query, schema: { type: string } }
+      responses:
+        '200': { description: The rows, ranked. }
+        '400': { description: Unknown metric. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not in this group. }
   /api/social/summary:
     get:
       tags: [social]

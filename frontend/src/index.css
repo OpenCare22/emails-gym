@@ -3452,3 +3452,13 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .apple-export { padding: 0 16px 16px; }
 .apple-export li { margin: 12px 0; }
 .apple-export code { display: block; overflow-wrap: anywhere; user-select: text; margin: 8px 0; }
+.friends-groups,.friends-metrics{margin:0 0 12px}
+.friends-group{margin:0 2px 10px}
+.friends-note{margin:12px 2px 0;text-align:center}
+.friends-empty .btn{min-width:200px}
+.lb-rank .icn{color:var(--acc)}
+.social-input{width:100%;margin-top:10px;min-height:44px}
+.join-note{margin:12px 2px 0;text-align:center}
+.install-invite{margin:20px 0;padding:14px 16px;border-radius:var(--radius-card,16px);background:var(--surface)}
+.install-invite code{font-size:18px;letter-spacing:.04em;word-break:break-all}
+.install-invite .btn{min-height:44px;margin-top:8px}

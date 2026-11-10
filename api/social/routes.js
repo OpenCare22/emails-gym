@@ -21,6 +21,11 @@ export function socialRoutes({ json, readBody, readSession, social }) {
       json(res, 200, { summary: social.summary(user.id) || social.refreshSummary(user.id) });
     }),
 
+    'GET /api/social/leaderboard': guard(async (req, res, user) => {
+      const q = new URL(req.url, 'http://x').searchParams;
+      json(res, 200, social.leaderboard(user.id, { groupId: str(q.get('groupId')), metric: str(q.get('metric'), 20), range: str(q.get('range'), 20) || undefined }));
+    }),
+
     'POST /api/social/groups': guard(async (req, res, user) => {
       const body = await readBody(req);
       json(res, 200, { group: social.createGroup(user.id, body.name) });

@@ -117,3 +117,26 @@ test('the routes need a session and answer refusals as { error, code }', async (
   await routes['POST /api/social/join']({}, {});
   assert.deepEqual([out.status, out.b.code], [404, 'invite-invalid']);
 });
+
+test('leaderboards show only who shares the metric with this group, you always, ties sharing a rank', () => {
+  const { social, states } = setup();
+  states.c = { workouts: [{ d: '2026-11-10' }] };
+  states.d = { workouts: [{ d: '2026-11-09' }, { d: '2026-11-10' }] };
+  const g = social.createGroup('a', 'G');
+  for (const u of ['b', 'c', 'd']) social.join(u, g.invite.code);
+  social.setSharing('c', g.id, { workouts: true });
+  social.setSharing('d', g.id, { workouts: true });
+  social.setSharing('b', g.id, { streak: true });
+  const board = social.leaderboard('a', { groupId: g.id, metric: 'workouts', range: 'week' });
+  assert.deepEqual(board.rows.map(r => [r.uid, r.value, r.rank, r.self]), [['d', 2, 1, false], ['c', 1, 2, false], ['a', 1, 2, true]]);
+  assert.equal(board.rows.find(r => r.self).shared, false);
+  assert.equal(board.rows.some(r => r.uid === 'b'), false, 'b shares streak, not workouts');
+  const streak = social.leaderboard('b', { groupId: g.id, metric: 'streak' });
+  assert.equal(streak.range, 'current');
+  assert.ok('second' in streak.rows[0]);
+  assert.throws(() => social.leaderboard('a', { groupId: g.id, metric: 'weight' }), e => e.code === 'metric');
+  assert.throws(() => social.leaderboard('zz', { groupId: g.id }), e => e.code === 'no-group');
+  // someone sharing a metric with no value yet is left out
+  social.setSharing('b', g.id, { steps: true });
+  assert.deepEqual(social.leaderboard('a', { groupId: g.id, metric: 'steps' }).rows.map(r => r.uid), ['a']);
+});
