@@ -57,6 +57,7 @@ COPY server.js push-messages.js nudge.js nudge-copy.js wrapped.js wrapped-copy.j
 COPY coach ./coach
 COPY integrations ./integrations
 COPY health ./health
+COPY social ./social
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000

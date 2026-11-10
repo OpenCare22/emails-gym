@@ -44,6 +44,8 @@ import { integrationRoutes } from './integrations/routes.js';
 import { createHealth } from './health/index.js';
 import { createAppleHealth } from './health/apple.js';
 import { healthRoutes } from './health/routes.js';
+import { createSocial } from './social/index.js';
+import { socialRoutes } from './social/routes.js';
 import { excusedOn, nudgeFor, nudgeWindowOpen, toneOf } from './nudge.js';
 import { wrappedPushYear, wrappedSummary, wrappedPushOwed, wrappedPush } from './wrapped.js';
 
@@ -132,6 +134,18 @@ const integrations = createIntegrations({ dataDir: DATA, secret: SECRET, version
 // Each profile's tokens and data live in DATA_DIR/health/<uid>.json, sealed like the integrations.
 const apple = createAppleHealth({ dataDir: DATA });
 const health = createHealth({ dataDir: DATA, secret: SECRET, origin: ORIGIN });
+// Friends (social/, PLAN.md Phase 7): groups, sharing and one small summary per person in
+// DATA_DIR/social/. Steps and active minutes come from the person's own health data (Google first).
+const social = createSocial({
+  dataDir: DATA,
+  readState: uid => readState(uid),
+  nameOf: uid => db.users.find(u => u.id === uid)?.name || 'Someone',
+  healthOf: uid => {
+    const g = (() => { try { return health.describe(uid)?.data || {}; } catch { return {}; } })();
+    const a = (() => { try { return apple.describe(uid)?.data || {}; } catch { return {}; } })();
+    return { steps: { ...a.steps, ...g.steps }, activeMinutes: { ...a.activeMinutes, ...g.activeMinutes } };
+  },
+});
 
 const dbFile = path.join(DATA, 'db.json');
 // Every account, passkey and invite. Only a missing file starts empty: an unreadable one (a write
@@ -1362,6 +1376,8 @@ function removeAccount(u) {
   // Their Google Health connection and the data pulled with it.
   try { apple.removeUser(u.id); } catch (e) { console.error('apple-health: could not remove', u.id, e.message); }
   try { health.removeUser(u.id); } catch (e) { console.error('health: could not remove', u.id, e.message); }
+  // Their groups, sharing choices and shared summary.
+  try { social.removeUser(u.id); } catch (e) { console.error('social: could not remove', u.id, e.message); }
   saveDb();
 }
 
@@ -2637,6 +2653,8 @@ const routes = {
     // A finished workout, a record or a weigh-in the profile's integrations asked to hear about:
     // queued for delivery (integrations/outbox.js), never sent from inside this request.
     try { integrations.onStateWrite(user.id, cur, body.state); } catch (e) { console.error('integrations onStateWrite', e); }
+    // The shared summary friends see (social/), only for someone in a group; never fails the save.
+    try { social.onStateWrite(user.id, body.state); } catch (e) { console.error('social onStateWrite', e.message); }
     json(res, 200, { ok: true, ts: body.state._ts || null, rev: curRev + 1, wid: body.state._wid });
   },
 
@@ -2997,6 +3015,10 @@ const routes = {
   // health/routes.js: Google Health connect, sync and data (PLAN.md Phase 4).
   ...healthRoutes({ json, readSession, health, apple, audit }),
 
+  /* ---------- friends ---------- */
+  // social/routes.js: groups, invite links, sharing and summaries (PLAN.md Phase 7).
+  ...socialRoutes({ json, readBody, readSession, social }),
+
   /* ---------- photos & videos ---------- */
   // Absent, not refusing, when MEDIA_UPLOADS=0: a 404 is what a server from before the feature
   // answers, and the client already treats that as "this server does not store them".
@@ -3019,6 +3041,7 @@ coachJobs.setProposalHook((uid, pending) => {
   });
 });
 integrations.start();
+social.start();
 health.start(() => db.users.filter(u => !u.disabled).map(u => u.id));
 startCadence({ users: () => db.users.filter(u => !u.disabled), userNow, skip: uid => !stateSummary(uid)?.consent });
 startWarmup();

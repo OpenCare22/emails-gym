@@ -181,6 +181,11 @@ tags:
       Google Health (Fitbit) connection: steps, resting heart rate, sleep, weight and workouts,
       read with each profile's own Google account. Off unless GOOGLE_HEALTH_CLIENT_ID and
       GOOGLE_HEALTH_CLIENT_SECRET are set.
+  - name: social
+    description: >-
+      Friends (PLAN.md Phase 7): groups joined by invite link, what each person shares with each
+      group (nothing until they choose), and a small summary per person that is all friends ever
+      see. No route reads another profile's training log.
   - name: integrations
     description: >-
       Settings → Integrations: outbound webhooks now, more providers later. Off unless the
@@ -2930,6 +2935,191 @@ paths:
         - { name: error, in: query, schema: { type: string } }
       responses:
         '302': { description: Back to the app. }
+  /api/social:
+    get:
+      tags: [social]
+      operationId: socialState
+      summary: Your groups, sharing choices and nudge setting
+      description: Members are listed by profile name; the invite is included for groups you own.
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/social/summary:
+    get:
+      tags: [social]
+      operationId: socialSummary
+      summary: Your own shared summary
+      description: What friends can see of you, for the metrics you share with them.
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/social/groups:
+    post:
+      tags: [social]
+      operationId: socialCreateGroup
+      summary: Start a group
+      description: Makes a group with you as owner and an invite valid 14 days. At most 5 groups per person.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 40 }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { description: In too many groups. }
+  /api/social/rename:
+    post:
+      tags: [social]
+      operationId: socialRename
+      summary: Rename a group (owner)
+      description: 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                name: { type: string, maxLength: 40 }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/groups/invite:
+    post:
+      tags: [social]
+      operationId: socialInvite
+      summary: New invite link, or turn it off (owner)
+      description: A new code replaces the old one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                off: { type: boolean }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/peek:
+    post:
+      tags: [social]
+      operationId: socialPeek
+      summary: What an invite opens
+      description: The group name, its size and the owner name, for the join sheet.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code: { type: string }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/join:
+    post:
+      tags: [social]
+      operationId: socialJoin
+      summary: Join a group with an invite code
+      description: Joining twice changes nothing. 10 tries an hour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code: { type: string }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+        '409': { description: The group is full, or you are in too many groups. }
+        '429': { description: Too many tries. }
+  /api/social/leave:
+    post:
+      tags: [social]
+      operationId: socialLeave
+      summary: Leave a group
+      description: An owner who leaves hands the group to the longest-standing member; an empty group is deleted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/remove:
+    post:
+      tags: [social]
+      operationId: socialRemove
+      summary: Remove a member (owner)
+      description: 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                uid: { type: string }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/sharing:
+    post:
+      tags: [social]
+      operationId: socialSharing
+      summary: Choose what a group sees
+      description: Booleans for workouts, streak, volume, prs, steps, activeMinutes, strength, feed; unknown keys are ignored.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupId: { type: string }
+                sharing: { type: object }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such group or invite. }
+  /api/social/nudges:
+    post:
+      tags: [social]
+      operationId: socialNudges
+      summary: Receive nudges from friends, or not
+      description: 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                on: { type: boolean }
+      responses:
+        '200': { description: OK. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/activity:
     post:
       tags: [activity]
