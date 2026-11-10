@@ -44,7 +44,7 @@ sign-up is still to do; a friend's first sign-up + test push is the Phase 3 done
 
 - T-012 (Codex): swipe a History row to delete a workout, with Undo (Emil, 2026-11-10).
 - Phase 3: [x] live at https://emailsgym.com, [x] invite-only, guests off, [x] nightly backups,
-  [x] main pushed to GitHub, [ ] "Add to Home Screen" step in sign-up (Codex ticket),
+  [x] main pushed to GitHub, [ ] T-013: require Add to Home Screen on iPhone/iPad, with an App Store note (Codex, after 14:35),
   [ ] a friend signs up and gets a test push.
 - Phase 3b (new): workout and programme library (docs/fork/PLAN.md).
 - Phase 7 (extended): trophies, cabinet, unlockables from standings.
