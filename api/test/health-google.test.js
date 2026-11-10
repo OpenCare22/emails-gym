@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createHealth } from '../health/index.js';
-import { stepsByDay, restingHrByDay, sleepByDay, weights, exercises, mergeData } from '../health/data.js';
+import { stepsByDay, activeMinutesByDay, KEEP_DAYS, restingHrByDay, sleepByDay, weights, exercises, mergeData } from '../health/data.js';
 import { healthRoutes } from '../health/routes.js';
 import { SCOPES } from '../health/google.js';
 
@@ -13,7 +13,7 @@ const NOW = Date.parse('2026-11-10T12:00:00Z');
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'eg-health-'));
 const civil = (y, m, d) => ({ date: { year: y, month: m, day: d } });
 
-// A fake Google: token, identity, revoke and the five data reads, each call recorded.
+// A fake Google: token, identity, revoke and the six data reads, each call recorded.
 function fakeGoogle({ refreshFails = false } = {}) {
   const calls = [];
   const reply = (status, body) => ({ ok: status < 400, status, json: async () => body });
@@ -27,6 +27,7 @@ function fakeGoogle({ refreshFails = false } = {}) {
     }
     if (u.pathname === '/revoke') return reply(200, {});
     if (u.pathname === '/v4/users/me/identity') return reply(200, { healthUserId: '42' });
+    if (u.pathname.endsWith('/active-minutes/dataPoints:dailyRollUp')) return reply(200, { rollupDataPoints: [{ civilStartTime: civil(2026, 11, 10), activeMinutes: { activeMinutesRollupByActivityLevel: [{ activityLevel: 'LIGHT', activeMinutesSum: '90' }, { activityLevel: 'MODERATE', activeMinutesSum: '20' }, { activityLevel: 'VIGOROUS', activeMinutesSum: '12' }] } }] });
     if (u.pathname.endsWith('/steps/dataPoints:dailyRollUp')) return reply(200, { rollupDataPoints: [{ civilStartTime: civil(2026, 11, 9), steps: { countSum: '8123' } }, { civilStartTime: civil(2026, 11, 10), steps: { countSum: '2001' } }] });
     if (u.pathname.endsWith('/daily-resting-heart-rate/dataPoints')) return reply(200, { dataPoints: [{ dailyRestingHeartRate: { date: { year: 2026, month: 11, day: 10 }, beatsPerMinute: '58' } }], nextPageToken: '' });
     if (u.pathname.endsWith('/sleep/dataPoints')) return reply(200, { dataPoints: [{ sleep: { interval: { civilEndTime: civil(2026, 11, 10) }, summary: { minutesAsleep: '421' } } }] });
@@ -62,8 +63,8 @@ test('normalises the Google Health API’s own shapes', () => {
   assert.deepEqual(weights([{ weight: {} }]), []);
 });
 
-test('merging keeps 120 days, replaces a day and dedupes by id', () => {
-  const old = { steps: { '2026-01-01': 1, '2026-11-09': 5 }, weight: [{ id: 'a', d: '2026-11-01', at: '2026-11-01T00:00:00Z', kg: 80 }] };
+test('merging keeps 400 days, replaces a day and dedupes by id', () => {
+  const old = { steps: { '2025-01-01': 1, '2026-11-09': 5 }, weight: [{ id: 'a', d: '2026-11-01', at: '2026-11-01T00:00:00Z', kg: 80 }] };
   const m = mergeData(old, { steps: { '2026-11-09': 8000 }, weight: [{ id: 'a', d: '2026-11-01', at: '2026-11-01T00:00:00Z', kg: 79 }] }, '2026-11-10');
   assert.deepEqual(m.steps, { '2026-11-09': 8000 });
   assert.deepEqual(m.weight.map(w => w.kg), [79]);
@@ -98,12 +99,15 @@ test('connects, seals the tokens, pulls 30 days, and serves the data', async () 
   assert.equal(d.connected, true);
   assert.equal(d.status, 'ok');
   assert.deepEqual(d.data.steps, { '2026-11-09': 8123, '2026-11-10': 2001 });
+  assert.deepEqual(d.data.activeMinutes, { '2026-11-10': 32 });
   assert.deepEqual(d.data.restingHr, { '2026-11-10': 58 });
   assert.deepEqual(d.data.sleep, { '2026-11-10': 421 });
   assert.deepEqual(d.data.weight.map(w => w.kg), [75.4, 75.1]);
   assert.equal(d.data.exercise[0].avgHr, 151);
   const stepsCall = g.calls.find(c => c.url.pathname.endsWith('steps/dataPoints:dailyRollUp'));
   assert.deepEqual(stepsCall.body.range.start.date, { year: 2026, month: 10, day: 11 }, '30 days back on first connect');
+  const activeCall = g.calls.find(c => c.url.pathname.endsWith('active-minutes/dataPoints:dailyRollUp'));
+  assert.deepEqual(activeCall.body, stepsCall.body);
   const rhr = g.calls.find(c => c.url.pathname.endsWith('daily-resting-heart-rate/dataPoints'));
   assert.equal(rhr.url.searchParams.get('filter'), 'daily_resting_heart_rate.date >= "2026-10-11"');
 });
@@ -200,4 +204,26 @@ test('heart-rate route requires a session and reads only its profile', async () 
   assert.equal(answer.body.samples.length, 2);
   await route({ url: '/api/google-health/heart-rate' }, {});
   assert.equal(answer.status, 400);
+});
+
+test('active minutes omit light, preserve zero and ignore missing or invalid rollups', () => {
+  const roll = levels => ({ civilStartTime: civil(2026, 11, 10), activeMinutes: { activeMinutesRollupByActivityLevel: levels } });
+  assert.deepEqual(activeMinutesByDay([roll([{ activityLevel: 'LIGHT', activeMinutesSum: '50' }])]), { '2026-11-10': 0 });
+  assert.deepEqual(activeMinutesByDay([roll([{ activityLevel: 'MODERATE', activeMinutesSum: '0' }])]), { '2026-11-10': 0 });
+  assert.deepEqual(activeMinutesByDay([{}, roll([{ activityLevel: 'MODERATE', activeMinutesSum: 'bad' }]), roll([{ activityLevel: 'VIGOROUS', activeMinutesSum: '-1' }])]), {});
+});
+
+test('retention includes the 400-day boundary for every metric and replaces active minutes', () => {
+  assert.equal(KEEP_DAYS, 400);
+  const today = '2026-11-10';
+  const boundary = new Date(Date.parse(today) - 400 * 864e5).toISOString().slice(0, 10);
+  const expired = new Date(Date.parse(today) - 401 * 864e5).toISOString().slice(0, 10);
+  const old = {};
+  for (const key of ['steps', 'activeMinutes', 'restingHr', 'sleep']) old[key] = { [expired]: 1, [boundary]: 2, '2026-01-01': 3 };
+  const merged = mergeData(old, { activeMinutes: { '2026-01-01': 40 } }, today);
+  for (const key of ['steps', 'activeMinutes', 'restingHr', 'sleep']) {
+    assert.equal(merged[key][expired], undefined);
+    assert.equal(merged[key][boundary], 2);
+    assert.equal(merged[key]['2026-01-01'], key === 'activeMinutes' ? 40 : 3);
+  }
 });

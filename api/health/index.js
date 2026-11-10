@@ -1,7 +1,7 @@
 /* Google Health connections (PLAN.md Phase 4). One file per profile under DATA_DIR/health/, mode
  * 0600, never the profile's state (which syncs to every device and rides in every backup): the
  * Google tokens sealed with integrations/crypto.js (bound to the profile and field), the
- * connection's status, and the normalised data from health/data.js for the last 120 days.
+ * connection's status, and the normalised data from health/data.js for the last 400 days.
  *
  * Off unless GOOGLE_HEALTH_CLIENT_ID and GOOGLE_HEALTH_CLIENT_SECRET are set; then /api/config
  * says { health: { google: true } } to a signed-in profile and the routes below answer.
