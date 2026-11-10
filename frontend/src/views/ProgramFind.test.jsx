@@ -20,18 +20,23 @@ beforeEach(() => {
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
 })
 afterEach(async () => { await act(async () => root.unmount()); host.remove() })
-const render = async () => { await act(async () => { root.render(<ProgramFind />); await new Promise(r => setTimeout(r, 20)) }) }
+const render = async () => { await act(async () => { root.render(<ProgramFind />) }) }
 const pick = async title => {
   const row = [...host.querySelectorAll('button.lrow')].find(b => b.querySelector('.lrow-t')?.textContent === title)
   expect(row, title).toBeTruthy()
   await act(async () => { row.click(); await new Promise(r => setTimeout(r, 0)) })
 }
 const answer = async list => { for (const a of list) await pick(a) }
+// The results wait for the program data (a dynamic import): wait for them rather than a fixed time.
+const settle = async () => {
+  for (let i = 0; i < 100 && /Loading/.test(host.textContent); i++) await act(async () => { await new Promise(r => setTimeout(r, 20)) })
+}
 
 it('asks seven questions one at a time and shows matches with reasons', async () => {
   await render()
   expect(host.textContent).toContain('1 of 7')
   await answer(['Build muscle', 'Intermediate', '4 days', '90 min or more', 'Full gym', 'Some', 'No'])
+  await settle()
   const cards = host.querySelectorAll('.card')
   expect(cards.length).toBeGreaterThan(0)
   expect(cards[0].textContent).toContain('Build / Four Days')
@@ -55,6 +60,7 @@ it('goes back a question, and from the first question back to Programs', async (
 it('suggests a professional instead of a program when health limits exercise', async () => {
   await render()
   await answer(['Build muscle', 'Intermediate', '4 days', '90 min or more', 'Full gym', 'Some', 'Yes'])
+  await settle()
   expect(host.textContent).toContain('Talk to a doctor or physiotherapist')
   expect(host.querySelectorAll('.card')).toHaveLength(0)
 })
@@ -62,6 +68,7 @@ it('suggests a professional instead of a program when health limits exercise', a
 it('says plainly when nothing fits', async () => {
   await render()
   await answer(['Build muscle', 'Intermediate', '5 or more', '90 min or more', 'No equipment', 'Some', 'No'])
+  await settle()
   expect(host.textContent).toContain('No program fits these answers yet.')
 })
 
@@ -71,5 +78,6 @@ it('offers the active gym profile and matches its equipment', async () => {
   await answer(['General fitness', 'Beginner', '2 days', '45 min'])
   expect(host.textContent).toContain('My gym: Home')
   await answer(['My gym: Home', 'Some', 'No'])
+  await settle()
   expect(host.textContent).toContain('No program fits these answers yet.')
 })
