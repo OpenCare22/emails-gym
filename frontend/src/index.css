@@ -848,7 +848,7 @@ h4.sec{
 
 /* ---------------------------------------------------------------- chips -- */
 .chips{
-  display:flex;gap:7px;overflow-x:auto;padding:4px 4px 6px;   /* room for a chip's focus outline inside a sheet (#162) */
+  display:flex;--chip-row-gap:7px;gap:var(--chip-row-gap) 7px;overflow-x:auto;padding:4px 4px 6px;   /* room for a chip's focus outline inside a sheet (#162) */
   scrollbar-width:none;
 }
 .chips::-webkit-scrollbar{display:none}
@@ -861,11 +861,16 @@ h4.sec{
    strip is at its end, a diagonal drag must not chain into the page either. */
 .chips,.hm-wrap{overscroll-behavior-x:contain;scroll-padding-inline:16px}
 .chips{touch-action:pan-x;overscroll-behavior:contain}
-/* The chip hit-area (.chip::before, inset:-6px) must not poke out of the strip vertically:
+/* The chip hit-area must not poke out of the strip vertically:
    overflow-x:auto makes overflow-y auto as well, and that 6px of positioned overflow gave
    the 32px row a 36px scroll height — a diagonal swipe, wheel or drag then scrolled the
    whole row up by 4px and left it there. Vertical slop is clipped by the strip anyway. */
-.chips .chip::before{top:0;bottom:0}
+/* No horizontal growth. Outside a known wrapping row there is no guaranteed spare
+   space; scrolling strips keep their target inside the visible chip height. */
+.chip::before{inset:0}
+/* Split the existing row gap equally, capped at 44px total height. A 32px chip
+   gets a 39px target with the 7px gap, without moving or overlapping any row. */
+.chips.wrap .chip::before{inset-block:max(calc(var(--chip-row-gap) / -2), min(0px, calc((100% - 44px)/2)))}
 .chip{
   flex:none;padding:6px 13px;border-radius:99px;background:var(--surface);
   font-size:14px;font-weight:400;color:var(--label);text-transform:capitalize;
