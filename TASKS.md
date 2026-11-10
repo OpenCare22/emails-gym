@@ -37,7 +37,8 @@ step 5 (Home redesign, active workout restyle, Today card with the Start button 
 - [x] Step 4 shared components: off-white primary buttons, pill segments (selected off-white); Start button back in the tab bar's middle (Emil asked)
 - [x] Step 5 Home: brand header, greeting + training days, Today card with round Start, Steps/Resting HR Not connected, weekly chart
 - [x] Step 5 workout screen (Codex T-008, T-009): Focus view is the default, Finish/Discard in the ⋯ menu, Focus restyled to the render (big steppers, Complete set, Last time hint, Undo toast, rest ring card). Checked in the browser 2026-11-10.
-- [ ] Step 6 checks: 375/390/430, light/dark, every accent, reduced motion, real iPhone install
+- [x] Step 6 checks in the browser: no overflow at 375/390/430, light + dark, reduced motion, focus rings; fixes in T-010 (44 px squares, switch names, light boot) and T-011 (44 px tall controls)
+- [ ] Step 6 on Emil's iPhone over Tailscale (https://emils-macbook-air.tail4efe2e.ts.net): icon at Home Screen size, splash, status bar, safe areas, push
 - Later (Phase 9): rename "openGym" in frontend/ios Swift files and remove upstream app-icon assets
 
 ## Next
