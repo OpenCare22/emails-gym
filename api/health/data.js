@@ -6,7 +6,7 @@
  *     weight: [{ id, at, d, kg }], exercise: [{ id, type, name, start, end, d, minutes, avgHr, kcal, distanceKm, steps }] }
  */
 export const SOURCE = 'google';
-export const KEEP_DAYS = 120;
+export const KEEP_DAYS = 400;
 
 const num = v => (v == null || v === '' ? null : Number.isFinite(Number(v)) ? Number(v) : null);
 const pad = n => String(n).padStart(2, '0');
@@ -18,6 +18,19 @@ export function stepsByDay(rollups) {
   for (const r of rollups || []) {
     const d = civilDay(r.civilStartTime), n = num(r.steps?.countSum);
     if (d && n != null) out[d] = n;
+  }
+  return out;
+}
+
+// Light activity does not count towards the active-minutes total.
+export function activeMinutesByDay(rollups) {
+  const out = {};
+  for (const r of rollups || []) {
+    const d = civilDay(r.civilStartTime);
+    const levels = r.activeMinutes?.activeMinutesRollupByActivityLevel;
+    if (!d || !Array.isArray(levels)) continue;
+    const valid = levels.filter(l => ['LIGHT', 'MODERATE', 'VIGOROUS'].includes(l.activityLevel) && num(l.activeMinutesSum) != null && num(l.activeMinutesSum) >= 0);
+    if (valid.length) out[d] = valid.reduce((sum, l) => sum + (l.activityLevel === 'LIGHT' ? 0 : num(l.activeMinutesSum)), 0);
   }
   return out;
 }
@@ -74,6 +87,7 @@ export function mergeData(old = {}, add = {}, today = new Date().toISOString().s
   const keepDays = o => Object.fromEntries(Object.entries(o).filter(([d]) => d >= cut).sort(([a], [b]) => (a < b ? -1 : 1)));
   return {
     steps: keepDays({ ...(old.steps || {}), ...(add.steps || {}) }),
+    activeMinutes: keepDays({ ...(old.activeMinutes || {}), ...(add.activeMinutes || {}) }),
     restingHr: keepDays({ ...(old.restingHr || {}), ...(add.restingHr || {}) }),
     sleep: keepDays({ ...(old.sleep || {}), ...(add.sleep || {}) }),
     weight: byId(old.weight || [], add.weight || []).filter(w => w.d >= cut).sort((a, b) => (a.at < b.at ? -1 : 1)),
@@ -87,12 +101,13 @@ const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
 export async function pull(client, access, { fromDay, now = Date.now() }) {
   const toDay = iso(now + 864e5);
   const since = `${fromDay}T00:00:00Z`;
-  const [steps, rhr, sleep, weight, exercise] = await Promise.all([
+  const [steps, active, rhr, sleep, weight, exercise] = await Promise.all([
     client.dailyRollUp(access, 'steps', fromDay, toDay),
+    client.dailyRollUp(access, 'active-minutes', fromDay, toDay),
     client.list(access, 'daily-resting-heart-rate', `daily_resting_heart_rate.date >= "${fromDay}"`, 200),
     client.list(access, 'sleep', `sleep.interval.end_time >= "${since}"`, 25),
     client.list(access, 'weight', `weight.sample_time.physical_time >= "${since}"`, 200),
     client.list(access, 'exercise', `exercise.interval.civil_start_time >= "${fromDay}"`, 25),
   ]);
-  return { steps: stepsByDay(steps), restingHr: restingHrByDay(rhr), sleep: sleepByDay(sleep), weight: weights(weight), exercise: exercises(exercise) };
+  return { steps: stepsByDay(steps), activeMinutes: activeMinutesByDay(active), restingHr: restingHrByDay(rhr), sleep: sleepByDay(sleep), weight: weights(weight), exercise: exercises(exercise) };
 }
