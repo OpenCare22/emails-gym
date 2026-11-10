@@ -55,6 +55,8 @@ import { useAnimPacksBoot } from './components/Animations.jsx'
 import { useNfcTagLinks } from './components/Nfc.jsx'
 import { useRoutineLinks } from './components/RoutineShare.jsx'
 import Login from './views/Login.jsx'
+import InstallRequired from './views/InstallRequired.jsx'
+import { requiresHomeScreen } from './lib/install-required.js'
 import MobileOnboarding from './views/MobileOnboarding.jsx'
 import PermissionSteps from './views/PermissionSteps.jsx'
 import Home from './views/Home.jsx'
@@ -130,6 +132,7 @@ function Shell() {
   const loc = useLocation()
   const navType = useNavigationType()
   const { S, user, ready } = useStore()
+  const installRequired = requiresHomeScreen({ user, mobile: MOBILE })
   // iOS: whether timer sounds get past the ring/silent switch (Settings → Sounds). Page-level,
   // so it is applied here on load and on change rather than at each beep.
   useEffect(() => { setPlayOnSilent(!!S.soundOnSilent) }, [S.soundOnSilent])
@@ -206,10 +209,10 @@ function Shell() {
   const linkCode = useStore(s => s.linkCode)
   const linkOffered = useRef(false)
   useEffect(() => {
-    if (!ready || !linkCode || linkOffered.current) return
+    if (installRequired || !ready || !linkCode || linkOffered.current) return
     linkOffered.current = true
     openDeviceLinkRedeem()
-  }, [ready, linkCode])
+  }, [ready, linkCode, installRequired])
   useEffect(() => {
     const onScroll = () => {
       // Modals pins the body while a sheet is open; scrollY is 0 then, not a position.
@@ -303,7 +306,7 @@ function Shell() {
   // never over a sheet or a workout, and only once the copy is the account's own.
   const tour = useTour()
   const tourAsked = useRef(false)
-  const setupDone = authed && ready && !needsMobileOnboarding && !permSteps
+  const setupDone = authed && ready && !needsMobileOnboarding && !permSteps && !installRequired
   // A tapped NFC sticker (components/Nfc.jsx): one that opened the app waits for the setup.
   useNfcTagLinks(setupDone)
   // A friend's routine link (components/RoutineShare.jsx): the same wait for the setup.
@@ -332,6 +335,8 @@ function Shell() {
       </div>
     </div>
   )
+
+  if (installRequired) return <div id="app"><InstallRequired /></div>
 
   const view = l => (!authed ? <Login /> : needsMobileOnboarding ? <MobileOnboarding /> : permSteps ? <PermissionSteps /> : (
     <Routes location={l}>
