@@ -60,3 +60,10 @@
 - **2026-11-10: Known flaky API test.** `api/test/server-wrapped-push.test.js` ("Dec 1 from
   18:00") failed once under full-suite load during T-014's check (an opted-out user's push fired)
   and passed on 3 reruns and a full rerun. Rerun before suspecting a change; fix if it recurs.
+- **2026-11-10: Google Health on the server, under /api/google-health.** The legacy Fitbit Web
+  API was switched off on 2026-11-02. Each profile connects its own Google account (three
+  read-only scopes); tokens are sealed per profile in DATA_DIR/health/, data kept 120 days there,
+  not in the synced state. /api/health stays the server's health check. The Cloud project stays in
+  Testing (100 users, connections expire every 7 days, a Reconnect button) because publishing
+  restricted health scopes needs Google's verification and a security assessment. The web app
+  stops showing the phone-only Apple Health card and "works with" list.
