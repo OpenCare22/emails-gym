@@ -91,7 +91,7 @@ const CheckIn = lazyView(() => import('./views/CheckIn.jsx'))
 const RoutineEdit = lazyView(() => import('./views/RoutineEdit.jsx'))
 const Programs = lazyView(() => import('./views/Programs.jsx'))
 const ProgramDetail = lazyView(() => import('./views/ProgramDetail.jsx'))
-const ProgramFind = lazyView(() => import('./views/ProgramFind.jsx'))
+const PlanBuild = lazyView(() => import('./views/PlanBuild.jsx'))
 const Programmes = lazyView(() => import('./views/Programmes.jsx'))
 const ProgrammeEdit = lazyView(() => import('./views/Programmes.jsx').then(m => ({ default: m.ProgrammeEdit })))
 const Stats = lazyView(() => import('./views/Stats.jsx'))
@@ -348,7 +348,7 @@ function Shell() {
           route falls through to the catch-all redirect below. The data stays where it is. */}
       {isOn(S, 'checkin') && <Route path="/checkin" element={<CheckIn />} />}
       <Route path="/programs" element={<Programs />} />
-      <Route path="/programs/find" element={<ProgramFind />} />
+      <Route path="/programs/build" element={<PlanBuild />} />
       <Route path="/programs/:id" element={<ProgramDetail />} />
       <Route path="/plan" element={<Plan />} />
       <Route path="/plan/r/:id" element={<RoutineEdit />} />

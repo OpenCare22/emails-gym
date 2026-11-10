@@ -39,7 +39,9 @@ export default function Programs() {
       <div style={{ flex: 1, margin: '0 12px', minWidth: 0 }}><h1>{t('Programs')}</h1>
         <div className="sub">{t('Ready-made plans you can start or copy and change.')}</div></div>
     </div>
-    <Button variant="primary" icon="sparkles" onClick={() => nav('/programs/find')} style={{ width: '100%', margin: '4px 0 8px' }}>{t('Find a program for me')}</Button>
+    <Button variant="primary" icon="sparkles" onClick={() => nav('/programs/build')} style={{ width: '100%', margin: '4px 0 8px' }}>{t('Build my plan')}</Button>
+    <p className="small dim" style={{ margin: '0 2px 12px' }}>{t('A plan made for you from the whole exercise library, with the reasons for each choice.')}</p>
+    <h2 className="sect-t">{t('Templates')}</h2>
     {chips(t('Goal'), [...new Set(visible.map(p => p.goal))], goal, setGoal, goalLabel)}
     {chips(t('Days per week'), [...new Set(visible.map(p => p.days))].sort(), days, setDays, n => t('{0} days', n))}
     {chips(t('Level'), ['beginner', 'intermediate', 'any'], level, setLevel, levelLabel)}

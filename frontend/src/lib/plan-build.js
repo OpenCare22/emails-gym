@@ -137,6 +137,7 @@ export function buildPlan(answers, { seed = 1, S = null } = {}) {
   }
 
   // A novice gaining weight or strength spends the time on compounds: few isolation exercises.
+  let compoundFirst = false
   if (person.level === 'novice' && (person.emphasis === 'gain' || person.emphasis === 'strength')) {
     for (const slots of slotsByType) {
       let kept = 0
@@ -145,7 +146,7 @@ export function buildPlan(answers, { seed = 1, S = null } = {}) {
         if (kept++ >= R.NOVICE_COMPOUND_ISOLATION_CAP) slots.splice(i--, 1)
       }
     }
-    add('compound-first', t('As a newcomer looking to gain, most of your time goes to big compound lifts, with just one smaller exercise per session.'))
+    compoundFirst = true
   }
 
   const ctx = { seed, allowed, familiar: familiarSet(S), favourites: new Set(S?.favEx || []), weekIds: new Set(), weekPatternEq: new Set() }
@@ -240,6 +241,7 @@ export function buildPlan(answers, { seed = 1, S = null } = {}) {
   out.forEach((tp, n) => { tp.items = tp.items.map((it, k) => (it.mode === 'reps' ? { ...it, rir: weekTarget(it, templates[n].slots[k], person, 3).rir } : it)) })
 
   for (const r of person.reasons) add(r.rule, r.text)
+  if (compoundFirst) add('compound-first', t('As a newcomer looking to gain, most of your time goes to big compound lifts, with just one smaller exercise per session.'))
   add('split', R.splitReason(person.days, person.level, types), R.SOURCES.acsm)
   if (person.focus.length && !person.reasons.some(r => r.rule === 'sex-emphasis')) add('focus', R.focusReason(person.focus))
   add('reps', R.repsReason(person.emphasis), R.SOURCES.acsm)

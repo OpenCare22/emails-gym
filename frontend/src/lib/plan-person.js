@@ -50,7 +50,7 @@ export function personOf(answers = {}) {
   const bmiBand = bmiBandOf(bmi)
   const emphasis = EMPHASIS[a.goal] || 'general'
   if (bmi != null && bmi < 20 && emphasis === 'gain') why('body-lean', t('You are lean for your height and want to gain, so the plan leans on big compound lifts that add the most muscle.'))
-  if (bmi != null && bmi >= 25 && (emphasis === 'recomp' || emphasis === 'general')) why('body-cardio', t('To help with fat loss, the plan keeps the heavy work and adds easy cardio, which burns energy without eating into recovery.'))
+  if (bmi != null && bmi >= 25 && (emphasis === 'recomp' || emphasis === 'general')) why('body-cardio', t('To help with fat loss, the plan keeps the heavy lifting, which protects your muscle while you lose fat.'))
 
   const older = Number(a.age) >= 50
   if (older) why('age', t('Past 50, recovery takes a little longer, so the first two weeks use one set fewer and the big lifts get longer rests.'))

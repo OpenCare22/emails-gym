@@ -5,13 +5,14 @@ import { useUI } from '../store/useUI.js'
 import { t, tn } from '../lib/i18n.js'
 import { exerciseNameText } from '../lib/format.js'
 import { exOr } from '../lib/exercises.js'
-import { approaches, isVisible, reviewed, intervalMinutes } from '../lib/library.js'
+import { approaches, isVisible, reviewed } from '../lib/library.js'
 import { buildLibraryProgram, intervalNote } from '../lib/library-start.js'
 import { saveProgramme, startProgramme } from '../lib/programmes.js'
 import { confirmSheet } from '../sheets.jsx'
 import { Button } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 import { usePrograms, ProgramMeta } from './Programs.jsx'
+import ProgramSessions from '../components/ProgramSessions.jsx'
 
 export default function ProgramDetail() {
   const { id } = useParams()
@@ -19,8 +20,6 @@ export default function ProgramDetail() {
   const { data, error } = usePrograms()
   const copying = useRef(false)
   const p = data?.find(p => p.id === id && isVisible(p, p.review))
-  const range = values => t('{0} to {1}', ...values)
-  const interval = i => t('{0} min: {1} easy, {2} × ({3} hard, {4} easy), {5} easy', intervalMinutes(i), i.warmup, i.rounds, i.hard, i.easy, i.cooldown)
   const copy = start => {
     if (copying.current) return
     const perform = () => {
@@ -53,16 +52,7 @@ export default function ProgramDetail() {
       <p>{t(approaches[p.approach])}</p><p>{t(p.notes)}</p>
       <p className="small dim">{reviewed(p, p.review) ? t('Based on published training research and reviewed by a certified coach.') : t('Based on published training research. Not reviewed by a coach yet.')}</p>
       <h2>{t('Sessions')}</h2>
-      {p.templates.map(template => <section className="card" key={template.id}>
-        <h3>{t(template.name)}</h3><p className="small dim">{t(template.warmUp)}</p>
-        {template.items.map((i, n) => <div key={n} className="program-exercise">
-          <strong>{exerciseNameText(exOr(i.ex))}</strong>
-          <div>{i.mode === 'cardio' ? (i.intervals ? interval(i.intervals) : t('{0} min easy', i.min)) : <>
-            {i.mode === 'time' ? t('{0} × {1} seconds', i.sets, range(i.sec)) : t('{0} × {1} reps', i.sets, range(i.reps))}
-            {i.rir != null && t(', RIR {0}', i.rir)}{t(', rest {0} seconds', i.rest)}{i.side && t(', per side')}
-          </>}</div>{i.note && <p className="small dim">{t(i.note)}</p>}
-        </div>)}
-      </section>)}
+      <ProgramSessions program={p} />
       <h2>{t('Weeks')}</h2>
       {p.plan.map(w => {
         const items = Object.values(w.items).flat()
