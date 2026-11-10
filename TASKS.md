@@ -36,7 +36,7 @@ step 5 (Home redesign, active workout restyle, Today card with the Start button 
 - [x] Step 3 navigation: Home · Workouts · Progress · Friends, Resume pill, Friends empty state (fork-flags.js)
 - [x] Step 4 shared components: off-white primary buttons, pill segments (selected off-white); Start button back in the tab bar's middle (Emil asked)
 - [x] Step 5 Home: brand header, greeting + training days, Today card with round Start, Steps/Resting HR Not connected, weekly chart
-- [ ] Step 5 workout screen (Emil decided 2026-11-09): Focus view as the default (store DEF workoutView 'focus'), restyled to the render; Finish + Discard move into the ⋯ menu with confirmation, tour 'finish' stop folded into 'more'. Tried both: they break 39 + 7 upstream Workout tests that assume the card view and the header Finish; update those tests with the change. Rest timer verified: absolute endsAt.
+- [x] Step 5 workout screen (Codex T-008, T-009): Focus view is the default, Finish/Discard in the ⋯ menu, Focus restyled to the render (big steppers, Complete set, Last time hint, Undo toast, rest ring card). Checked in the browser 2026-11-10.
 - [ ] Step 6 checks: 375/390/430, light/dark, every accent, reduced motion, real iPhone install
 - Later (Phase 9): rename "openGym" in frontend/ios Swift files and remove upstream app-icon assets
 
