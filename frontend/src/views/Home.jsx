@@ -31,6 +31,7 @@ import RecoveryHint from '../components/RecoveryHint.jsx'
 import { ChallengesCard } from '../components/Challenges.jsx'
 import { isOn } from '../lib/modules.js'
 import BrandMark from '../components/BrandMark.jsx'
+import FitbitImport from '../components/FitbitImport.jsx'
 import { HomeMetrics, TrainingBarChart } from '../components/HomeMetrics.jsx'
 
 // Home = what to do now + a quick glance. Deep charts & history live in Stats.
@@ -209,6 +210,7 @@ export default function Home() {
     </div>
 
     {/* Steps and resting heart rate (Google Health, PLAN.md Phase 4), then this week's training. */}
+    <FitbitImport />
     <HomeMetrics />
     {S.workouts.length > 0 && <TrainingBarChart S={S} />}
 
