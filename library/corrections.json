@@ -1,0 +1,61 @@
+{
+  "_note": "Corrections applied by scripts/library/build.mjs on top of source-UNREVIEWED.json, which is never edited. Each has a reason. Written by Claude 2026-11-10 for the coach to check in COACH_REVIEW.md.",
+  "intervals": {
+    "hybrid-4/h4-c2": {
+      "reason": "Source week 8 gave 22 min for a session whose own steps add up to 27 (P0.1). Weeks 1 to 7 already add up and are kept. Week 8 (the lighter week) drops to 3 rounds instead of squeezing the same work into less time.",
+      "warmup": 8,
+      "hard": 1,
+      "easy": 2,
+      "cooldown": 4,
+      "hardRpe": "7 to 8",
+      "weeks": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 3
+      },
+      "minutes": {
+        "1": 27,
+        "2": 27,
+        "3": 27,
+        "4": 27,
+        "5": 27,
+        "6": 27,
+        "7": 27,
+        "8": 21
+      }
+    },
+    "conditioning-3/c3-intervals": {
+      "reason": "Source scaled the minutes week by week (18 to 31) but kept 8 min warm-up + 4 rounds + cool-down, at least 28 min before cool-down, so weeks 1 to 5 and 8 could not be done as written (P0.1). Now the rounds change instead of the minutes: one round added every two weeks, reaching the source's 4 rounds in week 5, back to 2 in the lighter week 8. Warm-up 6 min and cool-down 4 min (beginner to intermediate). Totals stay within 2 to 3 min of the source's.",
+      "warmup": 6,
+      "hard": 2,
+      "easy": 3,
+      "cooldown": 4,
+      "hardRpe": "7",
+      "weeks": {
+        "1": 2,
+        "2": 2,
+        "3": 3,
+        "4": 3,
+        "5": 4,
+        "6": 4,
+        "7": 4,
+        "8": 2
+      },
+      "minutes": {
+        "1": 20,
+        "2": 20,
+        "3": 25,
+        "4": 25,
+        "5": 30,
+        "6": 30,
+        "7": 30,
+        "8": 20
+      }
+    }
+  }
+}

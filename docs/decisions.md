@@ -51,3 +51,9 @@
 - **2026-11-10: All programs visible before review.** Emil: friends can use every program now; the
   coach's review adds the approved label instead of gating them. Unreviewed ones say "Not reviewed
   by a coach yet"; known problems (hybrid-4 and conditioning-3 intervals) are listed on the program.
+- **2026-11-10: Interval sessions fixed (library/corrections.json).** hybrid-4 week 8 drops to 3
+  rounds (21 min) instead of 27 min of work in 22; conditioning-3's intervals change by rounds,
+  not minutes: 2, 2, 3, 3, 4, 4, 4, 2 rounds of 2 min hard and 3 easy, with 6 min warm-up and 4
+  cool-down (20 to 30 min, within 3 min of the source). The source file stays unchanged; the coach
+  sees both versions in the review sheet. No program runs over its stated time once rest between
+  exercises is counted.
