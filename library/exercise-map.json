@@ -1,0 +1,170 @@
+{
+  "_note": "Library exercise id -> catalogue id. Chosen by hand 2026-11-10 (Claude), for the coach to confirm in COACH_REVIEW.md. Never matched by name at runtime.",
+  "exercises": {
+    "goblet_squat": {
+      "id": "1760",
+      "name": "dumbbell goblet squat"
+    },
+    "back_squat": {
+      "id": "0043",
+      "name": "barbell full squat"
+    },
+    "leg_press": {
+      "id": "0739",
+      "name": "sled 45° leg press"
+    },
+    "split_squat": {
+      "id": "2960",
+      "name": "dumbbell split squat"
+    },
+    "reverse_lunge": {
+      "id": "0381",
+      "name": "dumbbell rear lunge"
+    },
+    "step_up": {
+      "id": "0431",
+      "name": "dumbbell step-up"
+    },
+    "romanian_deadlift": {
+      "id": "0085",
+      "name": "barbell romanian deadlift"
+    },
+    "db_rdl": {
+      "id": "1459",
+      "name": "dumbbell romanian deadlift"
+    },
+    "deadlift": {
+      "id": "0032",
+      "name": "barbell deadlift"
+    },
+    "trap_bar_deadlift": {
+      "id": "0811",
+      "name": "trap bar deadlift"
+    },
+    "hip_thrust": {
+      "id": "1060",
+      "name": "barbell hip thrust"
+    },
+    "glute_bridge": {
+      "id": "3013",
+      "name": "low glute bridge on floor"
+    },
+    "leg_curl": {
+      "id": "0586",
+      "name": "lever lying leg curl"
+    },
+    "slider_curl": {
+      "id": "3395",
+      "name": "sliding leg curl on floor with towel"
+    },
+    "leg_extension": {
+      "id": "0585",
+      "name": "lever leg extension"
+    },
+    "calf_raise": {
+      "id": "0605",
+      "name": "lever standing calf raise"
+    },
+    "db_calf_raise": {
+      "id": "0409",
+      "name": "dumbbell single leg calf raise"
+    },
+    "bench_press": {
+      "id": "0025",
+      "name": "barbell bench press"
+    },
+    "db_bench": {
+      "id": "0289",
+      "name": "dumbbell bench press"
+    },
+    "incline_db_press": {
+      "id": "0314",
+      "name": "dumbbell incline bench press"
+    },
+    "chest_press": {
+      "id": "0576",
+      "name": "lever chest press"
+    },
+    "push_up": {
+      "id": "0662",
+      "name": "push-up"
+    },
+    "ohp": {
+      "id": "1162",
+      "name": "barbell standing military press"
+    },
+    "db_shoulder_press": {
+      "id": "0405",
+      "name": "dumbbell seated shoulder press"
+    },
+    "lat_pulldown": {
+      "id": "2330",
+      "name": "cable lat pulldown full range of motion"
+    },
+    "assisted_pullup": {
+      "id": "0017",
+      "name": "assisted pull-up"
+    },
+    "cable_row": {
+      "id": "1323",
+      "name": "cable rope seated row"
+    },
+    "db_row": {
+      "id": "2393",
+      "name": "dumbbell one arm bent over row"
+    },
+    "chest_supported_row": {
+      "id": "10646",
+      "name": "lever incline prone row"
+    },
+    "lateral_raise": {
+      "id": "0334",
+      "name": "dumbbell lateral raise"
+    },
+    "cable_lateral_raise": {
+      "id": "0178",
+      "name": "cable lateral raise"
+    },
+    "rear_delt_fly": {
+      "id": "0602",
+      "name": "lever seated reverse fly"
+    },
+    "face_pull": {
+      "id": "5609",
+      "name": "cable standing face pull"
+    },
+    "biceps_curl": {
+      "id": "0294",
+      "name": "dumbbell biceps curl"
+    },
+    "cable_curl": {
+      "id": "0868",
+      "name": "cable curl"
+    },
+    "triceps_pushdown": {
+      "id": "0241",
+      "name": "cable triceps pushdown (v-bar)"
+    },
+    "overhead_triceps": {
+      "id": "0430",
+      "name": "dumbbell standing triceps extension"
+    },
+    "plank": {
+      "id": "0463",
+      "name": "front plank"
+    },
+    "dead_bug": {
+      "id": "0276",
+      "name": "dead bug"
+    },
+    "pallof_press": {
+      "id": "1202",
+      "name": "cable horizontal pallof press"
+    }
+  },
+  "cardio": {
+    "_note": "Default catalogue exercise per source modality; the user can swap.",
+    "walk/bike/row": "3004",
+    "bike/elliptical": "0798"
+  }
+}

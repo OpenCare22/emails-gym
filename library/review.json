@@ -1,0 +1,55 @@
+{
+  "_note": "One entry per program. status: draft | needs_review | approved | retired. Only approved programs are shown to everyone; approved needs reviewer, date and the exact version reviewed, and no open blockers.",
+  "reviewer": null,
+  "programs": {
+    "foundation-2": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "foundation-3": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "build-4": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "strength-4": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "hybrid-4": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "efficient-3": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    },
+    "conditioning-3": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    }
+  }
+}

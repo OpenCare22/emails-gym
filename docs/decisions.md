@@ -40,3 +40,11 @@
   rep ranges, RIR/RPE, starter plans, plan import), so the library extends those instead of a
   second tracker. The research programs stay draft until someone qualified reviews them. First
   step: T-014, programme weeks that change sets and RIR.
+- **2026-11-10: Emil's coach friend reviews the library.** A certified coach and nutritionist
+  reviews each program from a generated review sheet; only programs marked approved in
+  library/review.json (reviewer, date, exact version, no blockers) are shown to everyone. Others
+  are visible to admins only, labelled "Not reviewed yet". Tailoring is a fixed-rule questionnaire
+  (hard filters, then a versioned score, up to three matches with reasons, or no match); a health
+  answer of yes suggests seeing a professional instead of a program. Exercise mapping chosen by
+  Claude in library/exercise-map.json, for the coach to confirm. Progression keeps the app's
+  derived, editable targets (the audit's recommendation; Emil hasn't objected).
