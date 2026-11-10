@@ -41,6 +41,8 @@ import { atomicWrite as durableWrite } from './durable.js';
 import { ipv6Groups, guardedLookup, pushEndpointError, MAX_PUSH_ENDPOINT } from './net-guard.js';
 import { createIntegrations } from './integrations/index.js';
 import { integrationRoutes } from './integrations/routes.js';
+import { createHealth } from './health/index.js';
+import { healthRoutes } from './health/routes.js';
 import { excusedOn, nudgeFor, nudgeWindowOpen, toneOf } from './nudge.js';
 import { wrappedPushYear, wrappedSummary, wrappedPushOwed, wrappedPush } from './wrapped.js';
 
@@ -125,6 +127,9 @@ const SECRET = fs.readFileSync(secretFile, 'utf8').trim();
 // Integrations (integrations/, docs/INTEGRATIONS.md): off unless INTEGRATIONS names some. Their
 // connections live in DATA_DIR/integrations/, sealed with a key derived from SECRET.
 const integrations = createIntegrations({ dataDir: DATA, secret: SECRET, version: '1' });
+// Google Health (health/, PLAN.md Phase 4): off unless GOOGLE_HEALTH_CLIENT_ID and _SECRET are set.
+// Each profile's tokens and data live in DATA_DIR/health/<uid>.json, sealed like the integrations.
+const health = createHealth({ dataDir: DATA, secret: SECRET, origin: ORIGIN });
 
 const dbFile = path.join(DATA, 'db.json');
 // Every account, passkey and invite. Only a missing file starts empty: an unreadable one (a write
@@ -1352,6 +1357,8 @@ function removeAccount(u) {
   try { MEDIA.removeUser(u.id); } catch (e) { console.error('media: could not remove uploads of', u.id, e.message); }
   // Their integrations: connections, sealed secrets and anything still waiting to be sent.
   try { integrations.removeUser(u.id); } catch (e) { console.error('integrations: could not remove', u.id, e.message); }
+  // Their Google Health connection and the data pulled with it.
+  try { health.removeUser(u.id); } catch (e) { console.error('health: could not remove', u.id, e.message); }
   saveDb();
 }
 
@@ -2116,7 +2123,9 @@ const routes = {
       ...(readSession(req) ? { coach: coachConfig.publicConfig() } : {}),
       // Which integrations this server offers (only to a session, like the Coach block). Absent
       // with INTEGRATIONS unset, which is how the app knows to show the server cards as off.
-      ...(readSession(req) && integrations.publicConfig() ? { integrations: integrations.publicConfig() } : {})
+      ...(readSession(req) && integrations.publicConfig() ? { integrations: integrations.publicConfig() } : {}),
+      // Whether this server can connect Google Health (only to a session).
+      ...(readSession(req) && health.publicConfig() ? { health: health.publicConfig() } : {})
     });
   },
 
@@ -2981,6 +2990,10 @@ const routes = {
   // list (GET) or 404 "off", so the routes exist on every server and the app can tell.
   ...integrationRoutes({ json, readBody, readSession, hub: integrations, audit }),
 
+  /* ---------- health ---------- */
+  // health/routes.js: Google Health connect, sync and data (PLAN.md Phase 4).
+  ...healthRoutes({ json, readSession, health, audit }),
+
   /* ---------- photos & videos ---------- */
   // Absent, not refusing, when MEDIA_UPLOADS=0: a 404 is what a server from before the feature
   // answers, and the client already treats that as "this server does not store them".
@@ -3003,6 +3016,7 @@ coachJobs.setProposalHook((uid, pending) => {
   });
 });
 integrations.start();
+health.start(() => db.users.filter(u => !u.disabled).map(u => u.id));
 startCadence({ users: () => db.users.filter(u => !u.disabled), userNow, skip: uid => !stateSummary(uid)?.consent });
 startWarmup();
 

@@ -176,6 +176,11 @@ tags:
     description: >-
       AI Coach: plans, reviews and debriefs. Every route here answers 503 unless the
       instance has the Coach switched on and a provider connected.
+  - name: health
+    description: >-
+      Google Health (Fitbit) connection: steps, resting heart rate, sleep, weight and workouts,
+      read with each profile's own Google account. Off unless GOOGLE_HEALTH_CLIENT_ID and
+      GOOGLE_HEALTH_CLIENT_SECRET are set.
   - name: integrations
     description: >-
       Settings → Integrations: outbound webhooks now, more providers later. Off unless the
@@ -2735,6 +2740,69 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/IntegrationsOff' }
 
+  /api/google-health:
+    get:
+      tags: [health]
+      operationId: healthStatus
+      summary: The profile's Google Health connection and its data
+      description: >-
+        Whether the server offers Google Health, whether this profile connected it, its status
+        (ok, reconnect, not_linked, attention), the last sync, and the normalised data for the
+        last 120 days (steps, restingHr and sleep by day; weight and exercise lists).
+      responses:
+        '200':
+          description: The connection.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available: { type: boolean }
+                  connected: { type: boolean }
+                  status: { type: string }
+                  lastSync: { type: string, nullable: true }
+                  data: { type: object }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/google-health/sync:
+    post:
+      tags: [health]
+      operationId: healthSync
+      summary: Pull new Google Health data now
+      description: Reads the days since the last sync (30 days the first time) and answers like GET /api/google-health.
+      responses:
+        '200': { description: The connection after the sync. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not set up on this server, or not connected. }
+        '409': { description: Google needs reconnecting, or the account has no Google Health profile. }
+  /api/google-health/disconnect:
+    post:
+      tags: [health]
+      operationId: healthDisconnect
+      summary: Disconnect Google Health
+      description: Revokes the Google token and deletes the connection and its data.
+      responses:
+        '200': { description: Disconnected. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/google-health/connect:
+    get:
+      tags: [health]
+      operationId: healthGoogleConnect
+      summary: Start connecting Google Health
+      description: A page navigation. Redirects to Google's consent screen, or back to the app when not signed in or not set up.
+      responses:
+        '302': { description: To Google, or back to Settings → Integrations. }
+  /api/google-health/callback:
+    get:
+      tags: [health]
+      operationId: healthGoogleCallback
+      summary: Google's OAuth redirect
+      description: Exchanges the code, stores the sealed tokens, pulls the first 30 days and returns to Settings → Integrations with health=connected or health=failed.
+      parameters:
+        - { name: code, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+        - { name: error, in: query, schema: { type: string } }
+      responses:
+        '302': { description: Back to the app. }
   /api/activity:
     post:
       tags: [activity]
