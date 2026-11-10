@@ -272,8 +272,13 @@ button,.chip,.tile,.item,.wday,.cal-d,.swatch,.hm-c,.lrow,.seg button,.stp butto
 .nocap,.tag.nocap,.chip.nocap{text-transform:none}
 
 /* ---------------------------------------------------------------- layout -- */
+/* --top-clear: room under the status bar. iOS draws a soft blur along the top edge of a Home
+   Screen web app, a little below the safe area, so titles start clear of it (Emil's iPhone,
+   2026-11-10: the tops of the page titles were caught in it at 8px). */
+:root{--top-clear:8px}
+@media (display-mode:standalone){:root{--top-clear:20px}}
 #app{
-  padding:calc(var(--sat) + var(--conn) + 8px) var(--pad) calc(88px + var(--sab));
+  padding:calc(var(--sat) + var(--conn) + var(--top-clear)) var(--pad) calc(88px + var(--sab));
   max-width:560px;margin:0 auto;
 }
 /* Android 15 with the keyboard up: room to scroll the last field on a page above the keys.
@@ -1176,8 +1181,8 @@ body.chips-dragging *{cursor:inherit}
 .stats-sect-h{font-size:var(--fs-title3);font-weight:700;letter-spacing:var(--ls-title);line-height:var(--lh-title);margin:0 2px 12px}
 .whdr.stick{
   position:sticky;top:0;z-index:20;
-  margin:calc(-1 * (var(--sat) + var(--conn) + 8px)) calc(-1 * var(--pad)) 6px;
-  padding:calc(var(--sat) + var(--conn) + 8px) var(--pad) 0;
+  margin:calc(-1 * (var(--sat) + var(--conn) + var(--top-clear))) calc(-1 * var(--pad)) 6px;
+  padding:calc(var(--sat) + var(--conn) + var(--top-clear)) var(--pad) 0;
   background:var(--bg);background:color-mix(in srgb,var(--bg) 94%,transparent);
   -webkit-backdrop-filter:saturate(180%) blur(10px);backdrop-filter:saturate(180%) blur(10px);
 }
@@ -3330,7 +3335,7 @@ button.wl-summary{width:100%;padding:0 0 10px;text-align:start;border-radius:var
 .lb-value{font-weight:600;font-variant-numeric:tabular-nums}
 
 /* ---------------------------------------------------- Email's Gym Home (Phase 2 step 5) -- */
-.home-top{display:flex;align-items:center;justify-content:space-between;min-height:var(--touch-min);margin:calc(var(--sat) + 4px) 0 2px}
+.home-top{display:flex;align-items:center;justify-content:space-between;min-height:var(--touch-min);margin:0 0 2px}
 .home-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:var(--fs-card);letter-spacing:-.01em}
 .home-brand svg{color:var(--label)}
 .home-hello{padding-top:4px}
