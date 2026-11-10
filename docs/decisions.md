@@ -78,3 +78,13 @@
   Google's (Google wins a day both have). Three metric names are not in its docs
   (resting_heart_rate, body_mass, apple_exercise_time); anything else unknown is listed on the
   setup card so the first real export shows what to add.
+- **2026-11-11: Friends (Phase 7) built by Claude while Codex was at its limit.** api/social/: groups
+  joined by invite link (12 people, 5 groups each, links last 14 days), sharing per group and per
+  metric (all off until chosen; joining preselects Workouts and Streak), one summary per person
+  (the only thing friends read), leaderboards, nudges in the friend's own tone (one a day per
+  friend), a feed without weights or exercises plus kudos, and trophies (weekly winners per group
+  in UTC weeks, milestones, six original card backgrounds). The week streak on the server is a
+  hand copy of lib/streak.js with a parity test (add it to "code that exists twice"). On iPhone the
+  install screen shows an invite's code, since the Home Screen app can't receive Safari's link.
+  `api/test/nudge*.test.js` ("a crafted state costs one pass") failed once under load and passed
+  on the rerun.
