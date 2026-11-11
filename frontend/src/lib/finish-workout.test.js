@@ -340,3 +340,20 @@ describe('sessionEnd: a workout finished long after its last set', () => {
     expect(sessionEnd(active, T0 + FORGOTTEN_GAP_MS + 1)).toBe(T0)
   })
 })
+
+// The feel tap and the ease-in stamp are read back by the next session's prescription
+// (progression.js, return-break.js), so a save must keep them; an interval run's rounds ride on the set.
+describe('saving feel, the ease-in and interval rounds', () => {
+  const back = { days: 10, tier: 'short', step: 1, from: { weight: 100, sets: 3, reps: 5 } }
+  const active = { d: '2026-11-11', start: 1, entries: [
+    { id: '0025', feel: 'hard', back, target: { sets: 2 }, sets: [{ w: 100, r: 5, done: true }] },
+    { id: '0031', feel: 'meh', ivRun: { at: 1 }, target: { mode: 'cardio' }, sets: [{ min: 25, speed: 9, done: true, iv: { hard: 2, rounds: 2, done: 2 } }] },
+  ] }
+  it('keeps them, and nothing that is not one of them', () => {
+    const w = buildCompletedWorkout(active, { end: 2 })
+    expect(w.entries[0]).toMatchObject({ feel: 'hard', back })
+    expect(w.entries[1]).not.toHaveProperty('feel')
+    expect(w.entries[1]).not.toHaveProperty('ivRun')
+    expect(w.entries[1].sets[0].iv).toEqual({ hard: 2, rounds: 2, done: 2 })
+  })
+})

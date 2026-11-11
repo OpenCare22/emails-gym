@@ -85,6 +85,10 @@ export function buildCompletedWorkout(active, { end = Date.now(), prs = [], snap
       // The superset the exercise was done in, so the history can show the pairing. Without it
       // the workout forgot at finish what it had been all session.
       ...(entry.sg ? { sg: entry.sg } : {}),
+      // How it felt (lib/feel.js) and the ease-in after a break it was built with
+      // (lib/return-break.js): the next session's prescription reads both from the history.
+      ...(['easy', 'good', 'hard'].includes(entry.feel) ? { feel: entry.feel } : {}),
+      ...(entry.back && typeof entry.back === 'object' ? { back: entry.back } : {}),
     }
     const snapshot = typeof snapshotFor === 'function' ? snapshotFor(entry) : null
     if (snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) && Object.keys(snapshot).length) {
