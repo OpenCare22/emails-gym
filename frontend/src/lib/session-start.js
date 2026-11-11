@@ -8,10 +8,12 @@ import { isWarmupRow, isSideSet, syncSideAggregate } from './workout-model.js'
 import { nextPrescription, applyPrescription, defaultIncrement, weightIncrement, plannedOf, deloadTo, DELOAD_FACTOR, policyFor } from './progression.js'
 import { dropGrid } from './plates.js'
 import { backoffStepOf, applyBackoff } from './backoff.js'
-import { dbLoadFor, historyAs, ownedWeightsFor, withMeaning } from './dumbbells.js'
+import { dbLoadFor, historyAs, entryDbLoad, meaningFactor, ownedWeightsFor, withMeaning } from './dumbbells.js'
 import { isAssisted } from './exercises.js'
 import { sessionHistory } from './backfill.js'
 import { programmeSlot, pctWeight } from './programmes.js'
+import { easeForReturn } from './return-break.js'
+import { bodyOf } from './body-profile.js'
 import { todayISO } from './format.js'
 import { exConverted, exView, viewTarget, storedTarget, storedRow } from './ex-unit.js'
 import { warmupSource, warmupModeOf, withWarmupBlock } from './warmup-ramp.js'
@@ -97,12 +99,15 @@ export function buildPlannedEntry(stored, cfg, routine, opts) {
   return inExUnit(stored, cfg, (st, c) => planEntry(st, c, routine, opts))
 }
 
-function planEntry(stored, cfg, routine, { noProg = false } = {}) {
+function planEntry(stored, cfg, routine, { noProg = false, noEase = false } = {}) {
   // What a dumbbell weight means for this exercise today (lib/dumbbells.js): the history it
   // progresses from is read in that meaning, so a switch from "40 total" to per bell opens at
   // 20, not at 40 a hand. Only a switch between the two explicit meanings converts anything.
   const meaning = dbLoadFor(stored, cfg)
-  const st = historyAs(stored, cfg.id, meaning)
+  const st = historyAs(mapBackHistory(stored, cfg.id, entry => {
+    const factor = meaningFactor(entryDbLoad(entry), meaning, { ...entry.target, id: cfg.id })
+    return { ...entry.back.from, weight: Math.round(entry.back.from.weight * factor * 1000) / 1000 }
+  }), cfg.id, meaning)
   // `plan` is kept on the entry purely so the workout can explain the number it chose.
   let plan = noProg ? { policy: 'off', kind: 'off' } : nextPrescription(st, cfg, routine)
   // The warm-up ramp and the prescription snap to the exercise's own increment (1.25 kg
@@ -115,7 +120,13 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
   const slot = noProg ? null : programmeSlot(stored, routine?.id, cfg.id, stored?.active?.d || todayISO())
   const policyKind = plan.kind
   if (slot) plan = programmePlan(st, cfg, plan, slot, step)
-  const planReps = !startsFromLast(st) || plan.kind === 'programme'
+  let back = null
+  if (!noEase && !stored.active?.usualPlan) {
+    const eased = easeForReturn(st, cfg, routine, plan, { today: stored?.active?.d || todayISO(), person: bodyOf(st) })
+    plan = eased.plan
+    back = eased.back
+  }
+  const planReps = !startsFromLast(st) || !!slot
   const fromLast = !noProg && policyKind === 'off' && !slot && startsFromLast(st)
   // Warm-ups ramp over the dumbbells you own when the profile lists them (issue #376): a rung
   // lands on the heaviest bell under it, never on a weight in between that no rack holds.
@@ -163,7 +174,7 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
     && rows.some(s => !isWarmupRow(s) && s.r !== cfg.reps)
   // `planned` is what the routine asked for, kept apart from the target the prescription moved,
   // so the next session can tell an edited plan from a progressed one (nextPrescription).
-  return { target, plan, sets, planned: plannedOf(cfg), ...(carried ? { carried: true } : {}), ...(slot?.deload ? { deload: true } : {}) }
+  return { target, plan, sets, planned: plannedOf(cfg), ...(back ? { back } : {}), ...(carried ? { carried: true } : {}), ...(slot?.deload ? { deload: true } : {}) }
 }
 
 // An exercise with a weight unit of its own (#657, lib/ex-unit.js) is built in that unit: on the
@@ -173,13 +184,23 @@ function planEntry(stored, cfg, routine, { noProg = false } = {}) {
 function inExUnit(stored, cfg, build) {
   const id = cfg?.id
   if (!exConverted(stored, id)) return build(stored, cfg)
-  const out = build(exView(stored, id), viewTarget(stored, id, cfg))
+  const view = mapBackHistory(exView(stored, id), id, entry => viewTarget(stored, id, entry.back.from))
+  const out = build(view, viewTarget(stored, id, cfg))
   return {
     ...out,
     target: storedTarget(stored, id, out.target, cfg),
+    ...(out.back ? { back: { ...out.back, from: storedTarget(stored, id, out.back.from) } } : {}),
     ...(out.planned ? { planned: storedTarget(stored, id, out.planned, plannedOf(cfg)) } : {}),
     sets: (out.sets || []).map(s => storedRow(stored, id, s)),
   }
+}
+
+// The return baseline carries a weight too. Convert only a read copy, alongside the
+// existing history/unit adapters, which predate this stamp and leave it untouched.
+function mapBackHistory(st, id, fromOf) {
+  if (!st.workouts?.some(w => w.entries?.some(e => e.id === id && e.back))) return st
+  return { ...st, workouts: st.workouts.map(w => ({ ...w, entries: w.entries?.map(entry =>
+    entry.id === id && entry.back ? { ...entry, back: { ...entry.back, from: fromOf(entry) } } : entry) })) }
 }
 
 /**

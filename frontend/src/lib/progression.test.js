@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import {
   readSession, sessionsFor, stallCount, nextPrescription, applyPrescription, plannedOf, planChanged,
   policyFor, defaultIncrement, weightIncrement, epley1RM, deloadTarget1RM,
   deloadFactorOf, DELOAD_FACTOR, POLICIES_FOR, DELOAD_AFTER, MAX_BW_SETS
 } from './progression.js'
+import { setReturnEasing } from './return-break.js'
 import { entryExcluded } from './history.js'
 import { EXDB, isAssisted } from './exercises.js'
 
@@ -1138,5 +1139,28 @@ describe('a weight off the increment grid keeps its offset when it goes up (issu
   it('still snaps from a weight that sits on the grid', () => {
     const p = nextPrescription(hist(LIFT, [[60, 5, 5, 5]]), { id: LIFT, sets: 3, reps: 5, weight: 60, prog: 'linear', inc: 2.5 })
     expect(p.weight).toBe(62.5)
+  })
+})
+
+describe('return prescription rows', () => {
+  beforeEach(() => setReturnEasing(true))
+  it('shrinks open work rows from the end, keeping warm-ups and done rows', () => {
+    const warm = { w: 20, r: 5, warmup: true, done: true }
+    const done = { w: 100, r: 4, done: true }
+    const open = { w: 100, r: 5, done: false }
+    const p = { kind: 'return', sets: 2, weight: 90 }
+    expect(applyPrescription([open, open, open], p)).toHaveLength(2)
+    const rows = applyPrescription([warm, done, open, done, open], p)
+    expect(rows).toEqual([warm, done, done])
+    expect(rows[1]).toBe(done)
+    expect(applyPrescription([done, done, done], p)).toEqual([done, done, done])
+    expect(applyPrescription([open, open, open], { ...p, kind: 'hold' })).toHaveLength(3)
+  })
+
+  it('return shrink keeps a work row with one side already logged', () => {
+    const partial = { w: 100, r: 10, done: false, sides: { L: { w: 100, r: 5, done: true }, R: { w: 100, r: 5, done: false } } }
+    const rows = applyPrescription([{ w: 100, r: 5, done: true }, partial, { w: 100, r: 5, done: false }], { kind: 'return', sets: 1, weight: 90 })
+    expect(rows).toHaveLength(2)
+    expect(rows[1].sides.L).toEqual(partial.sides.L)
   })
 })

@@ -10,6 +10,12 @@
 // and quota tests patch Storage.prototype.setItem, and Node's Storage class would leave that
 // patch on a prototype nobody uses.
 import { Storage } from 'happy-dom'
+import { beforeEach } from 'vitest'
+
+// Easing back in after a break (lib/return-break.js) reads today's date, which older fixtures
+// dated early 2026 would all read as a long break. Off by default; its own tests turn it on.
+// A plain global, so nothing is imported here before a test's own mocks and env stubs.
+beforeEach(() => { globalThis.__egReturnEasingOff = true })
 
 // `in`, not reading s.getItem: happy-dom binds a method onto the instance the first time it is
 // read, and then a test that patches Storage.prototype.setItem (the multi-tab and quota tests)

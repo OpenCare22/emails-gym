@@ -90,7 +90,7 @@ describe('feel progression', () => {
     const st = state([e])
     const before = structuredClone(st)
     expect(sessionsFor(st, LIFT)[0]).toMatchObject({ feel: 'hard', back })
-    expect(plan([e]).weight).toBe(102.5)
+    expect(plan([e]).kind).toBe('first')
     expect(st).toEqual(before)
     expect(plan([{ ...e, back: undefined }]).kind).toBe('hold')
   })

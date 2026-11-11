@@ -482,7 +482,7 @@ export function nextPrescription(S, cfg, routine) {
 
   // The routine's own sessions of this exercise, or the exercise's whole history when the
   // routine has none yet (issue #216) — see sessionsFor.
-  const sessions = sessionsFor(S, cfg.id, cfg, routine?.id).filter(s => s.mode === mode)
+  const sessions = sessionsFor(S, cfg.id, cfg, routine?.id).filter(s => s.mode === mode && (!s.back || (s.back.repeat && !s.ok)))
   const last = sessions[sessions.length - 1]
   // Triple progression starts a cycle at the base sets and the bottom of the range, so its first
   // session does too; the weight is still the plan's.
@@ -827,9 +827,18 @@ export function applyPrescription(sets, p, step = 2.5, floor = 0, assisted = fal
     return o
   })
   // A policy that decided on a set count gets to grow the list — bodyweight progression adds
-  // a set where a barbell would have added a plate. Only ever upwards, and only by copying a
-  // row that is already there: a session in progress must not lose a set it has logged.
+  // a set where a barbell would have added a plate. Return plans may also remove open work
+  // rows, but a session in progress must never lose work already logged, even on just one side.
   const workRows = out.filter(s => !isWarmupRow(s))
+  if (p.kind === 'return' && p.sets < workRows.length) {
+    let count = workRows.length
+    for (let i = out.length - 1; i >= 0 && count > p.sets; i--) {
+      const row = out[i]
+      if (isWarmupRow(row) || row.done || (isSideSet(row) && (row.sides.L.done || row.sides.R.done))) continue
+      out.splice(i, 1)
+      count--
+    }
+  }
   if (p.sets > workRows.length) {
     // An all-warm-up entry has no work row to seed growth from - growing warm-up copies
     // would both invent work and never terminate the loop. Leave the entry untouched.
