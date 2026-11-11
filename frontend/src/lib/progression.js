@@ -23,6 +23,7 @@ import { normalizeRepRange } from './rep-range.js'
 import { isPyramid } from './pyramid.js'
 import { backoffAt } from './backoff.js'
 import { ownedWeightsFor, ownedKindFor, ownedUp, ownedDeload, ownedAround } from './dumbbells.js'
+import { feelOf, doubleStepFits } from './feel.js'
 
 export const POLICIES = ['off', 'linear', 'greyskull', 'double', 'triple', 'time']
 
@@ -356,7 +357,7 @@ function sessionsIn(S, exId, fallback, rid) {
     if (entryExcluded(w, entry)) return
     if (!entry.sets.some(s => s.done && !isWarmupRow(s))) return
     const slot = entryRoutineId(w, entry)
-    out.push({ d: w.d, ...(slot ? { rid: slot } : {}), ...(entry.planned ? { planned: entry.planned } : {}), ...readSession(entry, fallback) })
+    out.push({ d: w.d, ...(slot ? { rid: slot } : {}), ...(entry.planned ? { planned: entry.planned } : {}), ...readSession(entry, fallback), feel: feelOf(entry), ...(entry.back ? { back: entry.back } : {}) })
   })
   return out
 }
@@ -536,6 +537,28 @@ export function nextPrescription(S, cfg, routine) {
     return { policy, kind: 'hold', ...held, reps: cfg.reps || undefined, why }
   }
 
+  const prev = sessions[sessions.length - 2]
+  // A successful Hard session can delay the step once on this weight and plan.
+  const sameHardPlan = prev && (prev.planned && last.planned
+    ? samePlan(prev.planned, last.planned)
+    : !prev.planned && !last.planned && prev.target?.reps === last.target?.reps && prev.target?.sets === last.target?.sets)
+  const heldHard = prev?.ok && !prev.back && prev.feel === 'hard' && prev.weight === last.weight && sameHardPlan
+  if (mode === 'reps' && last.ok && !last.back && last.feel === 'hard' && !heldHard) {
+    const rows = triple ? tripleRowsOf(last, sets3.setsMin, sets3.setsMax, range3) : null
+    return { policy, kind: 'hold', weight: last.weight, reps: last.goal,
+      ...(rows ? { reps: rows[0], sets: rows.length, rowReps: rows } : {}),
+      why: ['Felt hard last time: same weight once more.'] }
+  }
+  // Only call at a weight-raise branch. Owned weights use the actual two-bell jump.
+  const easyRaise = () => {
+    if (!last.ok || last.back || last.feel !== 'easy' || !prev?.ok || prev.back || prev.feel !== 'easy') return null
+    if (!(assisted ? last.weight < prev.weight : last.weight > prev.weight)) return null
+    const weight = harder(last.weight, inc * 2)
+    const jump = Math.round(Math.abs(weight - last.weight) * 1000) / 1000
+    if (!(jump > 0) || !doubleStepFits(cfg, last.weight, jump)) return null
+    return { weight, why: ['Easy twice in a row: {0} {1} more.', jump, unit] }
+  }
+
   const stalls = stallCount(sessions, policy)
   const deloadAt = DELOAD_AFTER[policy] || 3
 
@@ -686,6 +709,8 @@ export function nextPrescription(S, cfg, routine) {
       return out('hold', w, [...got.slice(0, n - 1).map(() => top), aim], ['Same weight, aim for {0} reps on the last set.', aim])
     }
     if (n < setsMax) return out('up', w, [...got.map(() => top), bottom], ['{0} reps in every set! Add a set at {1} reps.', top, bottom])
+    const easy = easyRaise()
+    if (easy) return out('up', easy.weight, startRows(bottom), easy.why)
     return out('up', harder(w, inc), startRows(bottom), assisted
       ? ['Top of the range on all {0} sets. {1} {2} less help, back to {3} sets of {4}.', n, inc, unit, setsMin, bottom]
       : ['Top of the range on all {0} sets. {1} {2} more, back to {3} sets of {4}.', n, inc, unit, setsMin, bottom])
@@ -702,6 +727,8 @@ export function nextPrescription(S, cfg, routine) {
     // actually reaches the top of the range (issue #278).
     if (last.ok && last.low >= top) {
       if (topped(w)) return toppedOut(w, { reps: top })
+      const easy = easyRaise()
+      if (easy) return { policy, kind: 'up', reps: bottom, ...easy }
       const up = harder(w, inc)
       // Over owned bells the step is whatever the next one is: 9 → 11 is 2 kg, 18 → 19 is 1.
       const by = owned ? Math.round((up - w) * 100) / 100 : inc
@@ -733,6 +760,8 @@ export function nextPrescription(S, cfg, routine) {
     // earned a double jump.
     const dbl = policy === 'greyskull' && last.goal > 0 && last.amrap >= last.goal * 2
     if (topped(w)) return toppedOut(w)
+    const easy = !dbl && easyRaise()
+    if (easy) return { policy, kind: 'up', ...easy }
     const up = harder(w, dbl ? inc * 2 : inc)
     // Over owned bells the jump is the distance to the bell it lands on.
     const step = owned ? Math.round((up - w) * 100) / 100 : dbl ? inc * 2 : inc
