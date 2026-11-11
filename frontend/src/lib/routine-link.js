@@ -1,4 +1,5 @@
-// "Share with a friend" (v1.4.4): one routine as a link, https://opengym.ch/r#<payload>.
+// "Share with a friend" (v1.4.4): one routine as a link, <server>/#/r/<payload>
+// (https://emailsgym.com/#/r/<payload> for most people).
 //
 // The payload is a plan file (lib/plan-share.js buildPlanBundle) holding just that routine, so it
 // carries the same `opengym_plan` format version and the receiving app reads it with the same
@@ -8,10 +9,9 @@
 //   <payload> = <link format>.<encoding>.<base64url>      e.g. 1.d.q1YqzkxRslIqS...
 //   encoding  d = deflate-raw (CompressionStream), j = plain JSON (a browser without one)
 //
-// It lives in the URL FRAGMENT: browsers never send that part to a server, so opengym.ch only
-// serves the page (upstream's website/r/index.html) and never sees the routine. The same payload opens the
-// app as opengym://r#<payload>, Android's https://opengym.ch/r filter, or a web app at
-// <server>/#/r/<payload>.
+// It lives in the URL FRAGMENT: browsers never send that part to a server, so the server only
+// serves the app and never sees the routine. Upstream shared https://opengym.ch/r#<payload>, a
+// site that isn't ours; links made that way (and opengym://r#<payload>) still open here.
 //
 // Besides the plan file, the bundle carries two things an older app simply ignores: `from`, the
 // sender's name when they chose to add it, and `names`, the English catalogue names of the
@@ -21,7 +21,13 @@ import { buildPlanBundle, parsePlan, mergePlan } from './plan-share.js'
 import { t } from './i18n-core.js'
 
 export const LINK_FMT = 1
-export const LINK_BASE = 'https://opengym.ch/r'
+// Where a link points: the server this web app runs on, so a friend lands in the same Email's Gym.
+// The phone build has no web address of its own (capacitor://), so it points at the public one.
+export const SHARE_HOME = 'https://emailsgym.com'
+export function shareOrigin(loc = globalThis.location) {
+  const origin = loc?.origin
+  return typeof origin === 'string' && /^https?:\/\/[^/]+$/.test(origin) ? origin : SHARE_HOME
+}
 // Past this a link starts breaking in chat apps and SMS: the share falls back to a plan file.
 export const MAX_LINK = 2000
 // What a link may hold at all, before and after inflating: far past any real routine.
@@ -155,7 +161,7 @@ export async function decodePayload(payload) {
   return data
 }
 
-export const linkFor = payload => `${LINK_BASE}#${payload}`
+export const linkFor = (payload, origin = shareOrigin()) => `${origin}/#/r/${payload}`
 
 /**
  * The link for a routine, or `{ tooLong: true }` when it would pass MAX_LINK (the caller shares a

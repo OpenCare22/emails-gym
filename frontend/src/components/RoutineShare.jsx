@@ -43,7 +43,7 @@ async function shareLink(url, text, title) {
 async function shareAsPlanFile(st, routine) {
   const bundle = buildPlanBundle({ ...st, routines: [routine], week: {}, programmes: {} }, routine.name || '')
   const json = JSON.stringify(bundle, null, 2)
-  const name = 'opengym-routine-' + todayISO() + '.json'
+  const name = 'emails-gym-routine-' + todayISO() + '.json'
   if (MOBILE) { try { await shareExport(json, name) } catch (e) { /* dismissed */ } return }
   const blob = new Blob([json], { type: 'application/json' })
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href)
@@ -176,7 +176,7 @@ const BOOT = (() => {
 
 /**
  * Listens for routine links for the whole app: the one the web app opened with, a later
- * #/r/... in the address bar, and in the phone apps opengym://r#... and https://opengym.ch/r#...
+ * #/r/... in the address bar, and in the phone apps opengym://r#... and upstream's https://opengym.ch/r#...
  * One that arrives before the app is set up waits until it is.
  */
 export function useRoutineLinks(ready) {

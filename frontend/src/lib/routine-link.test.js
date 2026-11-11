@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import {
   routineLinkBundle, encodePayload, decodePayload, routineLink, routinePayloadFromUrl, readRoutineBundle,
-  importRoutineLink, importedRoutineName, linkFor, toBase64Url, fromBase64Url, cleanFrom, LINK_FMT, MAX_LINK,
+  importRoutineLink, importedRoutineName, linkFor, shareOrigin, SHARE_HOME, toBase64Url, fromBase64Url, cleanFrom, LINK_FMT, MAX_LINK,
 } from './routine-link.js'
 import { EXIDX, registerCustom } from './exercises.js'
 import { youtubeSearchUrl } from './youtube.js'
@@ -114,7 +114,7 @@ describe('routine links: size fallback', () => {
   it('a normal routine fits in a link', async () => {
     const link = await routineLink(state(), push, { weights: true })
     expect(link.tooLong).toBeUndefined()
-    expect(link.url.startsWith('https://opengym.ch/r#1.')).toBe(true)
+    expect(link.url.startsWith(shareOrigin() + '/#/r/1.')).toBe(true)
     expect(link.length).toBeLessThanOrEqual(MAX_LINK)
   })
 
@@ -240,5 +240,20 @@ describe('Watch on YouTube', () => {
     expect(youtubeSearchUrl({ id: 'x', n: '  ' })).toBeNull()
     expect(youtubeSearchUrl(null)).toBeNull()
     expect(youtubeSearchUrl({ id: 'x', n: 'Unknown exercise', missing: true })).toBeNull()
+  })
+})
+
+describe('shareOrigin', () => {
+  it('points at the server the web app runs on', () => {
+    expect(shareOrigin({ origin: 'https://emailsgym.com' })).toBe('https://emailsgym.com')
+    expect(shareOrigin({ origin: 'http://localhost:5174' })).toBe('http://localhost:5174')
+    expect(linkFor('1.j.abc', 'https://gym.example')).toBe('https://gym.example/#/r/1.j.abc')
+  })
+  it('the phone build and odd origins fall back to the public server', () => {
+    for (const origin of ['capacitor://localhost', 'null', '', undefined]) expect(shareOrigin({ origin })).toBe(SHARE_HOME)
+    expect(shareOrigin(null)).toBe(SHARE_HOME)
+  })
+  it('a link made here opens here', () => {
+    expect(routinePayloadFromUrl(linkFor('1.j.abc', 'https://emailsgym.com'))).toBe('1.j.abc')
   })
 })

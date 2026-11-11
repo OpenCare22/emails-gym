@@ -62,6 +62,6 @@ supplements after Emil's research (body details already saved in S.body).
 - Phase 7 (extended): trophies, cabinet, unlockables from standings.
 - Phase 2: Integrations' "Works with" note still says "Apple Health or Health Connect" (`frontend/src/views/Integrations.jsx`).
 - Leftover on disk: `~/Code/emails-gym/mcp/node_modules` (untracked, ignored) can be deleted by hand.
-- Phase 2: routine share links still point at upstream's `https://opengym.ch/r` (`frontend/src/lib/routine-link.js` LINK_BASE). Point them at our own server's `/#/r/<payload>`.
+- Done 2026-11-11: routine share links point at our own server (`<origin>/#/r/<payload>`, the phone build at emailsgym.com); old opengym.ch links still open. NFC sticker links (`lib/nfc-tags.js`) still name opengym.ch.
 - Phase 8 note: per-user API keys for the in-app Coach chat (see docs/decisions.md).
 - Design assets for Phase 2 (`design/` handoff, icons, renders) still need to be added to the repo.
