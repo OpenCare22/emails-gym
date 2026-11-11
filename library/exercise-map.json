@@ -160,6 +160,34 @@
     "pallof_press": {
       "id": "1202",
       "name": "cable horizontal pallof press"
+    },
+    "db_bulgarian": {
+      "id": "2290",
+      "name": "dumbbell bulgarian split squat"
+    },
+    "db_hip_thrust": {
+      "id": "4742",
+      "name": "dumbbell hip thrust"
+    },
+    "db_pullover": {
+      "id": "0375",
+      "name": "dumbbell pullover"
+    },
+    "db_rear_delt_fly": {
+      "id": "2487",
+      "name": "dumbbell rear delt fly"
+    },
+    "hammer_curl": {
+      "id": "0313",
+      "name": "dumbbell hammer curl"
+    },
+    "db_lying_triceps": {
+      "id": "0351",
+      "name": "dumbbell lying triceps extension"
+    },
+    "db_bent_row": {
+      "id": "0293",
+      "name": "dumbbell bent over row"
     }
   },
   "cardio": {

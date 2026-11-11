@@ -5664,5 +5664,1987 @@ export const programs = [
       "date": null,
       "notes": ""
     }
+  },
+  {
+    "id": "build-3",
+    "version": "1.0.0",
+    "title": "Build / Three Days",
+    "goal": "muscle",
+    "level": [
+      "beginner",
+      "intermediate"
+    ],
+    "days": 3,
+    "weeks": 8,
+    "minutes": [
+      30,
+      50
+    ],
+    "statedMinutes": 60,
+    "equipment": [
+      "barbell",
+      "cable",
+      "dumbbell",
+      "leverage machine",
+      "sled machine"
+    ],
+    "approach": "double_progression",
+    "notes": "Three full-body days, each muscle trained about twice a week with 1-3 RIR. Compounds first, then accessories. Week 8 trims one set for recovery; otherwise no mandatory deload. Built for coach review, not yet reviewed.",
+    "source": "research-2026-11",
+    "templates": [
+      {
+        "id": "b3-a",
+        "name": "Full body A",
+        "day": 1,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "0043",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              6,
+              10
+            ],
+            "rir": 2,
+            "rest": 180,
+            "note": ""
+          },
+          {
+            "ex": "0025",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              6,
+              10
+            ],
+            "rir": 2,
+            "rest": 180,
+            "note": ""
+          },
+          {
+            "ex": "10646",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0586",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 90,
+            "note": ""
+          },
+          {
+            "ex": "0334",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              12,
+              20
+            ],
+            "rir": 2,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0241",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 1,
+            "rest": 60,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "b3-b",
+        "name": "Full body B",
+        "day": 3,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "0085",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 180,
+            "note": ""
+          },
+          {
+            "ex": "2330",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0405",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0739",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0294",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 1,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0605",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 60,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "b3-c",
+        "name": "Full body C",
+        "day": 5,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "1060",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 150,
+            "note": ""
+          },
+          {
+            "ex": "0314",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "1323",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "2960",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 90,
+            "side": true,
+            "note": ""
+          },
+          {
+            "ex": "0602",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              12,
+              20
+            ],
+            "rir": 2,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0868",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 1,
+            "rest": 60,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "plan": [
+      {
+        "week": 1,
+        "note": "Technique and baseline week",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 2,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 3,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 4,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 5,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 6,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 7,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      },
+      {
+        "week": 8,
+        "note": "Consolidation / optional lower-fatigue week",
+        "items": {
+          "b3-a": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 2
+            }
+          ],
+          "b3-b": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 2
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            }
+          ],
+          "b3-c": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "b3-a": [],
+          "b3-b": [],
+          "b3-c": []
+        }
+      }
+    ],
+    "blockers": [],
+    "review": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    }
+  },
+  {
+    "id": "home-3",
+    "version": "1.0.0",
+    "title": "Home / Three Days",
+    "goal": "muscle",
+    "level": [
+      "any"
+    ],
+    "days": 3,
+    "weeks": 8,
+    "minutes": [
+      30,
+      45
+    ],
+    "statedMinutes": 50,
+    "equipment": [
+      "body weight",
+      "dumbbell"
+    ],
+    "approach": "double_progression",
+    "notes": "For a home setup: a pair of adjustable dumbbells and a flat bench. Three full-body days with 1-3 RIR. When the heaviest dumbbells get easy, add reps up to the top of the range, slow the lowering, or move to the harder variation rather than cutting rest. Week 8 trims one set. Built for coach review, not yet reviewed.",
+    "source": "research-2026-11",
+    "templates": [
+      {
+        "id": "h3-a",
+        "name": "Full body A",
+        "day": 1,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "1760",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              15
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0289",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "2393",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 90,
+            "side": true,
+            "note": ""
+          },
+          {
+            "ex": "1459",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0334",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              12,
+              20
+            ],
+            "rir": 2,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0463",
+            "mode": "time",
+            "sets": 2,
+            "sec": [
+              30,
+              60
+            ],
+            "rest": 45,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "h3-b",
+        "name": "Full body B",
+        "day": 3,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "1459",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0405",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "2290",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 90,
+            "side": true,
+            "note": ""
+          },
+          {
+            "ex": "0375",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 90,
+            "note": ""
+          },
+          {
+            "ex": "0313",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 1,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0351",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 1,
+            "rest": 60,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": "h3-c",
+        "name": "Full body C",
+        "day": 5,
+        "warmUp": "5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.",
+        "items": [
+          {
+            "ex": "4742",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 120,
+            "note": ""
+          },
+          {
+            "ex": "0662",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              6,
+              15
+            ],
+            "rir": 2,
+            "rest": 90,
+            "note": ""
+          },
+          {
+            "ex": "0293",
+            "mode": "reps",
+            "sets": 3,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 90,
+            "note": ""
+          },
+          {
+            "ex": "0381",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              8,
+              12
+            ],
+            "rir": 2,
+            "rest": 90,
+            "side": true,
+            "note": ""
+          },
+          {
+            "ex": "2487",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              12,
+              20
+            ],
+            "rir": 2,
+            "rest": 60,
+            "note": ""
+          },
+          {
+            "ex": "0409",
+            "mode": "reps",
+            "sets": 2,
+            "reps": [
+              10,
+              15
+            ],
+            "rir": 2,
+            "rest": 60,
+            "side": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "plan": [
+      {
+        "week": 1,
+        "note": "Technique and baseline week",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 4
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 3,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 2,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 3,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 4,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 5,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 6,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 7,
+        "note": "Maintain exercises; progress if performance allows. No forced load jump.",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            },
+            {
+              "sets": 2,
+              "rir": 1
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 3,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            },
+            {
+              "sets": 2,
+              "rir": 2
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      },
+      {
+        "week": 8,
+        "note": "Consolidation / optional lower-fatigue week",
+        "items": {
+          "h3-a": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 4
+            }
+          ],
+          "h3-b": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 2
+            },
+            {
+              "sets": 1,
+              "rir": 2
+            }
+          ],
+          "h3-c": [
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 2,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            },
+            {
+              "sets": 1,
+              "rir": 3
+            }
+          ]
+        },
+        "cardio": {
+          "h3-a": [],
+          "h3-b": [],
+          "h3-c": []
+        }
+      }
+    ],
+    "blockers": [],
+    "review": {
+      "version": "1.0.0",
+      "status": "needs_review",
+      "reviewer": null,
+      "date": null,
+      "notes": ""
+    }
   }
 ];

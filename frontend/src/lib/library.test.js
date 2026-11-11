@@ -17,8 +17,8 @@ const approval = { reviewer: 'Coach', date: '2026-11-10', version: '1.0.0', stat
 
 describe('library conversion', () => {
   it('maps every goal and level explicitly', () => {
-    expect(source.programs.map((s, i) => convert(i).goal)).toEqual(['general', 'general', 'muscle', 'strength', 'hybrid', 'efficient', 'endurance']);
-    expect(source.programs.map((s, i) => convert(i).level)).toEqual([['beginner'], ['beginner'], ['intermediate'], ['intermediate'], ['intermediate'], ['any'], ['beginner', 'intermediate']]);
+    expect(source.programs.map((s, i) => convert(i).goal)).toEqual(['general', 'general', 'muscle', 'strength', 'hybrid', 'efficient', 'endurance', 'muscle', 'muscle']);
+    expect(source.programs.map((s, i) => convert(i).level)).toEqual([['beginner'], ['beginner'], ['intermediate'], ['intermediate'], ['intermediate'], ['any'], ['beginner', 'intermediate'], ['beginner', 'intermediate'], ['any']]);
     expect(() => convertProgram({ ...source.programs[0], goal: 'unknown' }, map, corrections)).toThrow();
   });
   it('uses catalogue equipment, holds and unilateral metadata without mutating inputs', () => {
@@ -61,7 +61,7 @@ describe('library conversion', () => {
     expect(() => convertProgram(s, map, corrections)).toThrow('order differs');
   });
   it('checks generated data and approvals through the build', () => {
-    expect(execFileSync(process.execPath, ['scripts/library/build.mjs', '--check'], { cwd: root, encoding: 'utf8' })).toContain('7 programs, 0 structural errors');
+    expect(execFileSync(process.execPath, ['scripts/library/build.mjs', '--check'], { cwd: root, encoding: 'utf8' })).toContain('9 programs, 0 structural errors');
   });
 });
 
@@ -124,5 +124,30 @@ describe('review state', () => {
     for (const patch of [{ reviewer: ' ' }, { date: null }, { date: 'not a date' }, { date: '2026-02-30' }, { version: '2.0.0' }]) expect(canApprove(programs[0], { ...approval, ...patch })).toBe(false);
     expect(canApprove({ ...programs[0], blockers: ['Open issue'] }, approval)).toBe(false);
     expect(canApprove({ ...programs[0], blockers: undefined }, approval)).toBe(false);
+  });
+});
+
+// The two programs added on 2026-11-11 (docs/decisions.md): the audit's missing 3-day muscle plan
+// and the home plan, which must stay within dumbbells, a bench and bodyweight.
+describe('added programs', () => {
+  const byId = id => programs.find(p => p.id === id);
+  it('Build / Three Days is three full-body days for muscle', () => {
+    const p = byId('build-3');
+    expect(p).toMatchObject({ days: 3, weeks: 8, goal: 'muscle', blockers: [] });
+    expect(p.templates.map(t => t.day)).toEqual([1, 3, 5]);
+  });
+  it('Home / Three Days needs nothing past dumbbells and bodyweight', () => {
+    const p = byId('home-3');
+    expect(p.equipment).toEqual(['body weight', 'dumbbell']);
+    expect(p).toMatchObject({ days: 3, goal: 'muscle', blockers: [] });
+  });
+  it('both start a set easier and trim a set in week 8', () => {
+    for (const id of ['build-3', 'home-3']) {
+      const p = byId(id), t = p.templates[0].id;
+      const lift = p.templates[0].items.find(i => i.mode === 'reps');
+      expect(p.plan[0].items[t][0].rir).toBe(lift.rir + 1);
+      expect(p.plan[7].items[t][0]).toEqual({ sets: lift.sets - 1, rir: lift.rir + 1 });
+      expect(p.plan[3].items[t][0]).toEqual({ sets: lift.sets, rir: lift.rir });
+    }
   });
 });

@@ -2,7 +2,7 @@
 
 # Program library: coach review
 
-These seven research programs provide exercise templates and eight weeks of planned sets, repetitions, effort targets and cardio. Friends already use them while the coach reviews them. Every program except a retired one is visible. Until approved, the app shows "Not reviewed by a coach yet". Approval changes the review badge, not access or past workouts. Approval requires your name, date, the exact program version and no open blockers in library/review.json. Record changes in the correction inputs and rebuild before signing off a changed version.
+These 9 programs provide exercise templates and eight weeks of planned sets, repetitions, effort targets and cardio. Seven come from the research; Build / Three Days and Home / Three Days were added on 2026-11-11 from the same methodology (B) to fill the gaps the audit names (P1.4), and need the same review. Friends already use them while the coach reviews them. Every program except a retired one is visible. Until approved, the app shows "Not reviewed by a coach yet". Approval changes the review badge, not access or past workouts. Approval requires your name, date, the exact program version and no open blockers in library/review.json. Record changes in the correction inputs and rebuild before signing off a changed version.
 
 RIR means repetitions in reserve; RPE means rating of perceived exertion. Session tables show baseline lifting prescriptions and week 1 corrected intervals. Weekly rows override sets, RIR and cardio. Timed holds use seconds, not repetitions; their source RIR is retained in the weekly table for review.
 
@@ -939,5 +939,274 @@ ___________________________________________________________________________
 Name: ______________________________   Date: ______________________________
 
 Program/version reviewed: conditioning-3 / 1.0.0
+
+Approval with changes remains pending until the changes are applied and checked.
+
+
+## Build / Three Days
+
+Version: 1.0.0. Review state: needs_review.
+
+Goal: muscle hypertrophy (muscle). Level: beginner, intermediate. 3 days per week for 8 weeks.
+
+Stated time: 60 minutes. Estimated session range: 30 to 50 minutes.
+
+Equipment: barbell, cable, dumbbell, leverage machine, sled machine.
+
+Approach: Build repetitions within the range before adding load when performance allows.
+
+Three full-body days, each muscle trained about twice a week with 1-3 RIR. Compounds first, then accessories. Week 8 trims one set for recovery; otherwise no mandatory deload. Built for coach review, not yet reviewed.
+
+### Full body A (day 1)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| barbell full squat | 3 × 6 to 10 reps | 2 | 180 seconds |  |
+| barbell bench press | 3 × 6 to 10 reps | 2 | 180 seconds |  |
+| lever incline prone row | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| lever lying leg curl | 2 × 10 to 15 reps | 2 | 90 seconds |  |
+| dumbbell lateral raise | 2 × 12 to 20 reps | 2 | 60 seconds |  |
+| cable triceps pushdown (v-bar) | 2 × 10 to 15 reps | 1 | 60 seconds |  |
+
+### Full body B (day 3)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| barbell romanian deadlift | 3 × 8 to 12 reps | 2 | 180 seconds |  |
+| cable lat pulldown full range of motion | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell seated shoulder press | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| sled 45° leg press | 2 × 10 to 15 reps | 2 | 120 seconds |  |
+| dumbbell biceps curl | 2 × 10 to 15 reps | 1 | 60 seconds |  |
+| lever standing calf raise | 2 × 10 to 15 reps | 2 | 60 seconds |  |
+
+### Full body C (day 5)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| barbell hip thrust | 3 × 8 to 12 reps | 2 | 150 seconds |  |
+| dumbbell incline bench press | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| cable rope seated row | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell split squat | 2 × 8 to 12 reps | 2 | 90 seconds | Unilateral. |
+| lever seated reverse fly | 2 × 12 to 20 reps | 2 | 60 seconds |  |
+| cable curl | 2 × 10 to 15 reps | 1 | 60 seconds |  |
+
+### Eight-week changes
+
+Each sets/RIR list follows the exercise order in the corresponding session table. A dash means no lifting or no cardio.
+
+| Week | Session | Sets by exercise | RIR by exercise | Cardio | Week note |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Full body A | 3, 3, 3, 2, 2, 2 | 3, 3, 3, 3, 3, 2 | - | Technique and baseline week |
+| 1 | Full body B | 3, 3, 3, 2, 2, 2 | 3, 3, 3, 3, 2, 3 | - | Technique and baseline week |
+| 1 | Full body C | 3, 3, 3, 2, 2, 2 | 3, 3, 3, 3, 3, 2 | - | Technique and baseline week |
+| 2 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 2 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 2 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body B | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 1, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 8 | Full body A | 2, 2, 2, 1, 1, 1 | 3, 3, 3, 3, 3, 2 | - | Consolidation / optional lower-fatigue week |
+| 8 | Full body B | 2, 2, 2, 1, 1, 1 | 3, 3, 3, 3, 2, 3 | - | Consolidation / optional lower-fatigue week |
+| 8 | Full body C | 2, 2, 2, 1, 1, 1 | 3, 3, 3, 3, 3, 2 | - | Consolidation / optional lower-fatigue week |
+
+### Corrections and original values
+
+No interval corrections applied.
+
+### Blockers and review warnings
+
+No automated blockers found.
+
+Warnings for coach review: session time is an estimate; exercise mapping needs confirmation; planned weekly changes do not establish individual readiness.
+
+Source prescriptions have no approved session-specific alternatives (P0.3). Global suggested alternatives have not been imported as approved swaps.
+
+### Exercise mapping used
+
+| Library name / modality | Catalogue name | Catalogue ID |
+| --- | --- | --- |
+| Barbell back squat | barbell full squat | 0043 |
+| Barbell bench press | barbell bench press | 0025 |
+| Chest-supported row | lever incline prone row | 10646 |
+| Seated/lying leg curl | lever lying leg curl | 0586 |
+| DB lateral raise | dumbbell lateral raise | 0334 |
+| Cable triceps pushdown | cable triceps pushdown (v-bar) | 0241 |
+| Romanian deadlift | barbell romanian deadlift | 0085 |
+| Lat pulldown | cable lat pulldown full range of motion | 2330 |
+| Seated DB shoulder press | dumbbell seated shoulder press | 0405 |
+| Leg press | sled 45° leg press | 0739 |
+| DB biceps curl | dumbbell biceps curl | 0294 |
+| Standing calf raise | lever standing calf raise | 0605 |
+| Hip thrust | barbell hip thrust | 1060 |
+| Incline DB press | dumbbell incline bench press | 0314 |
+| Seated cable row | cable rope seated row | 1323 |
+| DB split squat | dumbbell split squat | 2960 |
+| Reverse pec deck/rear delt fly | lever seated reverse fly | 0602 |
+| Cable biceps curl | cable curl | 0868 |
+
+### Coach sign-off
+
+Decision: ☐ Approved   ☐ Approved with changes   ☐ Not approved
+
+Changes required: __________________________________________________________
+
+___________________________________________________________________________
+
+Name: ______________________________   Date: ______________________________
+
+Program/version reviewed: build-3 / 1.0.0
+
+Approval with changes remains pending until the changes are applied and checked.
+
+
+## Home / Three Days
+
+Version: 1.0.0. Review state: needs_review.
+
+Goal: muscle hypertrophy (muscle). Level: any. 3 days per week for 8 weeks.
+
+Stated time: 50 minutes. Estimated session range: 30 to 45 minutes.
+
+Equipment: body weight, dumbbell.
+
+Approach: Build repetitions within the range before adding load when performance allows.
+
+For a home setup: a pair of adjustable dumbbells and a flat bench. Three full-body days with 1-3 RIR. When the heaviest dumbbells get easy, add reps up to the top of the range, slow the lowering, or move to the harder variation rather than cutting rest. Week 8 trims one set. Built for coach review, not yet reviewed.
+
+### Full body A (day 1)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| dumbbell goblet squat | 3 × 8 to 15 reps | 2 | 120 seconds |  |
+| dumbbell bench press | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell one arm bent over row | 3 × 8 to 12 reps | 2 | 90 seconds | Unilateral. |
+| dumbbell romanian deadlift | 2 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell lateral raise | 2 × 12 to 20 reps | 2 | 60 seconds |  |
+| front plank | 2 × 30 to 60 seconds | Not prescribed | 45 seconds |  |
+
+### Full body B (day 3)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| dumbbell romanian deadlift | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell seated shoulder press | 3 × 8 to 12 reps | 2 | 120 seconds |  |
+| dumbbell bulgarian split squat | 2 × 8 to 12 reps | 2 | 90 seconds | Unilateral. |
+| dumbbell pullover | 2 × 10 to 15 reps | 2 | 90 seconds |  |
+| dumbbell hammer curl | 2 × 10 to 15 reps | 1 | 60 seconds |  |
+| dumbbell lying triceps extension | 2 × 10 to 15 reps | 1 | 60 seconds |  |
+
+### Full body C (day 5)
+
+Warm-up guidance: 5-8 minutes easy movement plus 2-4 progressively heavier practice sets for first primary lift; 1-2 ramp-up sets for later demanding movements. Practice sets do not count as working sets.
+
+| Exercise | Sets × reps or seconds / cardio | RIR | Rest | Notes |
+| --- | --- | --- | --- | --- |
+| dumbbell hip thrust | 3 × 10 to 15 reps | 2 | 120 seconds |  |
+| push-up | 3 × 6 to 15 reps | 2 | 90 seconds |  |
+| dumbbell bent over row | 3 × 8 to 12 reps | 2 | 90 seconds |  |
+| dumbbell rear lunge | 2 × 8 to 12 reps | 2 | 90 seconds | Unilateral. |
+| dumbbell rear delt fly | 2 × 12 to 20 reps | 2 | 60 seconds |  |
+| dumbbell single leg calf raise | 2 × 10 to 15 reps | 2 | 60 seconds | Unilateral. |
+
+### Eight-week changes
+
+Each sets/RIR list follows the exercise order in the corresponding session table. A dash means no lifting or no cardio.
+
+| Week | Session | Sets by exercise | RIR by exercise | Cardio | Week note |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Full body A | 3, 3, 3, 2, 2, 2 | 3, 3, 3, 3, 3, 4 | - | Technique and baseline week |
+| 1 | Full body B | 3, 3, 2, 2, 2, 2 | 3, 3, 3, 3, 2, 2 | - | Technique and baseline week |
+| 1 | Full body C | 3, 3, 3, 2, 2, 2 | 3, 3, 3, 3, 3, 3 | - | Technique and baseline week |
+| 2 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 2 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 2 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 3 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 4 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 5 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 6 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body A | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 3 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body B | 3, 3, 2, 2, 2, 2 | 2, 2, 2, 2, 1, 1 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 7 | Full body C | 3, 3, 3, 2, 2, 2 | 2, 2, 2, 2, 2, 2 | - | Maintain exercises; progress if performance allows. No forced load jump. |
+| 8 | Full body A | 2, 2, 2, 1, 1, 1 | 3, 3, 3, 3, 3, 4 | - | Consolidation / optional lower-fatigue week |
+| 8 | Full body B | 2, 2, 1, 1, 1, 1 | 3, 3, 3, 3, 2, 2 | - | Consolidation / optional lower-fatigue week |
+| 8 | Full body C | 2, 2, 2, 1, 1, 1 | 3, 3, 3, 3, 3, 3 | - | Consolidation / optional lower-fatigue week |
+
+### Corrections and original values
+
+No interval corrections applied.
+
+Plank ranges formerly labelled reps are now seconds, with the same numeric range (P0.2).
+
+### Blockers and review warnings
+
+No automated blockers found.
+
+Warnings for coach review: session time is an estimate; exercise mapping needs confirmation; planned weekly changes do not establish individual readiness.
+
+Source prescriptions have no approved session-specific alternatives (P0.3). Global suggested alternatives have not been imported as approved swaps.
+
+### Exercise mapping used
+
+| Library name / modality | Catalogue name | Catalogue ID |
+| --- | --- | --- |
+| Goblet squat | dumbbell goblet squat | 1760 |
+| DB flat bench press | dumbbell bench press | 0289 |
+| One-arm DB row | dumbbell one arm bent over row | 2393 |
+| Dumbbell RDL | dumbbell romanian deadlift | 1459 |
+| DB lateral raise | dumbbell lateral raise | 0334 |
+| Front plank | front plank | 0463 |
+| Seated DB shoulder press | dumbbell seated shoulder press | 0405 |
+| Dumbbell Bulgarian split squat | dumbbell bulgarian split squat | 2290 |
+| Dumbbell pullover | dumbbell pullover | 0375 |
+| Dumbbell hammer curl | dumbbell hammer curl | 0313 |
+| Dumbbell lying triceps extension | dumbbell lying triceps extension | 0351 |
+| Dumbbell hip thrust | dumbbell hip thrust | 4742 |
+| Push-up | push-up | 0662 |
+| Dumbbell bent-over row (both arms) | dumbbell bent over row | 0293 |
+| DB reverse lunge | dumbbell rear lunge | 0381 |
+| Dumbbell rear delt fly | dumbbell rear delt fly | 2487 |
+| Single-leg DB calf raise | dumbbell single leg calf raise | 0409 |
+
+### Coach sign-off
+
+Decision: ☐ Approved   ☐ Approved with changes   ☐ Not approved
+
+Changes required: __________________________________________________________
+
+___________________________________________________________________________
+
+Name: ______________________________   Date: ______________________________
+
+Program/version reviewed: home-3 / 1.0.0
 
 Approval with changes remains pending until the changes are applied and checked.
