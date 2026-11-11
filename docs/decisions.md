@@ -126,3 +126,11 @@
   squat, hip thrust, pullover, rear delt fly, hammer curl, lying triceps extension, two-arm row).
   Both are `needs_review` like the rest and are in COACH_REVIEW.md, whose intro now counts programs.
   The API suite failed once under load during this check and passed alone (844/844).
+- **2026-11-11: Bug, fixed the same day: feel and the ease-in stamp were not saved.**
+  `buildCompletedWorkout` (lib/finish-workout.js) keeps a whitelist of entry fields and `feel` and
+  `back` were missing, so from the T-033 to T-035 deploy until this fix both were dropped at
+  finish: Hard did not hold, and an eased session read as an ordinary one at the lower numbers.
+  Workouts finished in that window keep no feel or stamp. The server's sync keeps unknown keys, so
+  only the save was at fault. Lesson: a new entry field needs a save test. Also: a saved workout
+  opened for editing shows the feel row for routine exercises, and a logged interval run has a
+  Rounds done stepper; NFC stickers keep opengym.ch (native iPhone app only).
