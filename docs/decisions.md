@@ -117,3 +117,12 @@
   The run logs on the cardio row as whole minutes plus `set.iv` with the rounds done, and History
   reads "25 min · 2 rounds of 2 min hard". Not done: the Watch, editing `iv` in History, interval
   progression (research D: add a round or a little hard time, not both).
+- **2026-11-11: Two programs added, Build / Three Days and Home / Three Days.** The audit's P1.4 gaps
+  (no 3-day muscle plan, no limited-equipment plan). Written by Claude from the methodology (B):
+  three full-body days, 2 to 3 sets an exercise, 6 to 15 reps for compounds and 10 to 20 for
+  accessories, 1 to 3 RIR, double progression; week 1 at +1 RIR, week 8 one set fewer at +1 RIR,
+  the same shape as build-4. Home needs a pair of dumbbells and a flat bench (no floor press in the
+  catalogue); seven dumbbell exercises were added to the source and exercise map (Bulgarian split
+  squat, hip thrust, pullover, rear delt fly, hammer curl, lying triceps extension, two-arm row).
+  Both are `needs_review` like the rest and are in COACH_REVIEW.md, whose intro now counts programs.
+  The API suite failed once under load during this check and passed alone (844/844).

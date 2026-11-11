@@ -17,9 +17,9 @@ too. Phase 4 (Google Health) built 2026-11-10, waiting on Emil's Google Cloud se
 (docs/fork/GOOGLE_HEALTH_SETUP.md) and the two GOOGLE_HEALTH_* lines in the server's .env; while the
 project is in Testing, connections expire every 7 days (Reconnect). Not done in Phase 4: heart rate
 on logged sessions, "Import this run?" cards, sleep on Home. Phase 4b (Apple Watch via Health Auto Export) and Phase 7 (Friends: groups, leaderboards, nudges,
-feed, trophies) built 2026-11-10/11. Easing back in after a break and the Easy/Good/Hard tap (T-033 to T-035) deployed 2026-11-11; the interval timer for cardio built the same day. Open: the coach friend reviews
+feed, trophies) built 2026-11-10/11. Easing back in after a break and the Easy/Good/Hard tap (T-033 to T-035) deployed 2026-11-11; the interval timer for cardio and two programs (Build / Three Days, Home / Three Days) added the same day. Open: the coach friend reviews
 docs/emails-gym-planning/COACH_REVIEW.md and MODEL_REVIEW.md, approvals go in library/review.json; a friend's first
-sign-up + test push (Phase 3 done-check); then more programs (3-day muscle, home/dumbbell); nutrition and
+sign-up + test push (Phase 3 done-check); then nutrition and
 supplements after Emil's research (body details already saved in S.body).
 
 ## Phase 0: Fork, run, baseline
