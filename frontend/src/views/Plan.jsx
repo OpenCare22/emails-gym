@@ -184,6 +184,7 @@ export default function Plan() {
       </div>
     </div>
     <WorkoutsSwitcher current="/plan" />
+    <StartPlan S={S} update={update} nav={nav} />
     <input ref={fileRef} type="file" accept="application/json,.json" onChange={pickFile} hidden />
     <Segmented className="plan-views" tour="plan-views" value={view} onChange={setView}
       options={[{ value: 'schedule', label: t('Schedule') }, { value: 'routines', label: t('Routines') }]} />
@@ -194,6 +195,40 @@ export default function Plan() {
       ? <Routines S={S} update={update} nav={nav} />
       : <Schedule S={S} update={update} nav={nav} mode={mode} />}
   </div>
+}
+
+/* ================================ Start a plan ================================ */
+
+// A new routine, opened for its first exercise: "Make your own" here and "New routine" under Routines.
+const newRoutine = (update, nav) => {
+  const r = { id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] }
+  update(s => { s.routines.push(r) })
+  nav('/plan/r/' + r.id)
+}
+
+// The three ways to a plan, first thing on Workouts: the plan builder, the program library, or
+// your own routine. They used to be a row inside Routines and a button on the Programs page.
+function StartPlan({ S, update, nav }) {
+  const fresh = !S.routines.length
+  return <section className="plan-start" aria-labelledby="plan-start-h">
+    <h2 id="plan-start-h" className="plan-start-h">{fresh ? t('Start a plan') : t('New plan')}</h2>
+    <button type="button" className="plan-start-main" onClick={() => nav('/programs/build')}>
+      <Icon name="sparkles" />
+      <span className="grow"><span className="tt">{t('Build me a program')}</span>
+        <span className="ss">{t('A few questions, then an 8-week plan made for you.')}</span></span>
+      <Icon name="chevronRight" className="chev" />
+    </button>
+    <div className="plan-start-row">
+      <button type="button" className="plan-tile" onClick={() => nav('/programs')}>
+        <Icon name="calendar" /><span className="tt">{t('Choose a template')}</span>
+        <span className="ss">{t('Ready-made, 2 to 4 days a week')}</span>
+      </button>
+      <button type="button" className="plan-tile" onClick={() => newRoutine(update, nav)}>
+        <Icon name="pencil" /><span className="tt">{t('Make your own')}</span>
+        <span className="ss">{t('Pick your own exercises')}</span>
+      </button>
+    </div>
+  </section>
 }
 
 /* ================================ Schedule ================================ */
@@ -428,11 +463,7 @@ function Routines({ S, update, nav }) {
     s.routines.splice(to, 0, m)
   }))
 
-  const addRoutine = () => {
-    const r = { id: uid(), name: t('New routine'), emoji: DEFAULT_GLYPH, ex: [] }
-    update(s => { s.routines.push(r) })
-    nav('/plan/r/' + r.id)
-  }
+  const addRoutine = () => newRoutine(update, nav)
   // The same delete as RoutineEdit's "Delete routine" button (lib/routines.js), with an Undo in
   // place of its confirm (v1.3.11): the swipe and the edit-mode minus both land here.
   const remove = r => deleteRoutineWithUndo(r.id)
@@ -457,7 +488,6 @@ function Routines({ S, update, nav }) {
   const sub = r => [exCount(r.ex.length), daysOf(r.id).join(', ')].filter(Boolean).join(' · ')
 
   return <>
-    <Row title={t('Programs')} subtitle={t('Ready-made plans, 2 to 4 days a week')} accessory="chevron" onClick={() => nav('/programs')} />
     <div className="row between plan-sec-h plan-routines-bar">
       {routines.length > 0
         ? <button className="plan-textbtn" aria-pressed={edit} onClick={() => setEdit(e => !e)}>{edit ? t('Done') : t('Edit')}</button>
