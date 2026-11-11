@@ -35,6 +35,13 @@ describe('feelAsked', () => {
     const e = entry(true); e.sets.unshift({ w: 20, r: 5, done: false, phase: 'warmup' })
     expect(feelAsked(e)).toBe(true)
   })
+  it('a saved workout being edited: routine exercises and earlier answers only', () => {
+    const saved = { id: '0025', target: { sets: 1 }, sets: [{ w: 60, r: 5, done: true }] }
+    expect(feelAsked({ ...saved, rid: 'r1' })).toBe(true)
+    expect(feelAsked({ ...saved, feel: 'easy' })).toBe(true)
+    expect(feelAsked(saved)).toBe(false)
+    expect(feelAsked({ ...saved, rid: 'r1', noProg: true })).toBe(false)
+  })
   it('never for progression off, a freestyle entry or cardio', () => {
     expect(feelAsked({ ...entry(true), plan: { policy: 'off', kind: 'off' } })).toBe(false)
     expect(feelAsked({ ...entry(true), plan: null })).toBe(false)

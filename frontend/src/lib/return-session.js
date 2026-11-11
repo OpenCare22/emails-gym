@@ -12,7 +12,11 @@ const loggedRow = x => x.done || x.sides?.L?.done || x.sides?.R?.done
 /** Whether the feel row shows under this entry: its planned work sets are all done. */
 export function feelAsked(entry) {
   const plan = entry?.plan
-  if (!plan || plan.kind === 'off' || plan.policy === 'off') return false
+  // A saved workout opened for editing has no plan (it is not saved): a routine's exercise, or one
+  // that already has an answer, can still have its feel set or changed there.
+  if (!plan) { if (!entry?.rid && !entry?.feel) return false }
+  else if (plan.kind === 'off' || plan.policy === 'off') return false
+  if (entry.noProg === true) return false
   if (modeOf({ ...(entry.target || {}), id: entry.id }) === 'cardio') return false
   const work = (entry.sets || []).filter(s => !isWarmupRow(s))
   const planned = Math.max(1, entry.target?.sets || work.length)

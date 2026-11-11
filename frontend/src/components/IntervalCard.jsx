@@ -104,7 +104,15 @@ export default function IntervalCard({ entryIdx, readOnly = false }) {
   if (!run) {
     return <div className="iv-card">
       <div className="iv-plan"><Icon name="timer" /><span>{intervalSummary(plan)} · {fmtClock(total)}</span></div>
-      {loggedRow ? <p className="muted small">{t('Logged: {0}', loggedSummary(loggedRow.iv))}</p>
+      {loggedRow ? <>
+        <p className="muted small">{t('Logged: {0}', loggedSummary(loggedRow.iv))}</p>
+        <Stepper label={t('Rounds done')} ariaLabel={t('Rounds done')} value={loggedRow.iv.done || 0} step={1} min={0} max={plan.rounds} decimal={false}
+          onChange={n => update(s => {
+            const e = s.active?.entries?.[entryIdx]
+            const row = e && e.id === entry.id ? e.sets.find(x => x.done && x.iv) : null
+            if (row) row.iv = { ...row.iv, done: Math.max(0, Math.min(plan.rounds, Math.round(n))) }
+          })} />
+      </>
         : !readOnly && <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
           <Button size="sm" variant="primary" icon="play" onClick={() => update(s => {
             const e = s.active?.entries?.[entryIdx]
