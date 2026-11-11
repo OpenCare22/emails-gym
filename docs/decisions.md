@@ -88,3 +88,20 @@
   install screen shows an invite's code, since the Home Screen app can't receive Safari's link.
   `api/test/nudge*.test.js` ("a crafted state costs one pass") failed once under load and passed
   on the rerun.
+- **2026-11-11: Easing back in after a break, and "How did that feel?".** Spec
+  docs/superpowers/specs/2026-11-11-return-and-feel-design.md (Emil approved). A break is at least 8
+  days since you last did that exercise and at least 1.5 times your usual gap for it, so weekly
+  splits are never eased. 8 to 14 days: same weight, one set fewer. 15 to 28: one set fewer at 90 %,
+  then your old numbers held, then normal. Over 28: 80 %, 90 % with full sets, old numbers held,
+  then normal. The ease-in starts from what you last lifted, rounded down to the exercise's own step
+  (a 5 kg row goes 60 to 50 at 90 %). Eased sessions are stamped `entry.back` and are invisible to
+  progression; a second miss on a rung ends the ramp (derived, never written to a saved workout).
+  A break does not pause a programme; deload weeks are never eased further. "Use my usual plan" is
+  per workout (`active.usualPlan`). Feel: an optional Easy · Good · Hard per exercise
+  (`entry.feel`, or the last set's logged RIR). Hard repeats the session once, at most once in a
+  row; two weight raises in a row that both felt Easy earn a double step, capped at 5 % upper body
+  and 7 % lower body; a miss ignores feel. Sex and age are inputs to the break rule with the same
+  values for everyone in v1. Not done: feel on the Watch, editing feel from History. Tests:
+  `test-setup.js` turns easing off by default (older fixtures are dated early 2026); the break
+  tests turn it on. Built by Codex (T-033, most of T-034) and Claude (the rest, while Codex was at
+  its limit).
