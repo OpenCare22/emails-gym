@@ -105,3 +105,15 @@
   `test-setup.js` turns easing off by default (older fixtures are dated early 2026); the break
   tests turn it on. Built by Codex (T-033, most of T-034) and Claude (the rest, while Codex was at
   its limit).
+- **2026-11-11: Structured interval logger (Claude's design; Emil said "you figure it out").** A
+  cardio entry can carry `target.intervals` = { warmup, hard, easy, rounds, cooldown, hardRpe? } in
+  minutes, the library's own shape (lib/intervals.js). Program weeks now keep it (library-start,
+  normalizeProgramme, programmeSlot, planEntry), so hybrid and conditioning sessions arrive
+  structured; programs started before this only have the text note until restarted, or the plan
+  can be set up by hand. Any cardio exercise shows "Set up intervals" (this workout, optionally
+  the routine too). The timer card (components/IntervalCard.jsx) runs on wall-clock times on the
+  entry (`entry.ivRun`), with Pause, Skip and Finish now, a beep in each segment's last 3 seconds
+  and a chime and buzz at every change (cues only while the screen is on; no push per segment).
+  The run logs on the cardio row as whole minutes plus `set.iv` with the rounds done, and History
+  reads "25 min · 2 rounds of 2 min hard". Not done: the Watch, editing `iv` in History, interval
+  progression (research D: add a round or a little hard time, not both).
