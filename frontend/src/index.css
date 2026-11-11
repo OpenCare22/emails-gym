@@ -3493,3 +3493,14 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
 .cardbg-rings{background:var(--surface-2);background:radial-gradient(circle at 85% 30%,transparent 0 14px,color-mix(in srgb,var(--acc) 30%,var(--surface)) 14px 17px,transparent 17px 26px,color-mix(in srgb,var(--acc) 20%,var(--surface)) 26px 28px,transparent 28px),var(--surface)}
 .cardbg-gold{background:linear-gradient(120deg,var(--surface-2),var(--surface) 70%);background:linear-gradient(120deg,color-mix(in srgb,var(--yellow) 30%,var(--surface)),var(--surface) 70%)}
 .lb-who[role=button]{cursor:pointer}
+
+/* Easing back in and "How did that feel?" (lib/return-session.js, components/FeelRow.jsx) */
+.feel-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:10px 0 2px}
+.feel-row .feel-seg{margin-inline-start:auto;min-width:min(100%,228px)}
+.feel-row .feel-seg button{min-height:44px}
+.feel-none .seg-sel{opacity:0}
+.feel-chip{min-height:44px;text-transform:none;background:var(--surface-2)}
+.return-note{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;margin:0 0 10px;padding:10px 12px;
+  border-radius:var(--r);background:var(--surface-2);color:var(--gold-ink);font-size:var(--fs-footnote);line-height:1.38}
+.return-note>span{flex:1 1 180px;min-width:0;color:var(--label)}
+.return-note .btn{min-height:44px}

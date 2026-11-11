@@ -45,6 +45,9 @@ import { defaultIncrement, weightIncrement, stepWeight } from '../lib/progressio
 import { progressionGuidance } from '../lib/progression-copy.js'
 import { rpeAs } from '../lib/programmes.js'
 import { buildPlannedEntry, buildSessionEntry, plannedConfigOf, builtOutOfProgression } from '../lib/session-start.js'
+import { feelAsked, returnDays, showsReturnNote, setUsualPlan } from '../lib/return-session.js'
+import FeelRow from '../components/FeelRow.jsx'
+import ReturnNote from '../components/ReturnNote.jsx'
 import { routineChangesFromEntry, updateRoutineFromEntry, routineSlotIndex, ownWarmupsChange, keepOwnWarmups } from '../lib/routines.js'
 import { ownRowsLine } from '../lib/warmup-ramp.js'
 import { useCoachGate } from '../lib/use-coach-gate.js'
@@ -821,9 +824,9 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     {entry.note && <div className="exnote">{entry.note}</div>}
     {planLine}
     {refLine}
-    {guidance && onProgressionSettings && <button type="button" className={'progline' + (plan.kind === 'deload' ? ' warn' : '')}
+    {guidance && onProgressionSettings && <button type="button" className={'progline' + (plan.kind === 'deload' || plan.kind === 'return' ? ' warn' : '')}
       aria-label={t('Open exercise settings')} onClick={onProgressionSettings}>
-      <Icon name={plan.kind === 'up' ? 'arrowUp' : plan.kind === 'deload' || plan.prog?.deload ? 'arrowDown' : plan.kind === 'programme' ? 'calendar' : 'lightbulb'} />
+      <Icon name={plan.kind === 'up' ? 'arrowUp' : plan.kind === 'deload' || plan.kind === 'return' || plan.prog?.deload ? 'arrowDown' : plan.kind === 'programme' ? 'calendar' : 'lightbulb'} />
       <span><strong>{t(guidance.policyLabel)}</strong> · {t(...guidance.why)}{guidance.prog?.rpe != null && <> · {t('aim for {0}', (r => `${r.k} ${fmtNum(r.v)}`)(rpeAs(guidance.prog.rpe, effortOf(S))))}</>}</span>
     </button>}
     </>}
@@ -910,6 +913,8 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
           </>}
         </div>
       })}
+      {feelAsked(entry) && <FeelRow value={entry.feel || null}
+        onChange={v => update(s => { const e = s.active.entries[entryIdx]; if (!e) return; if (v) e.feel = v; else delete e.feel })} />}
       <div style={{ height: 8 }} />
       {wc.setShortcuts ? <div className="row" style={{ flexWrap: 'wrap' }}>
         <Button size="sm" icon="sunrise" onClick={onAddWarmup}>{t('Add warm-up set')}</Button>
@@ -1842,6 +1847,9 @@ function ActiveWorkout() {
         activeEntry.target = built.target
         activeEntry.plan = built.plan
         activeEntry.planned = built.planned
+        // A rebuild after a break eases the same way the start did, or not at all (usualPlan).
+        if (built.back) activeEntry.back = built.back
+        else delete activeEntry.back
         if (built.carried) activeEntry.carried = true
         else delete activeEntry.carried
         activeEntry.sets = [...doneWarm, ...freshWarm.slice(doneWarm.length), ...doneWork, ...freshWork.slice(doneWork.length)]
@@ -2446,6 +2454,8 @@ function ActiveWorkout() {
     </div>
     {editing && <p className="muted small">{t('Editing a saved workout. Date and duration stay unchanged.')}</p>}
     {A.backfill && <div className="muted small" style={{ marginBottom: 8 }}>{t('Logging a past workout, so no rest timers.')}</div>}
+    {showsReturnNote(A) && <ReturnNote days={returnDays(A)} usual={!!A.usualPlan}
+      onToggle={() => update(s => setUsualPlan(s, !s.active?.usualPlan))} />}
 
     {A.entries.length ? (listMode ? (
       <div className="workout-list" data-testid="workout-list" ref={listRef}>

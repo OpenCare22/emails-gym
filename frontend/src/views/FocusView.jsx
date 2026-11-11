@@ -4,7 +4,7 @@ import { useUI } from '../store/useUI.js'
 import { exOr } from '../lib/exercises.js'
 import { clampIncline, hasIncline, inclineFits, INCLINE_MAX, INCLINE_STEP } from '../lib/incline.js'
 import { exerciseNameClass, exerciseNameFor, t } from '../lib/i18n.js'
-import { fmtDate, fmtNum, fmtPlate } from '../lib/format.js'
+import { exerciseNameText, fmtDate, fmtNum, fmtPlate } from '../lib/format.js'
 import { EFFORT, effortOf, modeOf } from '../lib/history.js'
 import { lastEntryFor, pinnedNoteFor, setsRepsOf } from '../lib/history.js'
 import { effortColor, rirOf } from '../lib/effort.js'
@@ -25,6 +25,8 @@ import Icon from '../components/Icon.jsx'
 import RestRing from '../components/RestRing.jsx'
 import { lastRowFor } from '../lib/typo-check.js'
 import { Button, Stepper } from '../components/ui.jsx'
+import FeelRow from '../components/FeelRow.jsx'
+import { feelAsked } from '../lib/return-session.js'
 import './FocusView.css'
 import { youtubeSearchUrl } from '../lib/youtube.js'
 import { openExternal } from '../components/CustomMedia.jsx'
@@ -130,6 +132,14 @@ export default function FocusView({
   const last = lastEntryFor(S, entry.id, entry.rid)
   const pinnedNote = pinnedNoteFor(S, entry.id)
   const guidance = progressionGuidance(entry.plan)
+  // "How did that feel?" (lib/return-session.js). Focus moves on as soon as an exercise is done, so
+  // the question for the one just finished waits at the top of the next, until its first set.
+  const startedHere = entry.sets.some(row => row.done && !isWarmupRow(row))
+  const prevIdx = (unit?.[0] ?? entryIdx) - 1
+  const prevEntry = prevIdx >= 0 ? S.active.entries[prevIdx] : null
+  const feelEntry = feelAsked(entry) ? { idx: entryIdx, entry, label: null }
+    : prevEntry && !startedHere && feelAsked(prevEntry) && !prevEntry.feel ? { idx: prevIdx, entry: prevEntry, label: exerciseNameText(exOr(prevEntry.id)) }
+      : null
   // Exercise operations use indexes, so their local-only epoch discards stale pointers instead
   // of letting a moved, removed, or newly inserted entry inherit one.
   const [pointerState, setPointerState] = useState(() => ({ epoch: pointerEpoch, pointers: new Map() }))
@@ -397,6 +407,8 @@ export default function FocusView({
       </div>
       <Button variant="primary" icon="check" data-tour="tick" aria-label={t('Complete set')} onClick={complete}>{set.done ? t('Completed') : t('Complete set')}</Button>
       <RestRing />
+      {feelEntry && <FeelRow value={feelEntry.entry.feel || null} label={feelEntry.label}
+        onChange={v => useStore.getState().update(st => { const e = st.active?.entries[feelEntry.idx]; if (!e || e.id !== feelEntry.entry.id) return; if (v) e.feel = v; else delete e.feel })} />}
       <div className="focus-secondary">
         <button className="focus-skip" aria-label={t('Skip set')} disabled={setIdx >= entry.sets.length - 1} onClick={() => selectSet(setIdx + 1)}>
           <Icon name="play" />{t('Skip')}
