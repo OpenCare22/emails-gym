@@ -132,7 +132,7 @@ export default function IntegrationsPage({ android = false, ios = false }) {
     const { action, status } = card.state
     switch (card.id) {
       case 'apple-health': case 'health-connect':
-        if (status === 'device') return infoSheet(card, t('This one lives in the Email’s Gym phone app: Apple Health on iPhone, Health Connect on Android.'))
+        if (status === 'device') return infoSheet(card, t('This one lives in the Email’s Gym iPhone app, which reads Apple Health.'))
         return nav('/settings/' + card.id)
       case 'hevy': return importFromHevy()
       case 'files': return fileRef.current?.click()
@@ -203,7 +203,7 @@ function WorksWith({ platform, nav }) {
   const store = platform === 'ios' ? 'Apple Health' : platform === 'android' ? 'Health Connect' : null
   return <Section title={t('Works with')} footer={store
     ? t('No extra connection needed: they write to {0}, and Email’s Gym reads from there.', store)
-    : t('No extra connection needed: they write to Apple Health or Health Connect, and the Email’s Gym phone app reads from there.')}>
+    : t('No extra connection needed: they write to Apple Health, and the Email’s Gym iPhone app reads from there.')}>
     <div className="intg-chips">
       {WORKS_WITH.map(w => <button key={w.name} className="btn xs intg-chip" onClick={() => worksWithSheet(w, platform, nav)}>
         <Icon name={w.glyph} /><span translate="no">{w.name}</span>
@@ -226,7 +226,7 @@ function worksWithSheet(w, platform, nav) {
     {/* Three facts, not three settings: plain rows, no tinted tile on each (Integrations pass, I6). */}
     <Section className="intg-facts">
       <Row title={t('How it gets here')}
-        subtitle={t('{0} saves to Apple Health on iPhone or Health Connect on Android. Email’s Gym reads from there.', w.name)} />
+        subtitle={t('{0} saves to Apple Health on iPhone. Email’s Gym reads from there.', w.name)} />
       <Row title={t('What Email’s Gym reads')} subtitle={t(READS[w.reads])} />
       <Row title={t('What it does not do')} subtitle={t('Workouts logged in Email’s Gym go to the health store, not back into {0} itself.', w.name)} />
     </Section>

@@ -12,7 +12,7 @@ export const moduleCopy = () => ({
   watch: [t('Watch'), t('Log sets from your wrist on an Apple Watch.')],
   checkin: [t('Gym check-in'), t('Your membership codes on Home, and NFC stickers that start a workout.')],
   body: [t('Body'), t('Weigh-ins, measurements, progress photos and your weight goal.')],
-  health: [t('Health'), t('Apple Health or Health Connect, heart rate and recovery tips.')],
+  health: [t('Health'), t('Apple Health, Google Health, heart rate and recovery tips.')],
   motivation: [t('Motivation'), t('Streaks, challenges, badges, recaps and your year in Email’s Gym.')],
   coach: [t('AI Coach'), t('Reviews your training and suggests changes. You still say yes or no.')],
   integrations: [t('Integrations'), t('Webhooks for Home Assistant and friends.')],

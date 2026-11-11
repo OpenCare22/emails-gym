@@ -38,7 +38,7 @@ export const MODULES = [
   { id: 'body', group: 'body', icon: 'scale', tint: 'var(--teal)', title: 'Body',
     desc: 'Weigh-ins, measurements, progress photos and your weight goal.' },
   { id: 'health', group: 'body', icon: 'heart', tint: 'var(--red)', title: 'Health',
-    desc: 'Apple Health or Health Connect, heart rate and recovery tips.' },
+    desc: 'Apple Health, Google Health, heart rate and recovery tips.' },
   { id: 'motivation', group: 'extras', icon: 'flame', tint: 'var(--orange)', title: 'Motivation',
     desc: 'Streaks, challenges, badges, recaps and your year in Email’s Gym.' },
   { id: 'coach', group: 'extras', icon: 'sparkles', tint: 'var(--green)', title: 'AI Coach',
