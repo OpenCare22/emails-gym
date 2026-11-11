@@ -5,7 +5,7 @@
 //   S.programme  = null | Run                       the one that is running, a plain setting
 //
 //   Programme = { id, name, at, weeks: Week[], days?: { [getDay()]: rid[] }, sequence?: (rid|'rest')[], src? }
-//   Week      = { deload?: true, rpe?: number, t?: { [exId | 'rid:exId']: { pct?: number, rpe?: number, sets?: number, rir?: number, min?: number, note?: string } } }
+//   Week      = { deload?: true, rpe?: number, t?: { [exId | 'rid:exId']: { pct?: number, rpe?: number, sets?: number, rir?: number, min?: number, note?: string, intervals?: lib/intervals.js } } }
 //   Run       = { id, startedOn: iso, pausedOn?: iso, cycle: 1, bump: 0, saved: { week, scheduleMode, rotation, pass } }
 //
 // THE SCHEDULE IS APPLIED, NOT RESOLVED. A programme holds a schedule of its own: weekdays
@@ -34,6 +34,7 @@ import { queueOf } from './queue.js'
 import { REST, saveRotation, startPass, stopPass, chooseFixedWeek } from './rotation.js'
 import { best1RM } from './onerm.js'
 import { t } from './i18n-core.js'
+import { cleanIntervals } from './intervals.js'
 
 export const MAX_WEEKS = 16
 export const PCT_MIN = 30
@@ -73,7 +74,8 @@ function cleanTarget(x) {
   const sets = cleanSets(x.sets), rir = rpe == null ? cleanRir(x.rir) : null
   const min = cleanMin(x.min)
   const note = typeof x.note === 'string' ? x.note.trim().slice(0, 200) : ''
-  const out = { ...(pct != null ? { pct } : {}), ...(rpe != null ? { rpe } : {}),
+  const intervals = cleanIntervals(x.intervals)
+  const out = { ...(intervals ? { intervals } : {}), ...(pct != null ? { pct } : {}), ...(rpe != null ? { rpe } : {}),
     ...(sets != null ? { sets } : {}), ...(rir != null ? { rir } : {}),
     ...(min != null ? { min } : {}), ...(note ? { note } : {}) }
   return Object.keys(out).length ? out : null
@@ -339,7 +341,7 @@ export function programmeSlot(S, rid, exId, iso = todayISO()) {
   return {
     ...(pct != null ? { pct: Math.min(PCT_MAX, pct + bump) } : {}),
     ...(rpe != null ? { rpe } : {}),
-    ...Object.fromEntries(['sets', 'rir', 'min', 'note'].filter(k => own[k] != null).map(k => [k, own[k]])),
+    ...Object.fromEntries(['sets', 'rir', 'min', 'note', 'intervals'].filter(k => own[k] != null).map(k => [k, own[k]])),
     deload, week: st.week, weeks: st.weeks, name: st.programme.name, bump,
   }
 }

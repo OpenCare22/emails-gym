@@ -3504,3 +3504,19 @@ body:has(.focus-rest) #timer.rest:not(.auto){display:none}
   border-radius:var(--r);background:var(--surface-2);color:var(--gold-ink);font-size:var(--fs-footnote);line-height:1.38}
 .return-note>span{flex:1 1 180px;min-width:0;color:var(--label)}
 .return-note .btn{min-height:44px}
+
+/* Interval timer on a cardio exercise (components/IntervalCard.jsx, lib/intervals.js) */
+.iv-row{margin:8px 0 2px}
+.iv-row .chip{min-height:44px}
+.iv-card{display:flex;flex-direction:column;gap:8px;margin:8px 0;padding:12px;border-radius:var(--r);background:var(--surface-2)}
+.iv-card .btn{min-height:44px}
+.iv-plan{display:flex;align-items:flex-start;gap:7px;font-size:var(--fs-footnote);line-height:1.38;color:var(--label)}
+.iv-plan .icn{flex:none;margin-top:2px;color:var(--acc-ink)}
+.iv-now{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.iv-name{font-weight:700;font-size:var(--fs-title3,20px);color:var(--label)}
+.iv-left{font-variant-numeric:tabular-nums;font-weight:700;font-size:44px;line-height:1;color:var(--label)}
+.iv-hard .iv-name,.iv-hard .iv-left{color:var(--red)}
+.iv-easy .iv-name{color:var(--acc-ink)}
+.iv-prog{margin:0;width:100%;align-self:stretch}
+.iv-edit{display:flex;flex-direction:column;gap:8px}
+.iv-routine{min-height:44px;align-items:center;font-size:var(--fs-footnote)}

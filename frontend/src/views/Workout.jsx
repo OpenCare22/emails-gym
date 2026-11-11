@@ -48,6 +48,7 @@ import { buildPlannedEntry, buildSessionEntry, plannedConfigOf, builtOutOfProgre
 import { feelAsked, returnDays, showsReturnNote, setUsualPlan } from '../lib/return-session.js'
 import FeelRow from '../components/FeelRow.jsx'
 import ReturnNote from '../components/ReturnNote.jsx'
+import IntervalCard from '../components/IntervalCard.jsx'
 import { routineChangesFromEntry, updateRoutineFromEntry, routineSlotIndex, ownWarmupsChange, keepOwnWarmups } from '../lib/routines.js'
 import { ownRowsLine } from '../lib/warmup-ramp.js'
 import { useCoachGate } from '../lib/use-coach-gate.js'
@@ -824,6 +825,7 @@ function ExerciseBlock({ entryIdx, compact, dense, editing, onToggle, onToggleSi
     {entry.note && <div className="exnote">{entry.note}</div>}
     {planLine}
     {refLine}
+    {cardio && <IntervalCard entryIdx={entryIdx} readOnly={!!editing} />}
     {guidance && onProgressionSettings && <button type="button" className={'progline' + (plan.kind === 'deload' || plan.kind === 'return' ? ' warn' : '')}
       aria-label={t('Open exercise settings')} onClick={onProgressionSettings}>
       <Icon name={plan.kind === 'up' ? 'arrowUp' : plan.kind === 'deload' || plan.kind === 'return' || plan.prog?.deload ? 'arrowDown' : plan.kind === 'programme' ? 'calendar' : 'lightbulb'} />

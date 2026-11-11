@@ -26,6 +26,7 @@ import RestRing from '../components/RestRing.jsx'
 import { lastRowFor } from '../lib/typo-check.js'
 import { Button, Stepper } from '../components/ui.jsx'
 import FeelRow from '../components/FeelRow.jsx'
+import IntervalCard from '../components/IntervalCard.jsx'
 import { feelAsked } from '../lib/return-session.js'
 import './FocusView.css'
 import { youtubeSearchUrl } from '../lib/youtube.js'
@@ -405,6 +406,7 @@ export default function FocusView({
           style={effortTint ? { color: effortTint, borderColor: effortTint, background: `color-mix(in srgb, ${effortTint} 20%, var(--surface-2))` } : undefined}
           aria-label={t(EFFORT[effort].hd)} disabled={readOnly} onClick={openEffort}>{effortValue == null ? t(EFFORT[effort].hd) : fmtNum(effortValue)}</button>}
       </div>
+      {mode === 'cardio' && <IntervalCard entryIdx={entryIdx} />}
       <Button variant="primary" icon="check" data-tour="tick" aria-label={t('Complete set')} onClick={complete}>{set.done ? t('Completed') : t('Complete set')}</Button>
       <RestRing />
       {feelEntry && <FeelRow value={feelEntry.entry.feel || null} label={feelEntry.label}

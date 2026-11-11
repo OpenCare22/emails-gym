@@ -31,7 +31,7 @@ export function buildLibraryProgram(program, makeId = uid, now = Date.now()) {
       template.items.forEach(i => {
         const target = i.mode === 'cardio' ? w.cardio[template.id][cardio++] : w.items[template.id][lift++]
         targets[`${routines[n].id}:${i.ex}`] = i.mode === 'cardio'
-          ? { min: target.min, ...(target.intervals ? { note: intervalNote(target.intervals) } : {}) }
+          ? { min: target.min, ...(target.intervals ? { note: intervalNote(target.intervals), intervals: { ...target.intervals } } : {}) }
           // A hold has no reps in reserve: only its sets change week to week.
           : i.mode === 'time' ? { sets: target.sets } : { sets: target.sets, rir: target.rir }
       })

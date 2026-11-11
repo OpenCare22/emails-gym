@@ -151,6 +151,8 @@ function planEntry(stored, cfg, routine, { noProg = false, noEase = false } = {}
   const target = { ...cfg }
   if (slot?.note != null) target.note = slot.note
   if (modeOf(cfg) === 'cardio' && slot?.min != null) target.min = slot.min
+  // A program week's interval session (lib/intervals.js): the timer runs it, the row logs it.
+  if (modeOf(cfg) === 'cardio' && slot?.intervals) target.intervals = { ...slot.intervals }
   // Stamped on the session, so the meaning it was logged with stays with it (dumbbells.js).
   if (meaning !== 'as') target.dbLoad = meaning
   if (plan.weight != null) target.weight = plan.weight
