@@ -22,6 +22,15 @@ docs/emails-gym-planning/COACH_REVIEW.md and MODEL_REVIEW.md, approvals go in li
 sign-up + test push (Phase 3 done-check); then nutrition and
 supplements after Emil's research (body details already saved in S.body).
 
+## Simple mode (2026-11-12)
+
+- [x] First-run choice and Settings → App mode (`S.appMode`)
+- [x] Today: day log with Last time, favourites-first picker, past days by arrows
+- [x] Simple Progress and three-tab bar
+- [ ] Try it with the colleague; adjust from what he says
+- [x] Simplify the full app's own navigation (docs/superpowers/specs/2026-11-12-full-mode-wayfinding-design.md)
+- [ ] Try the new Workouts page, Start sheet and drag-to-move on the phone
+
 ## Phase 0: Fork, run, baseline
 
 - [x] Fork to github.com/OpenCare22/emails-gym (public), clone to ~/Code/emails-gym, `upstream` remote set

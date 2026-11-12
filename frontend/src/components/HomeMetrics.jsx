@@ -26,6 +26,18 @@ export function MetricCard({ icon, tint, label, value, unit, note, state = 'read
 }
 
 /** Steps and resting heart rate from connected health providers (lib/google-health.js), or why there are none. */
+// New Google Health weigh-ins come in when Home opens (the web's one automatic weigh-in import).
+// Home no longer shows steps and resting heart rate, so this runs on its own there.
+export function useWeighInImport() {
+  const user = useStore(s => s.user)
+  const offered = !!useStore(s => s.config)?.health?.google
+  const { load } = useGoogleHealth()
+  useEffect(() => {
+    if (!user || MOBILE) return
+    load({ sync: 'auto' }, w => useStore.getState().update(s => { applyWeighIns(s, w) }))
+  }, [user, offered]) // eslint-disable-line react-hooks/exhaustive-deps
+}
+
 export function HomeMetrics() {
   const nav = useNavigate()
   const user = useStore(s => s.user)

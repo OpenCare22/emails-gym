@@ -4,9 +4,9 @@ import { useStore } from '../store/useStore.js'
 import { effectiveRoutines, effectiveRoutineIds, nextTrainingDay, lastBW, setsDoneActive } from '../lib/history.js'
 import { streakInfo } from '../lib/streak.js'
 import { StreakFlame, StreakMeta, StreakParty } from '../components/Streak.jsx'
-import { fmtNum, fmtDate, todayISO, isoOf, weekStartOf, weekDayOffset, DAYS, DAYN } from '../lib/format.js'
+import { fmtNum, fmtDate, todayISO, weekStartOf, weekDayOffset, DAYN } from '../lib/format.js'
 import { t, tn, dateLocale } from '../lib/i18n.js'
-import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, starterPlanSheet, bwDeltaColor, weighInsSheet } from '../sheets.jsx'
+import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, bwDeltaColor, weighInsSheet } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
 import CardHead from '../components/CardHead.jsx'
@@ -21,7 +21,6 @@ import { useConnectionTrouble } from '../components/SyncBanner.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { glyphOf } from '../lib/glyphs.js'
-import { dayNoteOf } from '../lib/day-notes.js'
 import { weighInAt } from '../lib/bodyweight.js'
 import WeightRate from '../components/WeightRate.jsx'
 import { programmeChip } from '../lib/programmes.js'
@@ -32,7 +31,9 @@ import { ChallengesCard } from '../components/Challenges.jsx'
 import { isOn } from '../lib/modules.js'
 import BrandMark from '../components/BrandMark.jsx'
 import FitbitImport from '../components/FitbitImport.jsx'
-import { HomeMetrics, TrainingBarChart } from '../components/HomeMetrics.jsx'
+import { TrainingBarChart, useWeighInImport } from '../components/HomeMetrics.jsx'
+import HomeProgress from '../components/HomeProgress.jsx'
+import WeekStrip from '../components/WeekStrip.jsx'
 
 // Home = what to do now + a quick glance. Deep charts & history live in Stats.
 // The first word of a profile name: "Emil" from "Emil Mladenov".
@@ -45,6 +46,7 @@ export default function Home() {
   // The banner switched off and the sync stuck: a dot on the gear (Settings → Show connection status).
   const trouble = useConnectionTrouble()
   const [weekOffset, setWeekOffset] = useState(0)
+  useWeighInImport()
 
   const today = new Date()
   // A weekday can hold several routines. `todayRoutines` is the whole day; `routine` is the
@@ -66,7 +68,6 @@ export default function Home() {
   // is the setting.
   const wkStart = new Date(today)
   wkStart.setDate(today.getDate() - weekDayOffset(today.getDay(), ws) + weekOffset * 7)
-  const doneDays = new Set(S.workouts.map(w => w.d))
   // The last session logged for today, if any — what the row below reports instead of asking
   // you to start the one you already did. Last wins, so a second session names itself. Only once
   // today's plan is covered, though: a freestyle session on a planned day, or the rotation's
@@ -77,16 +78,6 @@ export default function Home() {
   const queueIds = queueOf(S)?.ids || []
   const coveredToday = id => !queueIds.includes(id) && loggedToday.some(w => (Array.isArray(w.routineIds) ? w.routineIds : [w.routineId]).includes(id))
   const doneToday = (todayRoutines.every(r => coveredToday(r.id)) && loggedToday.at(-1)) || null
-  const strip = []
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(wkStart); d.setDate(wkStart.getDate() + i)
-    const iso = isoOf(d)
-    const eff = effectiveRoutineIds(S, iso).length > 0, ovr = S.dayPlan[iso] !== undefined, done = doneDays.has(iso)
-    // A day off with a note (#261) reads as excused, not as a plan that went by.
-    const dot = done ? ' done' : dayNoteOf(S, iso) ? ' noted' : ovr && eff ? ' ovr' : eff ? ' plan' : ''
-    strip.push(<div key={i} className={'wday' + (iso === todayISO() ? ' today' : '')} {...tappable(() => dayOverrideSheet(iso))}>
-      <div className="lbl">{t(DAYS[d.getDay()])}</div><div className="num">{d.getDate()}</div><div className={'dot' + dot} /></div>)
-  }
   const wkEnd = new Date(wkStart); wkEnd.setDate(wkStart.getDate() + 6)
   const wkLabel = weekOffset === 0 ? t('This week') : `${wkStart.getDate()} ${wkStart.toLocaleDateString(dateLocale(), { month: 'short' })} – ${wkEnd.getDate()} ${wkEnd.toLocaleDateString(dateLocale(), { month: 'short' })}`
 
@@ -160,7 +151,8 @@ export default function Home() {
           <div className="small muted" style={{ fontWeight: 500 }}>{wkLabel}</div>
           <button className="iconbtn home-week-arrow" style={{ fontSize: 'var(--fs-subhead)' }} onClick={() => setWeekOffset(w => w + 1)} aria-label={t('Next week')}><Icon name="chevronRight" /></button>
         </div>
-        <div className="week">{strip}</div>
+        {/* Press and hold a session to drag it to another day (components/WeekStrip.jsx). */}
+        <WeekStrip S={S} start={wkStart} onDay={dayOverrideSheet} />
       </>}
       {/* The week's plan as a countdown (#753, lib/week-left.js): "2 of 4 left this week". */}
       {left && <div className={'small dim wkleft' + (left.left > 0 ? '' : ' done')}>
@@ -195,23 +187,13 @@ export default function Home() {
           : routine ? <span className="row" style={{ gap: 10 }}><MiniBodyMap routines={todayRoutines} body={S.body} /><span className="today-play" role="img" aria-label={t('Start')}><Icon name="play" /></span></span>
           : <Icon name="plus" className="chev" />}
       </div>
-      {/* The row above starts today's plan in one tap, and so does the Start button in the tab
-          bar — which is the whole problem when you want something else. Both jump straight into
-          the planned session whenever there is one, so the Start screen (a freestyle session,
-          and your other routines) is only reachable on a day with nothing planned. The one other
-          way in, "Choose a different workout" on the weigh-in sheet, does not exist when the
-          weigh-in is switched off. This is that door, and it starts nothing on its own. */}
-      {!S.active && <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-        <Button size="sm" variant="ghost" className="dim" icon="swap" onClick={() => nav('/workout')}>
-          {t('Choose a different workout')}
-        </Button>
-      </div>}
       <SeasonDeco spot="home-hero" />
     </div>
 
-    {/* Steps and resting heart rate (Google Health, PLAN.md Phase 4), then this week's training. */}
+    {/* The last 4 weeks at a glance (lib/home-progress.js); steps and resting heart rate live in
+        Progress (Activity). A Fitbit workout to import still asks here, then this week's training. */}
+    {S.workouts.length > 0 && <HomeProgress S={S} onOpen={() => nav('/stats')} />}
     <FitbitImport />
-    <HomeMetrics />
     {S.workouts.length > 0 && <TrainingBarChart S={S} />}
 
     {/* Monday: Your week; the 1st: Your month (lib/recap.js). Off in Settings → Look & Home. */}
@@ -238,11 +220,13 @@ export default function Home() {
       </div>
     )}
 
+    {/* A new profile can just start lifting: a Freestyle session first, a plan second (Workouts
+        has the builder, the templates and the starter plan at the top while there are no routines). */}
     {!S.routines.length && !S.active && (
       <div className="card">
-        <CardHead icon="calendar" title={t('Welcome!')} sub={t('Set up your weekly routine to get going, or grab a ready-made starter plan.')} />
-        <Button variant="primary" icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
-        <div style={{ height: 8 }} /><Button onClick={() => nav('/plan')}>{t('Build my own plan')}</Button>
+        <CardHead icon="play" title={t('Welcome!')} sub={t('You can just start lifting. A plan can come later.')} />
+        <Button variant="primary" icon="play" onClick={() => startFlow([])}>{t('Start a workout')}</Button>
+        <div style={{ height: 8 }} /><Button icon="clipboard" onClick={() => nav('/plan')}>{t('Get a plan')}</Button>
       </div>
     )}
 

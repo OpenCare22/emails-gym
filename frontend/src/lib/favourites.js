@@ -48,3 +48,13 @@ export function usageOf(S) {
   for (const w of S?.workouts || []) for (const e of w.entries || []) u[e.id] = (u[e.id] || 0) + 1
   return u
 }
+
+/** In how many logged workouts each exercise appears: id -> count. Routines do not count. */
+export function workoutCountOf(S) {
+  const u = {}
+  for (const w of S?.workouts || []) {
+    const seen = new Set((w?.entries || []).map(e => e?.id).filter(Boolean))
+    for (const id of seen) u[id] = (u[id] || 0) + 1
+  }
+  return u
+}

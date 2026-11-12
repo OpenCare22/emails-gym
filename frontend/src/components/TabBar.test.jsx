@@ -121,7 +121,7 @@ describe('the tab icons and labels', () => {
 describe('the tab a screen without its own lights', () => {
   const lit = () => tabs().filter(b => b.classList.contains('on')).map(b => b.textContent)
   it.each([
-    ['/plan', 'Workouts'], ['/plan/r/abc', 'Workouts'], ['/history', 'Workouts'], ['/library', 'Workouts'],
+    ['/plan', 'Workouts'], ['/plan/r/abc', 'Workouts'], ['/history', 'Progress'], ['/library', 'Workouts'],
     ['/stats', 'Progress'], ['/measurements', 'Progress'], ['/muscles', 'Progress'],
     ['/structural-balance', 'Progress'], ['/progress-photos', 'Progress'],
     ['/settings', 'Home'], ['/settings/units', 'Home'], ['/checkin', 'Home'], ['/friends', 'Friends'],

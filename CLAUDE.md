@@ -130,7 +130,8 @@ and per field, so the newest edit of each wins and deletions stay deleted.
 The API image cannot import the frontend, so some rules are hand-copied. Change both sides
 together: `lib/sync-merge.js` and `api/sync-stamps.js` (parity test), `lib/glyphs.js` and
 `api/coach/core/glyphs.js` (parity test), `lib/nudge.js` and `api/nudge.js`, `lib/queue.js` and
-`api/queue.js` (mirrored test cases only, nothing compares the code). The other way round,
+`api/queue.js` (mirrored test cases only, nothing compares the code). `lib/streak.js` and `api/social/streak.js`
+(parity test: `api/test/social-streak-parity.test.js`). The other way round,
 `lib/coach-local.js` imports `api/coach/core/` directly so the phones run the same coach pipeline.
 
 
@@ -165,3 +166,7 @@ never feed the media to an AI tool.
 - Training-logic changes (progression, 1RM, session read-back) need a unit test in `src/lib`
   beside the code.
 - User-facing text: plain and human, no em dashes. CHANGELOG.md is written at release time.
+
+## Learned rules
+
+- Include biological sex as an input when building or modifying exercise recommendation logic, since male and female exercise selection can differ for similar body metrics.

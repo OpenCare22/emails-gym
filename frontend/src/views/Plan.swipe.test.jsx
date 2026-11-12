@@ -260,18 +260,13 @@ describe('the loop', () => {
     expect(useUI.getState().toastMsg).toBe('Too late, that one’s gone')
   })
 
-  it('the edit-mode minus has the same Undo, and weekday rows never swipe', () => {
+  it('the edit-mode minus has the same Undo', () => {
     mount('schedule', { ...clone(loop), week: { 1: ['c'], 2: ['a'] } })
     click([...host.querySelectorAll('.plan-textbtn')].find(b => b.textContent === 'Edit'))
     click(host.querySelector('button[aria-label="Remove Legs"]'))
     expect(S().queue.ids).toEqual(['a', 'b'])
     undo()
     expect(S().queue.ids).toEqual(['a', 'b', 'c'])
-    act(() => root.unmount()); host.remove()
-
-    mount('schedule', { week: { 1: ['a'], 3: ['b'] } })   // a fixed week
-    expect(host.querySelectorAll('.plan-day').length).toBeGreaterThan(0)
-    expect(swrows()).toHaveLength(0)
   })
 
   it('a coach’s own queue does not swipe', () => {

@@ -20,6 +20,9 @@ import { initBackButton } from './lib/back.js'
 import { installEdgeSwipeBack, BACK_PREVIEW_EVENT } from './lib/edge-swipe-back.js'
 import { hidden } from './lib/fork-hidden.js'
 import { FRIENDS_SCREEN } from './lib/fork-flags.js'
+import { isSimple, needsModeChoice } from './lib/day-log.js'
+import Today from './views/Today.jsx'
+import ModeChoice from './views/ModeChoice.jsx'
 import { pageMotion } from './lib/page-motion.js'
 import { startWatchSync, bindWatchAppActions, patchSetIn, watchStatus, watchClaimed, onWatchClaim } from './lib/watch-sync.js'
 import { readWatchPrefs, readWatchStatus } from './lib/watch-settings.js'
@@ -295,13 +298,20 @@ function Shell() {
   // brings it back. Finishing stays in the workout's own header and list, not in a bottom button
   // (owner, 2026-10-14: the bottom Complete / Finish button of #563 is gone again).
   const inWorkout = loc.pathname === '/workout' && !!S.active
+  // Simple mode (lib/day-log.js): Today in place of Home, a shorter Progress, three tabs. A fresh
+  // profile is asked once which it wants, after setup and, signed in, once its copy is the
+  // account's own (an existing account on a new device is not a fresh profile).
+  const simple = isSimple(S)
+  const syncNow = useStore(s => s.sync)
+  const askMode = !!(user || isGuest) && !needsMobileOnboarding && !permSteps && needsModeChoice(S)
+    && (!user || (syncNow?.status === 'ok' && syncNow.lastSynced > 0))
   useEffect(() => {
     document.body.classList.toggle('no-tabbar', inWorkout)
     return () => document.body.classList.remove('no-tabbar')
   }, [inWorkout])
   // The chat owns the bottom of the screen as well: its composer sits where the tabs would be.
   // The first-launch card has no tabs either: they changed the route behind it.
-  const noTabs = inWorkout || loc.pathname === '/coach' || needsMobileOnboarding || permSteps
+  const noTabs = inWorkout || loc.pathname === '/coach' || needsMobileOnboarding || permSteps || askMode
 
   const authed = user || isGuest
   // The first setup is through (sign-in or "Use on this device", and the phone's permission
@@ -319,7 +329,7 @@ function Shell() {
     if (!setupDone || tourAsked.current) return
     const tm = setTimeout(() => {
       const st = useStore.getState()
-      if (tourAsked.current || tourState() || st.S.active || useUI.getState().sheets.length || /^#\/workout/.test(window.location.hash || '')) return
+      if (tourAsked.current || tourState() || st.S.active || isSimple(st.S) || needsModeChoice(st.S) || useUI.getState().sheets.length || /^#\/workout/.test(window.location.hash || '')) return
       const rec = readTour()
       const at = resumeAt(rec)
       const synced = !st.user || (st.sync?.status === 'ok' && st.sync.lastSynced > 0)
@@ -342,9 +352,9 @@ function Shell() {
 
   if (installRequired) return <div id="app"><InstallRequired /></div>
 
-  const view = l => (!authed ? <Login /> : needsMobileOnboarding ? <MobileOnboarding /> : permSteps ? <PermissionSteps /> : (
+  const view = l => (!authed ? <Login /> : needsMobileOnboarding ? <MobileOnboarding /> : permSteps ? <PermissionSteps /> : askMode ? <ModeChoice /> : (
     <Routes location={l}>
-      <Route path="/home" element={<Home />} />
+      <Route path="/home" element={simple ? <Today /> : <Home />} />
       {/* A module switched off (Settings → Modules, lib/modules.js) takes its screens with it: the
           route falls through to the catch-all redirect below. The data stays where it is. */}
       {isOn(S, 'checkin') && <Route path="/checkin" element={<CheckIn />} />}
@@ -356,7 +366,7 @@ function Shell() {
       <Route path="/plan/programmes" element={<Programmes />} />
       <Route path="/plan/prog/:id" element={<ProgrammeEdit />} />
       <Route path="/workout" element={<Workout />} />
-      <Route path="/stats" element={<Stats />} />
+      <Route path="/stats" element={<Stats simple={simple} />} />
       {FRIENDS_SCREEN && <Route path="/friends" element={<Friends />} />}
       {FRIENDS_SCREEN && <Route path="/join/:code" element={<JoinGroup />} />}
       <Route path="/history" element={<History />} />

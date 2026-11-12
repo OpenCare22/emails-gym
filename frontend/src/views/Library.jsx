@@ -1,4 +1,3 @@
-import WorkoutsSwitcher from '../components/WorkoutsSwitcher.jsx'
 import { useDeferredValue, useMemo, useRef, useState } from 'react'
 import { useUI } from '../store/useUI.js'
 import { useNavigate } from 'react-router-dom'
@@ -9,14 +8,17 @@ import { activeProfile, exAvailable } from '../lib/equipment.js'
 import { bestWeightFor } from '../lib/history.js'
 import { fmtNum, exCount } from '../lib/format.js'
 import { t, tn, exerciseNameFor, exerciseNameClass } from '../lib/i18n.js'
+import { exerciseNameText } from '../lib/format.js'
 import { Thumb } from '../components/Media.jsx'
-import { exerciseDetailSheet, addToRoutineSheet, customExSheet } from '../sheets.jsx'
+import { exerciseDetailSheet, addToRoutineSheet, customExSheet, menuSheet, startFlow } from '../sheets.jsx'
+import FavStar from '../components/FavStar.jsx'
+import { appendExercise } from '../lib/add-exercise.js'
 import Icon from '../components/Icon.jsx'
 import ExerciseViewToggle from '../components/ExerciseViewToggle.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable, useRevealActiveChip } from '../lib/use-sheet-keyboard.js'
 import { useAutoMore } from '../lib/use-auto-more.js'
-import { isFav, sortFavouritesFirst, sortYoursFirst, usageOf } from '../lib/favourites.js'
+import { sortFavouritesFirst, sortYoursFirst, usageOf } from '../lib/favourites.js'
 
 export default function Library() {
   const nav = useNavigate()
@@ -68,28 +70,45 @@ export default function Library() {
   const similar = q.trim() && qLate === q && f.length <= shown
     ? similarExercises(allExercises(S).filter(e => (!bp || e.bp === bp) && (!profile || showAll || exAvailable(S, e))), q, f, f.length ? 12 : 30)
     : []
+  // Where the ＋ puts an exercise: the workout in progress (or a new Freestyle one with it), or
+  // a routine. Today's workout first, so the library is not only a way to build plans.
+  const addMenu = e => menuSheet({
+    title: exerciseNameText(e),
+    items: [
+      { icon: 'play', label: t("Add to today's workout"), onClick: () => {
+        const st = useStore.getState()
+        if (!st.S.active) { startFlow([], { addEx: e.id }); return }
+        // An open saved workout (an edit, or a past day being logged) is not today's workout.
+        if (st.S.active.editingWorkoutId || st.S.active.backfill) { useUI.getState().toast(t('Finish the workout you are editing first.')); return }
+        st.update(s => { appendExercise(s, e.id) })
+        useUI.getState().toast(t('“{0}” added', exerciseNameText(e)))
+      } },
+      { icon: 'clipboard', label: t('Add to a routine'), onClick: () => addToRoutineSheet(e) },
+    ],
+  })
   const row = e => {
     const best = bestWeightFor(S, e.id)
     // The row is not a button: its name is, stretched over the row (.tap-main), with Add to my plan
     // a sibling above it (card dismiss pass), so neither tap can land on the other.
     return <div key={e.id} className="item tap-host">
+      <FavStar id={e.id} />
       <Thumb ex={e} />
-      <button type="button" className="grow item-open tap-main" aria-haspopup="dialog" onClick={() => exerciseDetailSheet(e)}><span className={`tt ${exerciseNameClass(e)}`}>{isFav(S, e.id) && <Icon name="starFill" className="fav-star" />}{exerciseNameFor(e)}</span><span className="ss capitalize">{t(MUSCLE_NAME[e.tg] || e.tg || e.bp)} · {t(e.eq)}</span></button>
+      <button type="button" className="grow item-open tap-main" aria-haspopup="dialog" onClick={() => exerciseDetailSheet(e)}><span className={`tt ${exerciseNameClass(e)}`}>{exerciseNameFor(e)}</span><span className="ss capitalize">{t(MUSCLE_NAME[e.tg] || e.tg || e.bp)} · {t(e.eq)}</span></button>
       {best > 0 && <span className="tag acc">{fmtNum(best)}</span>}
       {/* a quiet trailing button (P7): the accent stays on the one action of the screen */}
-      <button type="button" className="iconbtn lib-add" aria-label={t('Add to my plan')} title={t('Add to my plan')}
-        onClick={() => addToRoutineSheet(e)}><Icon name="plus" /></button>
+      <button type="button" className="iconbtn lib-add" aria-label={t('Add {0}', exerciseNameText(e))} title={t('Add')}
+        onClick={() => addMenu(e)}><Icon name="plus" /></button>
     </div>
   }
 
   return <>
-    <div className="hdr lib-hdr"><div><h1>{t('Workouts')}</h1></div>
+    <div className="hdr lib-hdr"><button className="iconbtn" data-back="/plan" onClick={() => nav('/plan')} aria-label={t('Workouts')}><Icon name="chevronLeft" /></button>
+      <div><h1>{t('Exercises')}</h1></div>
       <Button size="sm" variant="tinted" icon="figureStrength" onClick={() => nav('/muscles')}>{t('By muscle')}</Button>
       <div className="sub lib-count">{ownCount
         ? tn('{1} animated exercises + 1 of your own', '{1} animated exercises + {0} of your own', ownCount, EXDB.length)
         : t('{0} exercises with animations', EXDB.length)}</div>
     </div>
-    <WorkoutsSwitcher current="/library" />
     <div className="search-row" data-tour="lib-search" style={{ marginBottom: 10 }}><div className={'search' + (narrowed ? ' has-count' : '') + (q ? ' has-clear' : '')}><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       <input className="input" placeholder={t('Search…')} value={q} onChange={e => { setQ(e.target.value); setShown(40) }} />
       {narrowed && <span className="search-count" role="status" aria-label={exCount(f.length)}>{fmtNum(f.length)}</span>}

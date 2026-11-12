@@ -34,7 +34,8 @@ const appear = async find => {
 
 beforeEach(async () => {
   originalS = useStore.getState().S
-  useStore.setState({ S: JSON.parse(JSON.stringify(DEF)) })
+  // A full-app profile: a blank one is asked first which mode it wants (lib/day-log.js).
+  useStore.setState({ S: { ...JSON.parse(JSON.stringify(DEF)), appMode: 'full' } })
   localStorage.setItem('gym_guest', '1')
   window.location.hash = '#/stats'
   host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host)

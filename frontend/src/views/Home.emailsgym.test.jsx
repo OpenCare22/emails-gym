@@ -56,15 +56,10 @@ describe('Email’s Gym Home', () => {
     expect(card.querySelector('.today-play').getAttribute('aria-label')).toBe('Start')
   })
 
-  it('says Steps and Resting HR are not connected rather than showing a number', () => {
+  it('leaves steps and resting heart rate to Progress', () => {
     setS()
     mount()
-    const cards = [...host.querySelectorAll('.metric-card')]
-    expect(cards.map(c => c.querySelector('.metric-head').textContent)).toEqual(['Steps', 'Resting HR'])
-    for (const c of cards) {
-      expect(c.querySelector('.metric-off').textContent).toBe('Not connected')
-      expect(c.querySelector('.metric-value')).toBeNull()
-    }
+    expect(host.querySelectorAll('.metric-card').length).toBe(0)
   })
 
   it('draws the weekly chart only from logged workouts, with a text equivalent', () => {

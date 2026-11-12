@@ -61,9 +61,11 @@ const rows = () => [...host.querySelectorAll('.rotation-row')]
 const names = () => rows().map(r => r.querySelector('.tt').textContent)
 const click = el => act(() => el.dispatchEvent(new MouseEvent('click', { bubbles: true })))
 const byLabel = label => [...host.querySelectorAll('button')].find(b => b.getAttribute('aria-label') === label || b.textContent.trim() === label)
-const modeButtons = () => [...host.querySelectorAll('.plan-mode .seg button')]
-const pickMode = label => click(modeButtons().find(b => b.textContent === label))
-const selectedMode = () => modeButtons().find(b => b.className.includes('on'))?.textContent
+// One switch now, "Train in order instead of on set days" (Plan.layout.test.jsx): on is Rotation.
+const modeSwitch = () => host.querySelector('.plan-order-mode [role="switch"]')
+const selectedMode = () => modeSwitch() ? (modeSwitch().getAttribute('aria-checked') === 'true' ? 'Rotation' : 'Fixed Week') : undefined
+const pickMode = label => { if (selectedMode() !== label) click(modeSwitch()) }
+const routineRow = name => [...host.querySelectorAll('.plan-routine')].find(r => r.querySelector('.tt')?.textContent === name)
 const headings = () => [...host.querySelectorAll('h4.sec')].map(h => h.firstChild.textContent)
 const subtitle = () => host.querySelector('.hdr .sub').textContent
 
@@ -71,7 +73,7 @@ describe('Plan — How you train', () => {
   it('nothing saved: Fixed Week with the weekdays, and no rotation buttons of its own', () => {
     mount()
     expect(selectedMode()).toBe('Fixed Week')
-    expect(headings()).toContain('This week')
+    expect(headings()).toContain('Your routines')
     expect(subtitle()).toBe('Your weekly routine')
     expect(rows()).toEqual([])
     // the old duplicate controls are gone: the mode control is the one way in and out
@@ -87,7 +89,7 @@ describe('Plan — How you train', () => {
     remount()
     expect(selectedMode()).toBe('Rotation')
     expect(headings()).toContain('The loop')
-    expect(headings()).not.toContain('This week')
+    expect(headings()).not.toContain('Your routines')
     expect(host.textContent).toContain('No rotation yet.')
     // the subtitle stops saying "weekly" once you train in a loop
     expect(subtitle()).toBe('Your routines in a loop')
@@ -140,21 +142,18 @@ describe('Plan — the loop', () => {
     expect(rows().map(r => r.querySelector('.ss').textContent)).toEqual(['Up next', 'Later'])
     expect(rows()[0].querySelector('.plan-order').className).toContain('next')
     expect(host.textContent).toContain('0 of 2 done this round.')
-    // week[1] = ['c'] rides along beside the pass (effectiveRoutineIds), so it stays in sight
-    expect(headings()).toContain('Also on fixed days')
-    expect(host.querySelector('.plan-day[data-day="1"] .tt').textContent).toBe('C')
-    expect(host.querySelectorAll('.plan-day').length).toBe(1)
+    // C is not in the loop: it rides along on its own weekday (effectiveRoutineIds), so it stays in sight
+    expect(headings()).toContain('Not in the order')
+    expect([...routineRow('C').querySelectorAll('.plan-days .chip')].map(c => c.textContent)).toEqual(['Mo'])
+    expect(host.querySelectorAll('.plan-routine').length).toBe(1)
   })
 
-  it('a weekday shows only what the loop does not have, and a day with nothing else is left out', () => {
+  it('only the routines outside the loop are listed under it, each with its own days', () => {
     mount({ queue: live({ rotationId: 'r1' }), rotation: saved, week: { 1: ['a', 'c'], 3: ['b'], 5: ['a'] } })
-    expect(headings()).toContain('Also on fixed days')
-    expect([...host.querySelectorAll('.plan-day')].map(d => d.dataset.day)).toEqual(['1'])
-    expect(host.querySelector('.plan-day[data-day="1"] .tt').textContent).toBe('C')
-    remount()
+    expect([...host.querySelectorAll('.plan-routine .tt')].map(e => e.textContent)).toEqual(['C'])
+    expect([...routineRow('C').querySelectorAll('.plan-days .chip')].map(c => c.textContent)).toEqual(['Mo'])
     mount({ queue: live({ rotationId: 'r1' }), rotation: saved, week: { 3: ['b'], 5: ['a'] } })
-    expect(headings()).not.toContain('Also on fixed days')
-    expect(host.querySelectorAll('.plan-day').length).toBe(0)
+    expect(routineRow('C').textContent).toContain('No day, start it any time')
   })
 
   it('a session done this round reads Done and moves Up next along', () => {
@@ -237,7 +236,9 @@ describe('Plan — the loop', () => {
       queue: live({ since: Date.now() - 5 * 86400000, startsOn: '2026-09-01', rotationId: 'r1' }),
       rotation: saved,
     })
-    click(byLabel('Start the loop over'))
+    // in the ⋯ menu now, while a loop of this app's own is running
+    click(host.querySelector('[data-tour="plan-menu"]'))
+    act(() => menuSheet.mock.calls.at(-1)[0].items.find(i => i.label === 'Start the loop over').onClick())
     expect(mocks.S.queue.startsOn).toBe(todayISO())
     expect(mocks.S.queue.ids).toEqual(['a', 'b'])
     expect(mocks.S.queue.strict).toBe(true)
@@ -263,13 +264,14 @@ describe('Plan — the loop', () => {
 describe('Plan — someone else’s queue, and a broken one', () => {
   it('an externally written pass is locked: no mode control, no edits, adoption behind a confirm', () => {
     mount({ queue: live(), scheduleMode: 'rotation' })   // no rotationId, no rotation
-    expect(modeButtons()).toEqual([])
-    expect(host.querySelector('.plan-mode').textContent).toContain('Externally managed')
+    expect(modeSwitch()).toBeNull()
+    expect(host.querySelector('.plan-order-mode').textContent).toContain('Externally managed')
     expect(byLabel('Build a rotation instead')).toBeUndefined()
-    expect(byLabel('Edit')).toBeUndefined()
+    // the loop has no Edit (the routines outside it keep theirs: they are yours)
+    expect(host.querySelector('.rotation .plan-textbtn')).toBeNull()
     expect(byLabel('Add routine to the rotation')).toBeUndefined()
     expect(rows()[0].querySelectorAll('button').length).toBe(0)
-    expect(headings()).toContain('Also on fixed days')
+    expect(headings()).toContain('Not in the order')
     click(byLabel('Use this rotation'))
     expect(mocks.S.rotation).toBe(null)            // not adopted yet — waiting on the confirm
     act(() => confirmSheet.mock.calls.at(-1)[0].onConfirm())
@@ -308,7 +310,7 @@ describe('Plan — someone else’s queue, and a broken one', () => {
     expect(mocks.S.queue).toBe(null)
     expect(mocks.S.scheduleMode).toBe('week')
     remount()
-    expect(headings()).toContain('This week')
+    expect(headings()).toContain('Your routines')
     pickMode('Rotation')
     expect(mocks.S.queue.ids).toEqual(['a', 'b'])
   })
@@ -326,33 +328,7 @@ describe('Plan — someone else’s queue, and a broken one', () => {
   })
 })
 
-describe('Plan — Schedule extras', () => {
-  it('links to the weekly muscle volume in Stats', () => {
-    mount()
-    click(byLabel('Weekly muscle volume') || [...host.querySelectorAll('.plan-link button')][0])
-    expect(mocks.nav).toHaveBeenCalledWith('/stats?focus=weekly-volume')
-  })
-
-  it('has no volume link before there is a routine (Stats has no card to show then)', () => {
-    mount({ routines: [], week: {} })
-    expect(host.querySelector('.plan-link')).toBe(null)
-  })
-
-  it('switches to Routines and remembers it for next time', () => {
-    mount()
-    const seg = label => [...host.querySelectorAll('.plan-views button')].find(b => b.textContent === label)
-    click(seg('Routines'))
-    expect(localStorage.getItem('gym_plan_view')).toBe('routines')
-    expect(host.querySelector('.plan-mode')).toBe(null)
-    expect(host.querySelector('.plan-routines')).toBeTruthy()
-    act(() => root.unmount()); root = createRoot(host)
-    act(() => root.render(<Plan />))
-    expect(seg('Routines').className).toContain('on')
-    click(seg('Schedule'))
-    expect(localStorage.getItem('gym_plan_view')).toBe('schedule')
-    expect(host.querySelector('.plan-mode')).toBeTruthy()
-  })
-
+describe('Plan — extras', () => {
   it('one Plan menu holds share, print, import, the starter plans and the programmes', () => {
     mount()
     click(byLabel('Plan options'))

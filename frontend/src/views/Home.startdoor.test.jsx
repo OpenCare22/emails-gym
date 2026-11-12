@@ -42,24 +42,9 @@ const setS = (over = {}) => useStore.setState(s => ({
 const mount = () => act(() => root.render(<Home />))
 const door = () => [...host.querySelectorAll('button')].find(b => b.textContent.includes('Choose a different workout'))
 
+// The door itself ("Choose a different workout") is gone: the Start button opens a choice now
+// (components/StartChoices.jsx). What stays here is how the today row reads a session.
 describe('Home — the way to the Start screen when a plan already owns today', () => {
-  it('offers the door on a planned day, where the Start button would start the plan', () => {
-    setS(); mount()
-    expect(door()).toBeTruthy()
-  })
-
-  it('opens the Start screen without starting anything', () => {
-    setS(); mount()
-    act(() => { door().dispatchEvent(new MouseEvent('click', { bubbles: true })) })
-    expect(nav).toHaveBeenCalledWith('/workout')
-    expect(startFlow).not.toHaveBeenCalled()
-  })
-
-  it('is still there on a rest day, where freestyle is the only thing left to start', () => {
-    setS({ week: {} }); mount()
-    expect(door()).toBeTruthy()
-  })
-
   it('goes away once a session is running — that screen resumes it, it does not choose', () => {
     setS({ active: { id: 'a', name: 'Push', start: Date.now(), cur: 0, entries: [] } })
     mount()

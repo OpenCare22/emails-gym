@@ -31,7 +31,8 @@ const scrolledTo = async y => {
 
 beforeEach(async () => {
   originalS = useStore.getState().S
-  useStore.setState({ S: JSON.parse(JSON.stringify(DEF)) })
+  // A full-app profile: a blank one is asked first which mode it wants (lib/day-log.js).
+  useStore.setState({ S: { ...JSON.parse(JSON.stringify(DEF)), appMode: 'full' } })
   localStorage.setItem('gym_guest', '1')   // a guest: the app itself, no sign-in screen
   window.location.hash = '#/settings'
   host = document.createElement('div'); document.body.appendChild(host); root = createRoot(host)

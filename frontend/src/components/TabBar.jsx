@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { FRIENDS_SCREEN } from '../lib/fork-flags.js'
-import { effectiveRoutineIds, effectiveRoutines } from '../lib/history.js'
-import { todayISO } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 import Elapsed from './Elapsed.jsx'
 import { useConnectionTrouble } from './SyncBanner.jsx'
 import { retapTab } from '../lib/scroll-top.js'
+import { isSimple } from '../lib/day-log.js'
+import { startSheet } from './StartChoices.jsx'
 
 // Module scope, not TabBar's render body. Declared inside it, `Tab` was a new function on every
 // render, so React saw a different component type each time and threw the button away and built a
@@ -23,14 +23,14 @@ function Tab({ active, icon, label, onClick, dot, tour }) {
 
 // Email's Gym navigation (DESIGN_PLAN step 3): Home · Workouts · Progress · Friends. A screen
 // without a tab of its own lights the tab it belongs to:
-//   Workouts  /plan (routines, programmes), /history, /library
-//   Progress  /stats, /measurements, /muscles (and the hidden photos and structural balance)
+//   Workouts  /plan (routines, programmes), /library
+//   Progress  /stats, /history, /measurements, /muscles (and the hidden photos and structural balance)
 //   Home      /home, /settings, /checkin, the Coach
 // The round button in the middle starts today's workout, and brings back one you stepped away
 // from (Resume, with its running time).
 const PARENT = {
-  plan: 'plan', history: 'plan', library: 'plan',
-  stats: 'stats', measurements: 'stats', muscles: 'stats', 'structural-balance': 'stats', 'progress-photos': 'stats',
+  plan: 'plan', library: 'plan',
+  stats: 'stats', history: 'stats', measurements: 'stats', muscles: 'stats', 'structural-balance': 'stats', 'progress-photos': 'stats',
   settings: 'home', checkin: 'home', coach: 'home', admin: 'home',
 }
 
@@ -50,22 +50,34 @@ export default function TabBar({ onStart }) {
 
   // Root tabs are peers, not another level to unwind with Back. The tab you are already on takes
   // you to the top of its page instead (lib/scroll-top.js).
-  // A tab with several pages of its own (Workouts: Routines, History, Exercises) treats each of
-  // them as its top: tapped again there, that page scrolls up (Exercises: to its search field).
-  const ROOTS = { '/plan': ['/plan', '/history', '/library'] }
+  // The exercise library sits under Workouts (its search icon): tapped again there, Workouts
+  // scrolls it up (to its search field) rather than leaving it.
+  const ROOTS = { '/plan': ['/plan', '/library'] }
   const switchTab = path => {
     const here = (ROOTS[path] || [path]).find(p => loc.pathname === p)
     if (here && !loc.search) retapTab(here)
     else nav(path, { replace: true })
   }
 
+  // Simple mode (lib/day-log.js): Today, Progress and, signed in to a server, Friends. No Start
+  // button: Today is where a workout is written. History and Settings sit under Today.
+  if (isSimple(S)) {
+    const lit = k => (k === 'home' ? ['home', 'history', 'settings'].includes(cur) : k === 'stats' ? ['stats', 'muscles', 'measurements'].includes(cur) : cur === k)
+    return (
+      <nav id="tabbar" className="simple">
+        <Tab active={lit('home')} icon="note" label={t('Today')} dot={trouble} onClick={() => switchTab('/home')} />
+        <Tab active={lit('stats')} icon="chart" label={t('Progress')} onClick={() => switchTab('/stats')} />
+        {FRIENDS_SCREEN && !!user && <Tab active={lit('friends')} icon="users" label={t('Friends')} onClick={() => switchTab('/friends')} />}
+      </nav>
+    )
+  }
+
   const running = !!S.active && cur !== 'workout' && !S.active.editingWorkoutId && !S.active.backfill && S.active.start > 0
+  // With nothing in progress the button offers a choice (components/StartChoices.jsx): today's
+  // plan first, then Freestyle and the other routines. Home's Today row still starts the plan in
+  // one tap. A session in progress, or a saved workout being edited, is where the button goes back to.
   const startWorkout = () => {
-    if (!S.active) {
-      // A weekday can hold several routines; start the combined session if any of them has
-      // exercises, otherwise fall through to the picker.
-      if (onStart && effectiveRoutines(S, todayISO()).some(r => r.ex.length)) { onStart(effectiveRoutineIds(S, todayISO())); return }
-    }
+    if (!S.active) { startSheet(); return }
     nav('/workout')
   }
 

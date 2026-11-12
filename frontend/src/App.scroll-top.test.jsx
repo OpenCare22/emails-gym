@@ -29,7 +29,8 @@ const appear = async find => {
   return get()
 }
 const start = async (hash, S = JSON.parse(JSON.stringify(DEF))) => {
-  useStore.setState({ S })
+  // A full-app profile: a blank one is asked first which mode it wants (lib/day-log.js).
+  useStore.setState({ S: { ...S, appMode: S.appMode ?? 'full' } })
   window.location.hash = hash
   await act(async () => { root.render(<App />) })
 }

@@ -1,9 +1,6 @@
 // @vitest-environment happy-dom
-// Plan → Schedule → This week (v1.3.11): one row per weekday, whatever is on it. #276 had moved
-// "add a second routine" into a small ＋ in a planned day's header; the day's own picker now does
-// all of it (one routine, several for a combined day, or a rest day), so every day is one
-// tappable row that opens it, planned or not. The Coach, once a banner over the week, is the
-// last entry of the Plan menu.
+// Plan's header and menu: the Coach has its own button in the header when it is available, and
+// share, print, import, starter plans and programmes sit behind the ⋯ menu.
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -60,32 +57,7 @@ afterEach(() => {
 const mount = () => act(() => root.render(<Plan />))
 const day = name => host.querySelector(`.plan-day[aria-label="${name}"]`)
 
-describe('Plan — the weekday rows', () => {
-  it('a planned day is one row with no buttons of its own; a tap opens the day’s picker', () => {
-    mount()
-    const monday = day('Monday')
-    expect(monday.querySelector('.tt').textContent).toBe('Push')
-    expect(monday.querySelectorAll('button').length).toBe(0)
-    act(() => monday.click())
-    expect(dayAssignSheet).toHaveBeenCalledWith(1)
-  })
-
-  it('an empty day is a rest day that asks to be planned, and opens the same picker', () => {
-    mount()
-    const tuesday = day('Tuesday')
-    expect(tuesday.textContent).toContain('Rest day')
-    expect(tuesday.textContent).toContain('Tap to plan something')
-    act(() => tuesday.click())
-    expect(dayAssignSheet).toHaveBeenCalledWith(2)
-  })
-
-  it('opens on the keyboard too', () => {
-    mount()
-    act(() => { day('Friday').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })) })
-    expect(dayAssignSheet).toHaveBeenCalledWith(5)
-  })
-})
-
+// The weekday rows are gone (each routine carries its days now, Plan.layout.test.jsx).
 describe('Plan — the menu', () => {
   const openMenu = () => {
     act(() => host.querySelector('button[aria-label="Plan options"]').click())

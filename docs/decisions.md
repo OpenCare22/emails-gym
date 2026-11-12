@@ -134,3 +134,25 @@
   only the save was at fault. Lesson: a new entry field needs a save test. Also: a saved workout
   opened for editing shows the feel row for routine exercises, and a logged interval run has a
   Rounds done stepper; NFC stickers keep opengym.ch (native iPhone app only).
+- **2026-11-12: Simple mode ("Just log my workouts").** A colleague gave up on the app: no obvious
+  start, routines required to log anything, 5,600 exercises with no visible favourites. A fresh
+  profile is now asked once (views/ModeChoice.jsx; never a profile with workouts or routines, and
+  only once a signed-in copy has synced), and Settings → App mode switches either way. Simple mode:
+  Today (views/Today.jsx) is a notebook page per day with no Start or Finish, saved as you type;
+  Progress is Stats cut to four cards (`simple` prop); tabs are Today, Progress and Friends (only
+  signed in). A day's log is an ordinary workout with `log: 'day'` (lib/day-log.js), so the full
+  app reads it unchanged; records and exWeights are kept as finishing does. Design:
+  docs/superpowers/specs/2026-11-12-simple-mode-design.md. Not done: simplifying the full app
+  itself (Emil's point 1), and simple mode does not edit a full-app workout of the same day (shown
+  read-only).
+- **2026-11-12: Full mode made easier to find your way around** (the other half of the colleague's
+  feedback; simple mode untouched). Workouts is one page: your routines, each with its weekdays as
+  chips (tap them for the day picker), one "Train in order instead of on set days" switch for
+  Rotation, and "Get a new plan" at the bottom (at the top with no routines). History moved under
+  Progress; the exercise library sits behind the search icon in the Workouts header. Home: steps and
+  resting heart rate left for Progress, a "Your progress" card took their place (lib/home-progress.js),
+  and a session can be held and dragged to another day for that date only (lib/day-move.js; single
+  routine days, today or later, never a done day). The round Start button opens a choice (plan,
+  Freestyle, other routines, log a past workout). A star on every picker and library row; the
+  library's ＋ adds to today's workout or a routine. Design:
+  docs/superpowers/specs/2026-11-12-full-mode-wayfinding-design.md.

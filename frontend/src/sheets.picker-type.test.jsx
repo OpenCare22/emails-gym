@@ -27,7 +27,7 @@ const chipByText = (host, text) =>
   [...host.querySelectorAll('.chips .chip')].find(b => b.textContent.trim() === text)
 const isOn = el => el.className.split(/\s+/).includes('on')
 // Every row's add button carries the exercise's name, so it tells which exercises are listed.
-const listed = host => [...host.querySelectorAll('.list .item button[aria-label]')]
+const listed = host => [...host.querySelectorAll('.list .item button[aria-label]:not(.fav-btn)')]
   .map(b => b.getAttribute('aria-label'))
 
 beforeEach(() => {

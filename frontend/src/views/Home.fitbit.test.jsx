@@ -37,10 +37,9 @@ beforeEach(() => {
 })
 afterEach(() => { act(() => root.unmount()); host.remove(); useGoogleHealth.setState({ info: null }) })
 const click = name => act(() => [...host.querySelectorAll('.fitbit-import button')].find(b => b.textContent === name).click())
-it('offers above metrics and imports once only after consent', () => {
+it('offers the import and imports once only after consent', () => {
   const card = host.querySelector('.fitbit-import')
   expect(card.textContent).toContain('From your Fitbit: Run, 31 min, 5.2 km, avg 151 bpm')
-  expect(card.compareDocumentPosition(host.querySelector('.metric-card')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(useStore.getState().S.workouts).toEqual([])
   const button = [...card.querySelectorAll('button')].find(b => b.textContent === 'Import')
   act(() => { button.click(); button.click() })

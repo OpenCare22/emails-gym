@@ -76,8 +76,8 @@ describe('exercise picker', () => {
     expect(shown.slice(0, 2)).toEqual(plain.filter(n => fav.includes(n)))
     expect(shown.slice(2)).toEqual(plain.filter(n => !fav.includes(n)))
     const rows = [...host.querySelectorAll('.item')].slice(1)
-    expect(rows.slice(0, 2).every(r => r.querySelector('.tt .fav-star'))).toBe(true)
-    expect(rows[2].querySelector('.tt .fav-star')).toBeNull()
+    expect(rows.slice(0, 2).every(r => r.querySelector('.fav-btn .fav-star'))).toBe(true)
+    expect(rows[2].querySelector('.fav-btn .fav-star')).toBeNull()
   })
 
   it('offers a Favourites chip only when there are favourites, and it filters to them', () => {
@@ -92,5 +92,29 @@ describe('exercise picker', () => {
     expect(chip(host).textContent).toBe('Favourites (2)')
     act(() => chip(host).click())
     expect(names(host)).toEqual([EXDB[5].n, EXDB[9].n])
+  })
+})
+
+// The wayfinding pass: a star on every picker row, and "used before" said in words.
+describe('picker rows', () => {
+  it('a row star stars the exercise without picking it', () => {
+    const onPick = vi.fn()
+    exercisePicker(onPick)
+    const host = renderTop()
+    const row = host.querySelector('.item.tap-host')
+    const star = row.querySelector('.fav-btn')
+    act(() => star.click())
+    expect(S().favEx).toHaveLength(1)
+    expect(onPick).not.toHaveBeenCalled()
+  })
+
+  it('says how many workouts an exercise was in, and calls the filter "Used before"', () => {
+    const ex = EXDB[0]
+    useStore.setState(s => ({ S: { ...s.S, workouts: [{ id: 'a', d: '2026-11-01', entries: [{ id: ex.id, sets: [] }] }, { id: 'b', d: '2026-11-02', entries: [{ id: ex.id, sets: [] }] }] } }))
+    exercisePicker(() => {})
+    const host = renderTop()
+    expect(host.textContent).toContain('used 2×')
+    expect([...host.querySelectorAll('.chip')].some(c => c.textContent.startsWith('Used before'))).toBe(true)
+    expect([...host.querySelectorAll('.chip')].some(c => c.textContent.startsWith('Chosen'))).toBe(false)
   })
 })

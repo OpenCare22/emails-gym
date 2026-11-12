@@ -1,18 +1,18 @@
-import WorkoutsSwitcher from '../components/WorkoutsSwitcher.jsx'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
-import { DAYN, DAYS, weekOrder, weekStartOf, uid, exCount, routineCount, todayISO, fmtDate } from '../lib/format.js'
+import { DAYS, weekOrder, weekStartOf, uid, exCount, todayISO, fmtDate } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import {
-  dayAssignSheet, starterPlanSheet, confirmSheet, menuSheet,
+  starterPlanSheet, confirmSheet, menuSheet,
   planHasRoutines, exportPlanFile, printWholePlan, importPlanFile,
 } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { SeasonDeco } from '../components/Seasonal.jsx'
-import { Button, Row, Section, Segmented } from '../components/ui.jsx'
+import { Button, Row, Section, Switch } from '../components/ui.jsx'
+import { weekdayPickerSheet } from '../components/WeekdayPicker.jsx'
 import SwipeRow from '../components/SwipeRow.jsx'
 import { copyRoutine, deleteRoutine, restoreRoutine, routineSnapshot } from '../lib/routines.js'
 import MiniBodyMap from '../components/MiniBodyMap.jsx'
@@ -24,7 +24,6 @@ import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
 import { coachAvailable } from '../lib/coach.js'
 import { queueOf, queueView } from '../lib/queue.js'
-import { deriveSessionName } from '../lib/session-merge.js'
 import { programmeChip } from '../lib/programmes.js'
 import { markUndone, undoMarks } from '../lib/sync-merge.js'
 import {
@@ -32,14 +31,6 @@ import {
   chooseRotation, chooseFixedWeek, sequenceOf, isSimpleSequence, segmentAt, REST,
 } from '../lib/rotation.js'
 import { isOn } from '../lib/modules.js'
-
-// Plan has two views (v1.3.11): Schedule (how you train, and when) and Routines (what you
-// train). The last one you looked at comes back: a per-device convenience, never synced, so it
-// lives in this browser's storage and not in S.
-export const PLAN_VIEW_KEY = 'gym_plan_view'
-const readView = () => {
-  try { return localStorage.getItem(PLAN_VIEW_KEY) === 'routines' ? 'routines' : 'schedule' } catch { return 'schedule' }
-}
 
 /* Undo for Plan's two removals (v1.3.11). Both go through the store's normal update, so sync
    sees an ordinary edit (a routine put back clears its own removal stamp, lib/sync-merge.js). */
@@ -140,12 +131,6 @@ export default function Plan() {
   const coachMode = useStore(s => s.coachLocal?.mode)
   const user = useStore(s => s.user)
   const fileRef = useRef(null)
-  const [view, setViewState] = useState(readView)
-  const setView = v => {
-    setViewState(v)
-    try { localStorage.setItem(PLAN_VIEW_KEY, v) } catch { /* private mode: the view just isn't remembered */ }
-  }
-
   /* The Coach's way in from Plan: its own button in the header (a banner over the week was too
      loud, the last entry of the share menu too hidden). Gated by the same predicate every other
      Coach surface uses, so an instance without the feature sees exactly the header it would have
@@ -154,7 +139,7 @@ export default function Plan() {
 
   // Share, print, import and starter plans: one menu behind the header button, so the
   // two views below are only about the plan itself.
-  const openMenu = () => {
+  const openMenu = (extra = []) => {
     const has = planHasRoutines(S)
     menuSheet({
       title: t('Plan'),
@@ -165,6 +150,7 @@ export default function Plan() {
         { icon: 'download', label: t('Import a plan file'), onClick: () => fileRef.current?.click() },
         { icon: 'clipboard', label: t('Load starter plan'), onClick: starterPlanSheet },
         { icon: 'calendar', label: t('Programmes'), sub: t('Your routines as a block of weeks, with starter programmes to try.'), onClick: () => nav('/plan/programmes') },
+        ...extra,
       ],
     })
   }
@@ -174,26 +160,33 @@ export default function Plan() {
   // A running programme wrote the schedule below (lib/programmes.js); the strip says whose it is.
   const progChip = programmeChip(S)
 
+  // A loop of this app's own that is running: "Start the loop over" sits in the menu then.
+  const liveQ = queueOf(S)
+  const ownRunning = mode === 'rotation' && !!liveQ && !!S.rotation && liveQ.rotationId === S.rotation.id
+  const openMenuAll = () => {
+    if (!ownRunning) { openMenu(); return }
+    openMenu([{ icon: 'reset', label: t('Start the loop over'), sub: t('The current round starts again today.'), onClick: () => update(s => startNewPass(s)) }])
+  }
+
   return <div className="narrow plan">
     <div className="hdr">
       <SeasonDeco spot="header-bats" />
       <div><h1>{t('Workouts')}</h1><div className="sub">{mode === 'rotation' ? t('Your routines in a loop') : t('Your weekly routine')}</div></div>
       <div className="hdr-actions">
         {showCoach && <Button size="sm" variant="tinted" icon="sparkles" onClick={() => nav('/coach')}>{t('Coach')}</Button>}
-        <button className="iconbtn" data-tour="plan-menu" onClick={openMenu} aria-label={t('Plan options')} title={t('Plan options')}><Icon name="share" /></button>
+        {/* The exercise library lives behind the search icon (it was a third switch under the title). */}
+        <button className="iconbtn" data-tour="tab-library" onClick={() => nav('/library')} aria-label={t('Exercises')} title={t('Exercises')}><Icon name="magnifier" /></button>
+        <button className="iconbtn" data-tour="plan-menu" onClick={openMenuAll} aria-label={t('Plan options')} title={t('Plan options')}><Icon name="more" /></button>
       </div>
     </div>
-    <WorkoutsSwitcher current="/plan" />
-    <StartPlan S={S} update={update} nav={nav} />
-    <input ref={fileRef} type="file" accept="application/json,.json" onChange={pickFile} hidden />
-    <Segmented className="plan-views" tour="plan-views" value={view} onChange={setView}
-      options={[{ value: 'schedule', label: t('Schedule') }, { value: 'routines', label: t('Routines') }]} />
     {progChip && <button type="button" className="prog-strip" onClick={() => nav('/plan/programmes')}>
       <Icon name="calendar" /><span className="grow">{S.programmes?.[S.programme?.id]?.name || t('Programme')}</span><span className="tag acc">{progChip}</span>
     </button>}
-    {view === 'routines'
-      ? <Routines S={S} update={update} nav={nav} />
-      : <Schedule S={S} update={update} nav={nav} mode={mode} />}
+    {/* The ways to a new plan come first only while there is no plan; after that they wait at the bottom. */}
+    {!S.routines.length && <StartPlan S={S} update={update} nav={nav} />}
+    <input ref={fileRef} type="file" accept="application/json,.json" onChange={pickFile} hidden />
+    <Schedule S={S} update={update} nav={nav} mode={mode} />
+    {S.routines.length > 0 && <StartPlan S={S} update={update} nav={nav} />}
   </div>
 }
 
@@ -206,12 +199,14 @@ const newRoutine = (update, nav) => {
   nav('/plan/r/' + r.id)
 }
 
-// The three ways to a plan, first thing on Workouts: the plan builder, the program library, or
-// your own routine. They used to be a row inside Routines and a button on the Programs page.
+// The three ways to a plan: the plan builder, the program library, or your own routine. First
+// thing on Workouts while there are no routines, at the bottom once there are.
 function StartPlan({ S, update, nav }) {
+  // With no routines yet this is the page's list, so the tour's "your routines" and "new routine"
+  // stops point here (lib/tour.js plan-views, plan-new).
   const fresh = !S.routines.length
-  return <section className="plan-start" aria-labelledby="plan-start-h">
-    <h2 id="plan-start-h" className="plan-start-h">{fresh ? t('Start a plan') : t('New plan')}</h2>
+  return <section className="plan-start" aria-labelledby="plan-start-h" data-tour={fresh ? 'plan-views' : undefined}>
+    <h2 id="plan-start-h" className="plan-start-h">{t('Get a new plan')}</h2>
     <button type="button" className="plan-start-main" onClick={() => nav('/programs/build')}>
       <Icon name="sparkles" />
       <span className="grow"><span className="tt">{t('Build me a program')}</span>
@@ -223,7 +218,7 @@ function StartPlan({ S, update, nav }) {
         <Icon name="calendar" /><span className="tt">{t('Choose a template')}</span>
         <span className="ss">{t('Ready-made, 2 to 4 days a week')}</span>
       </button>
-      <button type="button" className="plan-tile" onClick={() => newRoutine(update, nav)}>
+      <button type="button" className="plan-tile" data-tour={fresh ? 'plan-new' : undefined} onClick={() => newRoutine(update, nav)}>
         <Icon name="pencil" /><span className="tt">{t('Make your own')}</span>
         <span className="ss">{t('Pick your own exercises')}</span>
       </button>
@@ -313,48 +308,17 @@ function Schedule({ S, update, nav, mode }) {
     onConfirm: () => update(s => saveRotation(s, seq, '')),
   })
 
-  const ws = weekStartOf(S)
-  const todayDow = new Date().getDay()
   const routineOf = id => S.routines.find(x => x.id === id)
-  const dayRoutines = d => [].concat(S.week[d] || []).map(routineOf).filter(Boolean)
-  // One weekday: what is on it at a glance, and a tap to change it (dayAssignSheet picks one
-  // routine, several for a combined day, or a rest day).
-  const dayRow = (d, rs = dayRoutines(d)) => {
-    return <div key={d} className="item plan-day" data-day={d} aria-label={t(DAYN[d])} {...tappable(() => dayAssignSheet(d))}>
-      <span className={'plan-day-n' + (d === todayDow ? ' today' : '')} aria-hidden="true">{t(DAYS[d])}</span>
-      <span className={'lrow-i' + (rs.length ? '' : ' rest')}><Icon name={rs.length ? glyphOf(rs[0].emoji) : 'moon'} /></span>
-      <div className="grow">
-        <div className="tt">{rs.length ? deriveSessionName(rs.map(r => r.name)) : t('Rest day')}</div>
-        <div className="ss">{rs.length === 1 ? exCount(rs[0].ex.length) : rs.length ? routineCount(rs.length) : t('Tap to plan something')}</div>
-      </div>
-      {rs.length > 0 && <MiniBodyMap routines={rs} body={S.body} tour="plan-body" />}
-      <Icon name="chevronRight" className="chev" />
-    </div>
-  }
-  // Beside a loop, a weekday shows only what it adds to it: a routine that is in the loop already
-  // is the loop's session, the same rule Home follows (effectiveRoutineIds, history.js).
-  const extraRoutines = d => dayRoutines(d).filter(r => !seq.includes(r.id))
-  const plannedDays = weekOrder(ws).filter(d => extraRoutines(d).length)
   const doneCount = qv ? qv.items.filter(i => i.state === 'done').length : 0
   const stateWord = item => item.state === 'pinned' ? fmtDate(item.on, true)
     : { done: t('Done'), next: t('Up next'), later: t('Later') }[item.state]
   const editing = editLoop && !external
 
-  return <>
-    <Section className="plan-mode" tour="plan-mode" footer={mode === 'rotation'
-      ? t('Routines in a loop. Whatever is next stays next until you train it, whatever the day.')
-      : t('The same routines on the same weekdays, every week.')}>
-      <Row icon="repeat" iconTint="var(--orange)" title={t('How you train')}>
-        {/* A planner's own queue is not this app's to switch off: text, not a control. */}
-        {external
-          ? <span className="small dim plan-mode-locked">{t('Rotation')} · {t('Externally managed')}</span>
-          : <Segmented className="seg-inline" value={mode} onChange={setMode}
-              options={[{ value: 'week', label: t('Fixed Week') }, { value: 'rotation', label: t('Rotation') }]} />}
-      </Row>
-      {/* a cobweb in the card's empty top corner, in season (components/Seasonal.jsx) */}
-      <SeasonDeco spot="plan-card" />
-    </Section>
+  // In order mode the routines that are not in the loop still train on their own weekdays, on top
+  // of it (effectiveRoutineIds, history.js): they are listed under the loop with their day chips.
+  const notInLoop = S.routines.filter(r => !seq.includes(r.id))
 
+  return <>
     {!S.routines.length && <EmptyState className="plan-empty" icon="clipboard" title={t('No routines yet.')} text={t('Make one, or grab the starter plan to get going.')}>
       <Button variant="tinted" icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
     </EmptyState>}
@@ -368,11 +332,10 @@ function Schedule({ S, update, nav, mode }) {
       </div>
     </div>}
 
-    {mode === 'week' ? <>
-      <h4 className="sec">{t('This week')}</h4>
-      <div className="list plan-week" data-tour="plan-week">{weekOrder(ws).map(d => dayRow(d))}</div>
-      <p className="sect-f">{t('Want two routines on one day? Tap the day and pick both.')}</p>
-    </> : <div className="rotation">
+    {mode === 'week'
+      ? (S.routines.length > 0 && <RoutineList S={S} update={update} nav={nav} list={S.routines} title={t('Your routines')} tour="plan-views"
+        footer={t('Tap the days to change them. Two routines on one day train together.')} />)
+      : <div className="rotation">
       <div className="row between plan-sec-h">
         <h4 className="sec">{t('The loop')}{external && <span className="tag" style={{ marginInlineStart: 8 }}>{t('Externally managed')}</span>}</h4>
         {/* A coach's own queue is read-only here: the one way to change what it holds is to
@@ -395,7 +358,10 @@ function Schedule({ S, update, nav, mode }) {
           // nothing to copy. The row the reorder measures is the swipe's outer element.
           const reorderProps = { 'data-reorder-row': '', style: loopReorder.rowStyle(i) }
           const name = rest ? t('Rest day') : r?.name ?? id
-          const row = <div key={swipe ? undefined : key} {...(swipe ? {} : reorderProps)} className={'item rotation-row' + (item?.state === 'done' ? ' is-done' : '') + (rest ? ' is-rest' : '')}>
+          // A routine in the loop opens like any other (its editor has copy and delete); a rest day
+          // and a row being edited have nothing to open.
+          const open = r && !rest && !editing ? tappable(() => nav('/plan/r/' + r.id)) : {}
+          const row = <div key={swipe ? undefined : key} {...(swipe ? {} : reorderProps)} {...open} className={'item rotation-row' + (item?.state === 'done' ? ' is-done' : '') + (rest ? ' is-rest' : '')}>
             {editing && <button className="plan-minus" aria-label={t('Remove {0}', name)} title={t('Remove')}
               onClick={() => takeOut(i)}><Icon name="minus" /></button>}
             <span className={'plan-order' + (item?.state === 'next' ? ' next' : '')}>{item?.state === 'done' ? <Icon name="check" /> : i + 1}</span>
@@ -420,45 +386,48 @@ function Schedule({ S, update, nav, mode }) {
       </p>}
       <div className="row" style={{ gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
         {external && <Button size="sm" variant="tinted" aria-label={t('Use this rotation')} onClick={adopt}>{t('Use this rotation')}</Button>}
-        {/* Throws the current round away and starts the saved loop again today; nothing logged
-            before this moment counts for it (startNewPass, the strict pass). */}
-        {!!liveQ && !external && <Button size="sm" icon="reset" aria-label={t('Start the loop over')}
-          onClick={() => update(s => startNewPass(s))}>{t('Start the loop over')}</Button>}
         {/* Rotation chosen and a loop saved, but no round running (it was stopped elsewhere). */}
         {!liveQ && !recovery && seq.length > 0 && <Button size="sm" variant="tinted" icon="play" aria-label={t('Start the loop')}
           onClick={() => update(s => startPass(s))}>{t('Start the loop')}</Button>}
       </div>
-      {/* The weekday routines ride along beside a loop (effectiveRoutineIds, history.js) and feed
-          the same tally (weekTally, queue.js), so the days that still add one stay in sight; a
-          day whose only routines are in the loop already adds nothing and is left out. */}
-      {plannedDays.length > 0 && <>
-        <h4 className="sec">{t('Also on fixed days')}</h4>
-        <div className="list plan-week">{plannedDays.map(d => dayRow(d, extraRoutines(d)))}</div>
-        <p className="sect-f">{t('These count on top of the loop. Tap a day to change or clear it.')}</p>
-      </>}
     </div>}
 
-    {/* Weekly muscle volume is analysis: it moved to Stats, next to Muscle balance. Stats only
-        shows that card once there is a routine, so the link waits for one too. */}
-    {S.routines.length > 0 && <Section className="plan-link">
-      <Row icon="chart" iconTint="var(--indigo)" title={t('Weekly muscle volume')} subtitle={t('Now in Stats, next to Muscle balance')}
-        accessory="chevron" onClick={() => nav('/stats?focus=weekly-volume')} />
+    {/* How you train, as one plain switch (the same keys as Settings: lib/rotation.js
+        chooseRotation / chooseFixedWeek). A planner's own queue is not this app's to switch off. */}
+    {<Section className="plan-order-mode" tour="plan-mode" footer={mode === 'rotation'
+      ? t('Whatever is next stays next until you train it, whatever the day.')
+      : t('Each routine on its own days, every week.')}>
+      <Row icon="repeat" iconTint="var(--orange)" title={t('Train in order instead of on set days')}>
+        {external
+          ? <span className="small dim plan-mode-locked">{t('Externally managed')}</span>
+          : <Switch checked={mode === 'rotation'} onChange={v => setMode(v ? 'rotation' : 'week')} aria-label={t('Train in order instead of on set days')} />}
+      </Row>
+      {/* a cobweb in the card's empty top corner, in season (components/Seasonal.jsx) */}
+      <SeasonDeco spot="plan-card" />
     </Section>}
+
+    {mode === 'rotation' && S.routines.length > 0 && <RoutineList S={S} update={update} nav={nav} list={notInLoop} title={t('Not in the order')} tour="plan-views"
+      footer={notInLoop.length ? t('These count on top of the order, on their days.') : t('Every routine is in the order.')} />}
   </>
 }
 
 /* ================================ Routines ================================ */
 
-function Routines({ S, update, nav }) {
+/* One list of routines, each with the weekdays it is trained on as chips (tap them to change the
+   days, components/WeekdayPicker.jsx) and a tap on the row to edit it. `list` is every routine
+   (fixed week) or the ones not in the loop (order mode); reordering moves S.routines itself, so it
+   is offered only on the whole list. */
+function RoutineList({ S, update, nav, list, title, footer, tour }) {
   const [edit, setEdit] = useState(false)
   const [flash, setFlash] = useState(null)
   const swipe = workoutControls(S).swipeSets
-  const routines = S.routines
+  const routines = list
+  const whole = list.length === S.routines.length
   // The order of this list is the order of `S.routines`, and every other screen reads the same
   // array (the Start screen, the day sheets, the routine pickers), so moving a routine here moves
   // it everywhere (#142). Reordering lives behind Edit, like on an iPhone.
   const reorder = useListReorder(routines.length, (from, to) => update(s => {
-    if (to < 0 || to >= s.routines.length) return
+    if (!whole || to < 0 || to >= s.routines.length) return
     const [m] = s.routines.splice(from, 1)
     s.routines.splice(to, 0, m)
   }))
@@ -484,46 +453,50 @@ function Routines({ S, update, nav }) {
   }
   // The weekdays a routine is on, short, in the order the week runs.
   const order = weekOrder(weekStartOf(S))
-  const daysOf = id => order.filter(d => [].concat(S.week[d] || []).includes(id)).map(d => t(DAYS[d]))
-  const sub = r => [exCount(r.ex.length), daysOf(r.id).join(', ')].filter(Boolean).join(' · ')
+  const daysOf = id => order.filter(d => [].concat(S.week[d] || []).includes(id))
+  const sub = r => [exCount(r.ex.length), daysOf(r.id).map(d => t(DAYS[d])).join(', ')].filter(Boolean).join(' · ')
+  // The tour's "plan a day" stop points at the newest routine's days (the one it just built).
+  const dayChips = (r, i) => {
+    const ds = daysOf(r.id)
+    return <button type="button" className="plan-days" data-tour={i === routines.length - 1 ? 'plan-week' : undefined}
+      aria-label={t('Days for {0}', r.name)} aria-haspopup="dialog"
+      onClick={e => { e.stopPropagation(); weekdayPickerSheet(r.id) }}>
+      {ds.length ? ds.map(d => <span key={d} className="chip">{t(DAYS[d])}</span>) : <span className="plan-days-none">{t('No day, start it any time')}</span>}
+    </button>
+  }
 
-  return <>
+  return <section className="plan-routines-sec" data-tour={tour}>
     <div className="row between plan-sec-h plan-routines-bar">
-      {routines.length > 0
-        ? <button className="plan-textbtn" aria-pressed={edit} onClick={() => setEdit(e => !e)}>{edit ? t('Done') : t('Edit')}</button>
-        : <span />}
-      <Button size="sm" variant="tinted" icon="plus" data-tour="plan-new" onClick={addRoutine}>{t('New routine')}</Button>
+      <h4 className="sec">{title}</h4>
+      <div className="row plan-sec-acts" style={{ gap: 6 }}>
+        {routines.length > 0 && <button className="plan-textbtn" aria-pressed={edit} onClick={() => setEdit(e => !e)}>{edit ? t('Done') : t('Edit')}</button>}
+        <Button size="sm" variant="tinted" icon="plus" data-tour="plan-new" onClick={addRoutine}>{t('New routine')}</Button>
+      </div>
     </div>
-    {routines.length ? <>
-      {edit
-        ? <div className="list routine-list plan-routines is-editing" ref={reorder.listRef}>{routines.map((r, i) =>
-          <div key={r.id} data-reorder-row className="item plan-routine" style={reorder.rowStyle(i)}>
-            <button className="plan-minus" aria-label={t('Delete {0}', r.name)} title={t('Delete routine')} onClick={() => remove(r)}><Icon name="minus" /></button>
-            <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
-            <div className="grow"><div className="tt">{r.name}</div><div className="ss">{sub(r)}</div></div>
-            {routines.length > 1 && <button className="plan-handle" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')}
-              {...reorder.handle(i)}><Icon name="chevronsUpDown" /></button>}
-          </div>)}</div>
-        : <div className="list routine-list plan-routines">{routines.map(r => {
-          const row = <div key={r.id} className="item plan-routine" {...tappable(() => nav('/plan/r/' + r.id))}>
-            <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
-            <div className="grow"><div className="tt">{r.name}</div><div className="ss">{sub(r)}</div></div>
-            <MiniBodyMap routines={[r]} body={S.body} />
-            <Icon name="chevronRight" className="chev" /></div>
-          // Swipe (v1.3.11, Settings → Swipe actions): toward the start deletes with an Undo,
-          // toward the end duplicates. Edit's minus and the routine's own page stay the way in
-          // for a keyboard and a screen reader.
-          return swipe
-            ? <SwipeRow key={r.id} className="swrow-item" copyLabel={t('Duplicate')}
-              onDelete={() => remove(r)} onCopy={() => duplicate(r)}
-              flash={flash?.id === r.id ? flash.n : 0}>{row}</SwipeRow>
-            : row
-        })}</div>}
-      <p className="sect-f">{edit ? t('Drag to reorder. Tap the minus to delete.') : t('Tap a routine to edit it. Reorder and delete are behind Edit.')}</p>
-    </> : <>
-      <EmptyState icon="clipboard" title={t('No routines yet.')} text={t('Make one, or grab the starter plan to get going.')}>
-        <Button variant="tinted" icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
-      </EmptyState>
-    </>}
-  </>
+    {routines.length > 0 && (edit
+      ? <div className="list routine-list plan-routines is-editing" ref={reorder.listRef}>{routines.map((r, i) =>
+        <div key={r.id} data-reorder-row className="item plan-routine" style={reorder.rowStyle(i)}>
+          <button className="plan-minus" aria-label={t('Delete {0}', r.name)} title={t('Delete routine')} onClick={() => remove(r)}><Icon name="minus" /></button>
+          <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
+          <div className="grow"><div className="tt">{r.name}</div><div className="ss">{sub(r)}</div></div>
+          {whole && routines.length > 1 && <button className="plan-handle" aria-label={t('Move {0}', r.name)} title={t('Drag to reorder')}
+            {...reorder.handle(i)}><Icon name="chevronsUpDown" /></button>}
+        </div>)}</div>
+      : <div className="list routine-list plan-routines">{routines.map((r, i) => {
+        const row = <div key={r.id} className="item plan-routine" {...tappable(() => nav('/plan/r/' + r.id))}>
+          <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>
+          <div className="grow"><div className="tt">{r.name}</div><div className="ss">{exCount(r.ex.length)}</div>{dayChips(r, i)}</div>
+          <MiniBodyMap routines={[r]} body={S.body} tour={i === 0 ? 'plan-body' : undefined} />
+          <Icon name="chevronRight" className="chev" /></div>
+        // Swipe (v1.3.11, Settings → Swipe actions): toward the start deletes with an Undo,
+        // toward the end duplicates. Edit's minus and the routine's own page stay the way in
+        // for a keyboard and a screen reader.
+        return swipe
+          ? <SwipeRow key={r.id} className="swrow-item" copyLabel={t('Duplicate')}
+            onDelete={() => remove(r)} onCopy={() => duplicate(r)}
+            flash={flash?.id === r.id ? flash.n : 0}>{row}</SwipeRow>
+          : row
+      })}</div>)}
+    {footer && <p className="sect-f">{edit ? (whole ? t('Drag to reorder. Tap the minus to delete.') : t('Tap the minus to delete.')) : footer}</p>}
+  </section>
 }

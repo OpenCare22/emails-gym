@@ -22,8 +22,10 @@ vi.mock('../store/useStore.js', () => {
   useStore.getState = mocks.snapshot
   return { useStore }
 })
-vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }))
-vi.mock('../sheets.jsx', () => ({ exerciseDetailSheet: vi.fn(), addToRoutineSheet: vi.fn(), customExSheet: vi.fn() }))
+const navTo = vi.hoisted(() => ({ fn: () => {} }))
+vi.mock('react-router-dom', () => ({ useNavigate: () => (...a) => navTo.fn(...a) }))
+vi.mock('../sheets.jsx', () => ({ exerciseDetailSheet: vi.fn(), addToRoutineSheet: vi.fn(), customExSheet: vi.fn(), menuSheet: vi.fn(), startFlow: vi.fn() }))
+import { exerciseDetailSheet, addToRoutineSheet, menuSheet, startFlow } from '../sheets.jsx'
 
 const mounted = []
 function render() {
@@ -149,5 +151,69 @@ describe('Library similar exercises', () => {
     expect(label(host)).toBe('Similar exercises')
     const all = names(host)
     expect(new Set(all).size).toBe(all.length)
+  })
+})
+
+// One tap to star from the list, and a ＋ that asks where the exercise goes (wayfinding pass,
+// docs/superpowers/specs/2026-11-12-full-mode-wayfinding-design.md).
+describe('Library row actions', () => {
+  const firstRow = host => [...host.querySelectorAll('.item')][1]
+  it('a row star toggles the favourite without opening the detail sheet', () => {
+    exerciseDetailSheet.mockClear()
+    const host = render()
+    const row = firstRow(host)
+    const star = row.querySelector('button[aria-pressed]')
+    expect(star).not.toBeNull()
+    act(() => { star.click() })
+    expect(mocks.S.favEx).toHaveLength(1)
+    expect(exerciseDetailSheet).not.toHaveBeenCalled()
+  })
+
+  it('＋ offers today\'s workout and a routine', () => {
+    menuSheet.mockClear(); addToRoutineSheet.mockClear(); startFlow.mockClear()
+    const host = render()
+    act(() => { firstRow(host).querySelector('.lib-add').click() })
+    const { items } = menuSheet.mock.calls.at(-1)[0]
+    expect(items.map(i => i.label)).toEqual(["Add to today's workout", 'Add to a routine'])
+    items[1].onClick()
+    expect(addToRoutineSheet).toHaveBeenCalled()
+    items[0].onClick()
+    const id = startFlow.mock.calls.at(-1)?.[1]?.addEx
+    expect(startFlow).toHaveBeenCalledWith([], { addEx: id })
+    expect(typeof id).toBe('string')
+  })
+
+  it('with a session running, Add to today\'s workout appends it there', () => {
+    menuSheet.mockClear(); startFlow.mockClear()
+    mocks.S.active = { id: 'a', d: '2026-11-12', start: 1, routineIds: [], name: 'Freestyle', cur: 0, entries: [] }
+    const host = render()
+    act(() => { firstRow(host).querySelector('.lib-add').click() })
+    menuSheet.mock.calls.at(-1)[0].items[0].onClick()
+    expect(startFlow).not.toHaveBeenCalled()
+    expect(mocks.S.active.entries).toHaveLength(1)
+  })
+})
+
+describe('Library header', () => {
+  it('is called Exercises, with a back arrow to Workouts and no switcher', () => {
+    const calls = []; navTo.fn = p => calls.push(p)
+    const host = render()
+    expect(host.querySelector('.hdr h1').textContent).toBe('Exercises')
+    expect(host.querySelector('.workouts-switch')).toBeNull()
+    act(() => { host.querySelector('.hdr [data-back="/plan"]').click() })
+    expect(calls).toEqual(['/plan'])
+    navTo.fn = () => {}
+  })
+})
+
+describe('Add to today\'s workout while a saved workout is open for editing', () => {
+  it('adds nothing to it and says why', () => {
+    menuSheet.mockClear(); startFlow.mockClear()
+    mocks.S.active = { id: 'w', d: '2026-11-03', start: 1, routineIds: [], name: 'Push', cur: 0, entries: [], editingWorkoutId: 'w' }
+    const host = render()
+    act(() => { [...host.querySelectorAll('.item')][1].querySelector('.lib-add').click() })
+    menuSheet.mock.calls.at(-1)[0].items[0].onClick()
+    expect(startFlow).not.toHaveBeenCalled()
+    expect(mocks.S.active.entries).toHaveLength(0)
   })
 })

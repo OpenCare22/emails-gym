@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Settings from './Settings.jsx'
 import Plan from './Plan.jsx'
+import { WeekdayPicker } from '../components/WeekdayPicker.jsx'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
@@ -91,37 +92,35 @@ describe('Settings — week starts on', () => {
   })
 })
 
-describe('Plan — the week schedule follows the setting', () => {
-  const mount = () => act(() => root.render(<Plan />))
-  const planDays = () => [...host.querySelectorAll('.plan-day')].map(e => e.getAttribute('aria-label'))
+// Workouts has no weekday grid any more: each routine carries its days (Plan.jsx), picked in a
+// sheet that runs through the week the way the setting says (components/WeekdayPicker.jsx).
+describe('Workouts — the weekdays follow the setting', () => {
+  const picker = id => act(() => root.render(<WeekdayPicker routineId={id} close={() => {}} />))
+  const pickerDays = () => [...host.querySelectorAll('[data-weekday] .tt')].map(e => e.textContent)
 
   it('runs Monday to Sunday by default', () => {
-    mount()
-    expect(planDays()).toEqual(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    mocks.S.routines = [{ id: 'r1', name: 'Push', emoji: null, ex: [] }]
+    picker('r1')
+    expect(pickerDays()).toEqual(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
   })
 
   it('runs Sunday to Saturday for a Sunday profile', () => {
+    mocks.S.routines = [{ id: 'r1', name: 'Push', emoji: null, ex: [] }]
     mocks.S.weekStart = 0
-    mount()
-    expect(planDays()).toEqual(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])
+    picker('r1')
+    expect(pickerDays()).toEqual(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])
   })
 
-  it('keeps a routine attached to its day, not to its position in the list', () => {
+  it('keeps a routine attached to its day, an old single-id week included', () => {
     mocks.S.routines = [{ id: 'r1', name: 'Push', emoji: null, ex: [] }]
-    mocks.S.week = { 0: 'r1' }        // Sunday
+    mocks.S.week = { 0: 'r1' }        // Sunday, written before a day could hold several
     mocks.S.weekStart = 0
-    mount()
-    const rows = [...host.querySelectorAll('.plan-day')]
-    expect(rows[0].getAttribute('aria-label')).toBe('Sunday')
-    expect(rows[0].querySelector('.tt').textContent).toBe('Push')
-    expect(rows[1].textContent).not.toContain('Push')
+    act(() => root.render(<Plan />))
+    expect([...host.querySelectorAll('.plan-routine .plan-days .chip')].map(c => c.textContent)).toEqual(['Su'])
   })
 })
 
-describe('Plan — a combined day (combine routines)', () => {
-  const mount = () => act(() => root.render(<Plan />))
-  const day = name => [...host.querySelectorAll('.plan-day')].find(el => el.getAttribute('aria-label') === name)
-
+describe('Workouts — a combined day (combine routines)', () => {
   beforeEach(() => {
     mocks.S.routines = [
       { id: 'r1', name: 'Push', emoji: null, ex: [{ id: 'a' }, { id: 'b' }] },
@@ -129,20 +128,12 @@ describe('Plan — a combined day (combine routines)', () => {
     ]
   })
 
-  it('reads as one session with both names and the routine count', () => {
+  it('shows the day on both routines, and the picker says who shares it', () => {
     mocks.S.week = { 1: ['r1', 'r2'] }
-    mount()
-    const mon = day('Monday')
-    expect(mon.querySelector('.tt').textContent).toBe('Push + Core')
-    expect(mon.querySelector('.ss').textContent).toBe('2 routines')
-  })
-
-  it('an empty day is a rest day, one tappable row', () => {
-    mocks.S.week = {}
-    mount()
-    const tue = day('Tuesday')
-    expect(tue.querySelector('.tt').textContent).toBe('Rest day')
-    expect(tue.getAttribute('role')).toBe('button')
-    expect(tue.querySelectorAll('button').length).toBe(0)
+    act(() => root.render(<Plan />))
+    const chips = [...host.querySelectorAll('.plan-routine')].map(r => [...r.querySelectorAll('.plan-days .chip')].map(c => c.textContent))
+    expect(chips).toEqual([['Mo'], ['Mo']])
+    act(() => root.render(<WeekdayPicker routineId="r1" close={() => {}} />))
+    expect(host.querySelector('[data-weekday="1"]').textContent).toContain('With Core')
   })
 })

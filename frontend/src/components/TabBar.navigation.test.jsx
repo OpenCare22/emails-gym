@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import TabBar from './TabBar.jsx'
 import { DEF, useStore } from '../store/useStore.js'
+import { useUI } from '../store/useUI.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
@@ -72,12 +73,14 @@ describe('root tab history', () => {
     expect(router.state.historyAction).toBe('REPLACE')
   })
 
-  it('preserves the workout chooser return path', async () => {
+  // Start opens the choice as a sheet over the page you are on (components/StartChoices.jsx):
+  // no route is pushed, so Back has nothing extra to unwind.
+  it('opens the Start choice without leaving the page', async () => {
     useStore.setState({ S: { ...useStore.getState().S, routines: [] } })
     await tap('Start')
-    expect(router.state.location.pathname).toBe('/workout')
-    await go(-1)
     expect(router.state.location.pathname).toBe('/home')
+    expect(useUI.getState().sheets.length).toBe(1)
+    act(() => useUI.getState().closeAll())
     expect(onStart).not.toHaveBeenCalled()
   })
 })

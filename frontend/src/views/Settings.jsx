@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useNavigate, useParams, useLocation, Navigate } from 'react-router-dom'
 import { useStore, DEF, hasData } from '../store/useStore.js'
+import { appModeOf } from '../lib/day-log.js'
+import { setAppMode } from './ModeChoice.jsx'
 import { healthStatus, loadHealth, enableHealth, disableHealth, openHealthSettings, onHealthChange, enableRead, disableRead } from '../lib/health-sync.js'
 import { phoneSessionSupported } from '../lib/phone-workout.js'
 import { workoutControls } from '../lib/workout-controls.js'
@@ -1148,6 +1150,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
 }
 
 function SettingsRoot({ ctx, preview, open, user, sync, home, go, entryKey }) {
+  const mode = useStore(s => appModeOf(s.S))
   // The router's key for this history entry, taken once. From the router rather than
   // window.history: drawn under an edge swipe back the page is the entry before the current one.
   const [key] = useState(() => (entryKey && entryKey !== 'default' && entryKey !== 'back-preview' ? entryKey : window.history.state?.key || null))
@@ -1188,6 +1191,12 @@ function SettingsRoot({ ctx, preview, open, user, sync, home, go, entryKey }) {
           <span className="lrow-m"><span className="lrow-t">{acct.title}</span><span className="lrow-s">{acct.sub}</span></span>
           <Icon name="chevronRight" className="lrow-c" />
         </button>
+      </Section>
+      {/* Simple mode or the full app (lib/day-log.js), at the top: it changes the whole app. */}
+      <Section footer={t('Switch at any time. Nothing you log is lost either way.')}>
+        <SelectRow icon="layout" iconTint="var(--acc)" title={t('App mode')} sheetTitle={t('App mode')}
+          value={mode} onChange={v => { setAppMode(v); nav('/home') }}
+          options={[{ value: 'simple', label: t('Just log my workouts') }, { value: 'full', label: t('The full app') }]} />
       </Section>
       {ROOT_GROUPS.map(g => g.filter(id => pageVisible(id, ctx))).filter(g => g.length).map(g => (
         <Section key={g[0]}>

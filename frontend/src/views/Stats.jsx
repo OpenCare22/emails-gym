@@ -195,7 +195,7 @@ const SET_STATUS = { below: () => t('room for more'), in: () => t('in range'), a
    (a week, or the weekly average of a longer window), Planned the sets your plan programs in a
    week. This week's plan rides along on the Completed bars as a tick, so the old "11/11 · 100%"
    is still there to read. Fatigue and Strength stay one tap away in the same card. */
-function MusclesCard({ S, planFocus = false }) {
+function MusclesCard({ S, planFocus = false, simple = false }) {
   const nav = useNavigate()
   const [view, setView] = useState('sets')
   const [mode, setMode] = useState(planFocus ? 'planned' : 'done')
@@ -279,16 +279,16 @@ function MusclesCard({ S, planFocus = false }) {
   const periodOpts = [{ value: 7, label: t('Week') }, { value: 30, label: '30d' }, { value: 90, label: '90d' }, { value: 0, label: t('All') }]
 
   return <div className="card muscles-card" id="weekly-volume" data-tour="stats-body" data-muscles>
-    <h2>{t('Muscles')}</h2>
-    <Segmented className="seg-range" value={view} onChange={v => { setView(v); setMore(false) }}
-      options={[{ value: 'sets', label: t('Sets') }, { value: 'fatigue', label: t('Fatigue') }, { value: 'strength', label: t('Strength') }]} />
+    <h2>{simple ? t('What you’ve trained') : t('Muscles')}</h2>
+    {!simple && <Segmented className="seg-range" value={view} onChange={v => { setView(v); setMore(false) }}
+      options={[{ value: 'sets', label: t('Sets') }, { value: 'fatigue', label: t('Fatigue') }, { value: 'strength', label: t('Strength') }]} />}
     {view === 'sets' ? <div data-weekly-volume-comparison data-mode={mode} data-week={weekly && !planned ? selectedWeek : undefined}>
       {/* One line of controls: what to count, and over which stretch. */}
-      <div className="mus-ctl">
+      {!simple && <div className="mus-ctl">
         <Segmented className="seg-inline mus-mode" value={mode} onChange={v => { setMode(v); reset() }}
           options={[{ value: 'done', label: t('Completed') }, { value: 'planned', label: t('Planned') }]} />
         {!planned && <MenuButton title={t('Period')} value={win} options={periodOpts} onChange={v => { setWin(v); setWeekOffset(0); reset() }} />}
-      </div>
+      </div>}
       {planned
         ? <div className="mus-cap small dim">{t('Planned sets per week, from your plan.')}</div>
         : weekly
@@ -553,7 +553,7 @@ export function StatsIndex({ sections }) {
   </nav>
 }
 
-export default function Stats() {
+export default function Stats({ simple = false } = {}) {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const [range, setRange] = useState(90)
@@ -870,6 +870,40 @@ export default function Stats() {
   const statsLinks = linkRows.length > 0 && <>
     <h4 className="sec">{t('More')}</h4>
     <div className="sect-b stats-links" data-stats-links>{linkRows}</div>
+  </>
+
+  // Simple mode (lib/day-log.js): the same page cut to four cards. This month, the muscle map of
+  // what was trained, one exercise line (its heaviest set per workout) and, once there are
+  // weigh-ins, body weight. Everything else stays in the full app.
+  if (simple) return <>
+    <div className="hdr"><div><h1>{t('Progress')}</h1></div>
+      <button className="iconbtn" onClick={() => nav('/history')} aria-label={t('History')}><Icon name="history" /></button></div>
+    <div className="kpis two" data-simple-kpis>
+      <div className="tile"><div className="l">{t('Workouts this month')}</div><div className="v">{monthW}</div></div>
+      <div className="tile"><div className="l">{t('Week streak')}</div><div className="v">{streak.current > 0 ? '🔥 ' : ''}{streak.current}</div></div>
+    </div>
+    {workouts.length > 0 && <MusclesCard S={S} simple />}
+    <div className="card" data-simple-progress>
+      <h2>{t('Exercise progress')}</h2>
+      {exHist.length ? <>
+        <div className="sect-b ex-pick">
+          <SelectRow title={t('Exercise')} sheetTitle={t('Exercise progress')} value={curEx} onChange={setExId} stackedValue
+            options={exHist.map(id => ({ value: id, label: (EXIDX[id] ? exerciseNameText(EXIDX[id]) : nameOf(id)) }))}
+            search={{ placeholder: t('Search…'), label: t('Search…'), emptyLabel: t('No match'), match: (option, query) => matchExercise(matcherOf(option.value), query) }} />
+        </div>
+        <div className="chart">{topPts.length < 2
+          ? <div className="empty small">{t('Log it on two days and the line starts here.')}</div>
+          : <LineChart points={topPts} h={150} unit={exUnit} />}</div>
+        <div className="small ex-cap"><span className="dim">{t('Heaviest set per workout')}</span> · {t('Best:')} <b>{fmtNum(exBest)} {exUnit}</b></div>
+      </> : <div className="muted small">{t('Log your first exercise and its progress shows up here.')}</div>}
+    </div>
+    {bodyOn && S.bodyweight.length > 0 && <div className="card">
+      <div className="row between bw-head" style={{ marginBottom: 8 }}>
+        <h2 style={{ margin: 0 }}>{t('Body weight')}</h2>
+        <Button size="sm" icon="plus" onClick={() => bwSheet()}>{t('Log')}</Button>
+      </div>
+      <div className="chart"><LineChart points={bwPts} h={120} unit={S.unit} goal={S.targetW} /></div>
+    </div>}
   </>
 
   return <>
